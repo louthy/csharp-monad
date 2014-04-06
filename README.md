@@ -4,17 +4,17 @@ csharp-monad
 Library of monads for C#
 
 
-# Error monad
+## Error monad
 
 *documentation coming soon*
 
 
-# IO monad
+## IO monad
 
 *documentation coming soon*
 
 
-# Option monad 
+## Option monad 
 
 Also known as the Maybe monad.
 
