@@ -4,21 +4,21 @@ csharp-monad
 Library of monads for C#
 
 
-Includes:
-
 # Error monad
 
-__documentation coming soon__
+*documentation coming soon*
 
 
 # IO monad
 
-__documentation coming soon__
+*documentation coming soon*
 
 
 # Option monad 
 
 Also known as the Maybe monad.
 
-__documentation coming soon__
+*documentation coming soon*
+
+
 
