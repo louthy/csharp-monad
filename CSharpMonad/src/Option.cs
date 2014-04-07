@@ -16,8 +16,10 @@ namespace Monad
 		/// </summary>
 		public readonly static Option<T> Nothing = new Nothing<T>();
 
-		// Conversion from any value to Option<T>
-		// Null is always considered as Nothing
+		/// <summary>
+		/// Conversion from any value to Option<T>
+		/// Null is always considered as Nothing
+		/// </summary>
 		public static implicit operator Option<T>(T value)
 		{
 			return value.ToOption();
@@ -77,18 +79,14 @@ namespace Monad
 	{
 		/// <summary>
 		/// Converts this object to a Option monad.
+		/// Tretas null as Nothing
 		/// </summary>
 		/// <returns>Option<T></returns>
 		public static Option<T> ToOption<T>(this T self)
 		{
-			if (self == null)
-			{
-				return Option<T>.Nothing;
-			}
-			else
-			{
-				return new Just<T>(self);
-			}
+			return self == null
+				? Option<T>.Nothing
+				: new Just<T>(self);
 		}
 
 		public static Option<R> Select<T, R>(this Option<T> self, Func<T, R> map)
