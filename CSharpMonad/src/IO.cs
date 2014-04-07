@@ -19,7 +19,7 @@ namespace Monad
         /// <summary>
         /// Monadic bind method for the IO delegate
         /// </summary>
-        public static IO<R> Bind<T, R>(this IO<T> self, Func<T, IO<R>> func)
+        public static IO<R> SelectMany<T, R>(this IO<T> self, Func<T, IO<R>> func)
         {
             return func(self());
         }
@@ -32,11 +32,19 @@ namespace Monad
             Func<T, IO<U>> k,
             Func<T, U, V> m)
         {
-            return self.Bind(
-                t => k(t).Bind(
+            return self.SelectMany(
+                t => k(t).SelectMany(
                     u => new IO<V>(() => m(t, u))
                     )
                 );
+        }
+
+        /// <summary>
+        /// Allows fluent chaining of IO monads
+        /// </summary>
+        public static IO<U> Then<T, U>(this IO<T> self, Func<T, U> getValue)
+        {
+            return () => getValue( self.Invoke() );
         }
     }
 

@@ -101,19 +101,19 @@ namespace Monad
         /// <summary>
         /// Monadic bind implementation
         /// </summary>
-        public static Error<U> SelectMany<T, U>(this Error<T> value, Func<T, Error<U>> k)
+        public static Error<U> SelectMany<T, U>(this Error<T> self, Func<T, Error<U>> k)
         {
-            return (value.IsFaulted)
-                ? new Error<U>(value.Exception)
-                : k(value.Value);
+            return (self.IsFaulted)
+                ? new Error<U>(self.Exception)
+                : k(self.Value);
         }
 
         /// <summary>
         /// Monadic bind implementation
         /// </summary>
-        public static Error<V> SelectMany<T, U, V>(this Error<T> value, Func<T, Error<U>> k, Func<T, U, V> m)
+        public static Error<V> SelectMany<T, U, V>(this Error<T> self, Func<T, Error<U>> k, Func<T, U, V> m)
         {
-            return value.SelectMany(t =>
+            return self.SelectMany(t =>
                     k(t).SelectMany(u =>
                         Error.Return(() => m(t, u))
                     )
@@ -121,13 +121,13 @@ namespace Monad
         }
 
         /// <summary>
-        /// Allows simple chaining of Error monads
+        /// Allows fluent chaining of Error monads
         /// </summary>
-        public static Error<U> Then<T, U>(this Error<T> value, Func<T, U> getValue)
+        public static Error<U> Then<T, U>(this Error<T> self, Func<T, U> getValue)
         {
-            return value.IsFaulted
-                ? new Error<U>(value.Exception)
-                : Error.Return<U>(() => getValue(value.Value));
+            return self.IsFaulted
+                ? new Error<U>(self.Exception)
+                : Error.Return<U>(() => getValue(self.Value));
         }
     }
 }

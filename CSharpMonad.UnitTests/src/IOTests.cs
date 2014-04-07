@@ -37,6 +37,19 @@ namespace Monad.UnitTests
             Assert.IsTrue(result.Invoke() == "Testing 123");
         }
 
+        [TestMethod]
+        public void TestIOMonadBindingFluent()
+        {
+            string data = "Testing 123";
+
+            var result = GetTempFileName()
+                            .Then( tmpFileName  => { WriteFile(tmpFileName, data)(); return tmpFileName; } )
+                            .Then( tmpFileName  => { return new { tmpFileName, data = ReadFile(tmpFileName)() }; })
+                            .Then( context      => { DeleteFile(context.tmpFileName)(); return context.data; } );
+
+            Assert.IsTrue(result.Invoke() == "Testing 123");
+        }
+
         private static IO<Unit> DeleteFile(string tmpFileName)
         {
             return () =>
