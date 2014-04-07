@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpMonad", "CSharpMonad\CSharpMonad.csproj", "{19F700EF-3DE5-4C74-A597-3515C1CD2B01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpMonad.UnitTests", "..\CSharpMonad.UnitTests\CSharpMonad.UnitTests.csproj", "{496943F4-17B4-41CB-8013-5499543E3DA0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpMonad.UnitTests", "CSharpMonad.UnitTests\CSharpMonad.UnitTests.csproj", "{496943F4-17B4-41CB-8013-5499543E3DA0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
