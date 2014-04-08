@@ -39,12 +39,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\ext\EnumerableExt.cs" />
+    <Compile Include="src\ext\ObjectExt.cs" />
     <Compile Include="src\Error.cs" />
     <Compile Include="src\IO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Just.cs" />
     <Compile Include="src\Nothing.cs" />
     <Compile Include="src\Option.cs" />
+    <Compile Include="src\parsec\Empty.cs" />
+    <Compile Include="src\parsec\New.cs" />
+    <Compile Include="src\parsec\Parser.cs" />
+    <Compile Include="src\parsec\ParserExt.cs" />
+    <Compile Include="src\parsec\Parsers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

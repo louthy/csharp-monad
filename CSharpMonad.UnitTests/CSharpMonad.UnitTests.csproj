@@ -41,9 +41,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\ErrorUnitTests.cs" />
+    <Compile Include="src\ExprParsers.cs" />
     <Compile Include="src\IOTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\OptionTests.cs" />
+    <Compile Include="src\ParsecTests.cs" />
     <Compile Include="src\Unit.cs" />
   </ItemGroup>
   <ItemGroup>
