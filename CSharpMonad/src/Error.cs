@@ -77,7 +77,7 @@ namespace Monad
         /// </summary>
         public static T GetValueOrDefault<T>(this Error<T> self)
         {
-            var res = self.Result();
+            var res = self.Return();
             if (res.IsFaulted)
                 return default(T);
             else
@@ -100,7 +100,7 @@ namespace Monad
         /// <summary>
         /// Invokes the bind function and returns the monad state
         /// </summary>
-        public static ErrorResult<T> Result<T>(this Error<T> self)
+        public static ErrorResult<T> Return<T>(this Error<T> self)
         {
             try
             {
