@@ -7,39 +7,24 @@ using System.Threading.Tasks;
 namespace Monad
 {
     /// <summary>
-    /// Static helper class for generating Error<T> monads
+    /// The error monad delegate
     /// </summary>
-    public static class Error
-    {
-        /// <summary>
-        /// Return - creates a monad from the result of invoking a function
-        /// </summary>
-        public static Error<T> Return<T>(Func<T> getValue)
-        {
-            return new Error<T>(getValue);
-        }
-    }
+    public delegate ErrorResult<T> Error<T>();
 
     /// <summary>
-    /// Error monad, for error handling responses
+    /// Holds the state of the error monad during the bind function
+    /// If IsFaulted == true then the bind function will be cancelled.
     /// </summary>
-    public class Error<T>
+    /// <typeparam name="T"></typeparam>
+    public class ErrorResult<T>
     {
-        /// <summary>
-        /// Wrapped value
-        /// </summary>
         public readonly T Value;
-
-        /// <summary>
-        /// Exception (if IsFaulted == true)
-        /// </summary>
         public readonly Exception Exception;
 
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="value"></param>
-        internal Error(T value)
+        public ErrorResult(T value)
         {
             Value = value;
         }
@@ -47,29 +32,18 @@ namespace Monad
         /// <summary>
         /// Ctor
         /// </summary>
-        public Error(Exception exception)
+        public ErrorResult(Exception e)
         {
-            Exception = exception;
+            Exception  = e;
+        }
+
+        public static implicit operator ErrorResult<T>(T value)
+        {
+            return new ErrorResult<T>(value);
         }
 
         /// <summary>
-        /// Higher order ctor which retreives the value
-        /// </summary>
-        /// <param name="getValue"></param>
-        public Error(Func<T> getValue)
-        {
-            try
-            {
-                Value = getValue();
-            }
-            catch (Exception exc)
-            {
-                Exception = exc;
-            }
-        }
-
-        /// <summary>
-        /// Is in an exceptional state
+        /// True if faulted
         /// </summary>
         public bool IsFaulted
         {
@@ -94,30 +68,127 @@ namespace Monad
     }
 
     /// <summary>
-    /// Error monad extensions
+    /// Extension methods for the error monad
     /// </summary>
-    public static class ErrorMonadExtensions
+    public static class ErrorExt
     {
         /// <summary>
-        /// Monadic bind implementation
+        /// Return a valid value regardless of the faulted state
         /// </summary>
-        public static Error<U> SelectMany<T, U>(this Error<T> self, Func<T, Error<U>> k)
+        public static T GetValueOrDefault<T>(this Error<T> self)
         {
-            return (self.IsFaulted)
-                ? new Error<U>(self.Exception)
-                : k(self.Value);
+            var res = self.Result();
+            if (res.IsFaulted)
+                return default(T);
+            else
+                return res.Value;
         }
 
         /// <summary>
-        /// Monadic bind implementation
+        /// Return the Value of the monad.  Note this will throw an InvalidOperationException if
+        /// the monad is in a faulted state.
         /// </summary>
-        public static Error<V> SelectMany<T, U, V>(this Error<T> self, Func<T, Error<U>> k, Func<T, U, V> m)
+        public static T GetValue<T>(this Error<T> self)
         {
-            return self.SelectMany(t =>
-                    k(t).SelectMany(u =>
-                        Error.Return(() => m(t, u))
-                    )
-                );
+            var res = self();
+            if (res.IsFaulted)
+                throw new InvalidOperationException("The error monad has no value.  It holds an exception of type: "+res.GetType().Name+".");
+            else
+                return res.Value;
+        }
+
+        /// <summary>
+        /// Invokes the bind function and returns the monad state
+        /// </summary>
+        public static ErrorResult<T> Result<T>(this Error<T> self)
+        {
+            try
+            {
+                return self();
+            }
+            catch (Exception e)
+            {
+                return new ErrorResult<T>(e);
+            }
+        }
+
+        /// <summary>
+        /// LINQ select override
+        /// </summary>
+        public static Error<U> Select<T, U>(this Error<T> self, Func<T, U> select)
+        {
+            return new Error<U>(
+                () =>
+                {
+                    ErrorResult<T> resT;
+                    try
+                    {
+                        resT = self();
+                    }
+                    catch(Exception e)
+                    {
+                        return new ErrorResult<U>(e);
+                    }
+
+                    U resU;
+                    try
+                    {
+                        resU = select(resT.Value);
+                    }
+                    catch (Exception e)
+                    {
+                        return new ErrorResult<U>(e);
+                    }
+
+                    return new ErrorResult<U>(resU);
+                });
+        }
+
+        /// <summary>
+        /// LINQ select-many override
+        /// </summary>
+        public static Error<V> SelectMany<T, U, V>(
+            this Error<T> self,
+            Func<T, Error<U>> select,
+            Func<T, U, V> bind
+            )
+        {
+            return new Error<V>(
+                () =>
+                {
+                    ErrorResult<T> resT;
+                    try
+                    {
+                        resT = self();
+                    }
+                    catch (Exception e)
+                    {
+                        return new ErrorResult<V>(e);
+                    }
+
+                    ErrorResult<U> resU;
+                    try
+                    {
+                        resU = select(resT.Value)();
+                    }
+                    catch (Exception e)
+                    {
+                        return new ErrorResult<V>(e);
+                    }
+
+                    V resV;
+                    try
+                    {
+                        resV = bind(resT.Value, resU.Value);
+                    }
+                    catch (Exception e)
+                    {
+                        return new ErrorResult<V>(e);
+                    }
+
+                    return new ErrorResult<V>(resV);
+                }
+            );
         }
 
         /// <summary>
@@ -125,9 +196,22 @@ namespace Monad
         /// </summary>
         public static Error<U> Then<T, U>(this Error<T> self, Func<T, U> getValue)
         {
-            return self.IsFaulted
-                ? new Error<U>(self.Exception)
-                : Error.Return<U>(() => getValue(self.Value));
+            var resT = self();
+
+            return resT.IsFaulted
+                ? new Error<U>( () => new ErrorResult<U>(resT.Exception) )
+                : new Error<U>( () => 
+                    {
+                        try
+                        {
+                            U resU = getValue(resT.Value);
+                            return new ErrorResult<U>(resU);
+                        }
+                        catch (Exception e)
+                        {
+                            return new ErrorResult<U>(e);
+                        }
+                    });
         }
     }
 }
