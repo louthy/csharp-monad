@@ -21,11 +21,12 @@ __Example__
             );
         }
 
-        private Error<int> DoSomethingElse(int value)
+        private Error<int> DoSomethingError(int value)
         {
-            return Error.Return(() =>
-                value + 10
-            );
+            return Error.Return<int>(() =>
+            {
+                throw new Exception("Whoops");
+            });
         }
 
         private Error<int> DoNotEverEnterThisFunction(int value)
