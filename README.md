@@ -115,7 +115,7 @@ You can check the result by looking at the HasValue property, however an even ev
 
 
 
-## Parsec monad
+## Parsec
 
 This is all work in progress, but very stable and functional.  It's probably easiest to check the unit test code for examples of usage.  Here's a very simple expression parser:
 
