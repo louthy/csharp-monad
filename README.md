@@ -10,38 +10,34 @@ The library is stable but it's still in development, so as you can see documenta
 
 Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure. Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
 
-Use IsFaulted at the end of an expression to check if an exception was thrown, the Exception property will hold the thrown exception.
+Use .Result() at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing IsFaulted on the ErrorResult<T> returned from Result(), the Exception property will hold the thrown exception.
 
 __Example__
 
         private Error<int> DoSomething(int value)
         {
-            return Error.Return(() =>
-                value + 1
-            );
+            return () => value + 1;
         }
 
         private Error<int> DoSomethingError(int value)
         {
-            return Error.Return<int>(() =>
+            return () =>
             {
                 throw new Exception("Whoops");
-            });
+            };
         }
 
         private Error<int> DoNotEverEnterThisFunction(int value)
         {
-            return Error.Return<int>(() =>
-            {
-                return 10000;
-            });
+            return () => return 10000;
         }
         
         
-        var result = from val1 in DoSomething(10)
-                     from val2 in DoSomethingError(val1)
-                     from val3 in DoNotEverEnterThisFunction(val2)
-                     select val3;        
+        var result = (from val1 in DoSomething(10)
+                      from val2 in DoSomethingError(val1)
+                      from val3 in DoNotEverEnterThisFunction(val2)
+                      select val3)
+                     .Result();
 
 
         Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
