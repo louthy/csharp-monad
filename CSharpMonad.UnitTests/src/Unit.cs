@@ -8,9 +8,15 @@ namespace Monad.UnitTests
 {
     public class Unit
     {
+        private static Unit singleton = new Unit();
+
+        private Unit()
+        {
+        }
+
         public static Unit Return()
         {
-            return new Unit();
+            return singleton;
         }
 
         public static Unit Return(Action action)

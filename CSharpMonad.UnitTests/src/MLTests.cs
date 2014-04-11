@@ -48,7 +48,7 @@ namespace CSharpMonad.UnitTests.ML
             Term1 = (from x in Ident
                      select new VarTerm(x) as Term)
                     .Or(from u1 in Lang.WsChr('(')
-                        from t in Term1
+                        from t in Term
                         from u2 in Lang.WsChr(')')
                         select t);
 
@@ -92,6 +92,31 @@ namespace CSharpMonad.UnitTests.ML
         }
 
         [TestMethod]
+        public void TestTerm1Parser()
+        {
+            BuildMLParser();
+
+            var r = Term1.Parse("fred");
+            Assert.IsTrue(!r.IsFaulted);
+            Assert.IsTrue(r.Value.First().Item1.GetType().Name.Contains("VarTerm"));
+        }
+
+        [TestMethod]
+        public void TestLetTermParser()
+        {
+            BuildMLParser();
+
+            var r = Term.Parse("let fred=1");
+            if (r.IsFaulted)
+            {
+                throw new Exception(r.Errors.First().Message);
+            }
+            Assert.IsTrue(!r.IsFaulted);
+            Assert.IsTrue(r.Value.First().Item1.GetType().Name.Contains("LetTerm"));
+
+        }
+
+        [TestMethod]
         public void TestLetIdParser()
         {
             BuildMLParser();
@@ -99,6 +124,16 @@ namespace CSharpMonad.UnitTests.ML
             var r = LetId.Parse("let");
             Assert.IsTrue(!r.IsFaulted);
             Assert.IsTrue(r.Value.First().Item1.AsString() == "let");
+        }
+
+        [TestMethod]
+        public void TestInIdParser()
+        {
+            BuildMLParser();
+
+            var r = InId.Parse("in");
+            Assert.IsTrue(!r.IsFaulted);
+            Assert.IsTrue(r.Value.First().Item1.AsString() == "in");
         }
 
         [TestMethod]
@@ -112,6 +147,8 @@ namespace CSharpMonad.UnitTests.ML
                           if true then false else true;".ToParserChar();
 
             var result = Parser.Parse(input);
+
+            Assert.IsTrue(!result.IsFaulted);
 
             // TODO: This doesn't parse, need to work out why
 
