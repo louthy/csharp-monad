@@ -12,6 +12,29 @@ namespace CSharpMonad.UnitTests
     [TestFixture]
     public class ParsecTests
     {
+		[Test]
+		public void TestOR()
+		{
+			var p = 
+				(from fst in New.String("robert")
+				 select fst)
+					.Or(from snd in New.String("jimmy")
+				        select snd)
+					.Or(from thrd in New.String("john paul")
+				        select thrd)
+					.Or(from fth in New.String("john")
+				        select fth);
+
+			var r = p.Parse("robert");
+			Assert.IsTrue(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("robert"));
+			r = p.Parse("jimmy");
+			Assert.IsTrue(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("jimmy"));
+			r = p.Parse("john paul");
+			Assert.IsTrue(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("john paul"));
+			r = p.Parse("john");
+			Assert.IsTrue(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("john"));
+		}
+
         [Test]
         public void TestBinding()
         {

@@ -14,13 +14,13 @@ namespace Monad.UnitTests
     public class IOTests
     {
         [Test]
-        public void TestIOMonadLazyLoading()
+		public void TestIOMonadLazyLoading()
         {
             var m = I.O(() =>
                 System.IO.File.ReadAllBytes(Assembly.GetCallingAssembly().Location)
                 );
 
-            var data = m();
+			m ();
         }
 
         [Test]

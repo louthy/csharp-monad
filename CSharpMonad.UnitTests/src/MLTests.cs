@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +65,7 @@ namespace CSharpMonad.UnitTests.ML
                        from c in Term
                        select new LetTerm(x, t, c) as Term)
                    .Or(from t in Term1
-                       from ts in New.Many1(Term1)
+                       from ts in New.Many(Term1)
                        select new AppTerm(t, ts) as Term);
 
             Parser = from t in Term
@@ -102,19 +102,22 @@ namespace CSharpMonad.UnitTests.ML
         }
 
         [Test]
-        public void TestLetTermParser()
+		public void TestApplTermParser()
         {
             BuildMLParser();
 
-            var r = Term.Parse("let fred=1");
-            if (r.IsFaulted)
-            {
-                throw new Exception(r.Errors.First().Message);
-            }
+			var r = Term.Parse("add x y z w");
             Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item1.GetType().Name.Contains("LetTerm"));
-
         }
+
+		[Test]
+		public void TestLetTermParser()
+		{
+			BuildMLParser();
+
+			var r = Term.Parse("let add = x in y");
+			Assert.IsTrue(!r.IsFaulted);
+		}
 
         [Test]
         public void TestLetIdParser()
@@ -150,7 +153,9 @@ namespace CSharpMonad.UnitTests.ML
 
             Assert.IsTrue(!result.IsFaulted);
 
-            // TODO: This doesn't parse, need to work out why
+			Term ast = result.Value.Single().Item1;
+
+			// TODO: Check the validity of the produced AST
 
         }
     }
