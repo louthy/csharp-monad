@@ -117,8 +117,7 @@ namespace Monad
         /// </summary>
         public static Error<U> Select<T, U>(this Error<T> self, Func<T, U> select)
         {
-            return new Error<U>(
-                () =>
+            return new Error<U>( () =>
                 {
                     ErrorResult<T> resT;
                     try

@@ -6,31 +6,43 @@ using System.Threading.Tasks;
 
 namespace Monad.Parsec
 {
-    public static class New
+    public static partial class New
     {
         public static Item Item()
         {
             return new Item();
         }
-        public static Failure<T> Failure<T>()
+        public static Failure<T> Failure<T>(ParserError error)
         {
-            return new Failure<T>();
+            return new Failure<T>(error);
+        }
+        public static Failure<T> Failure<T>(ParserError error, IEnumerable<ParserError> errors)
+        {
+            return new Failure<T>(error, errors);
         }
         public static Return<T> Return<T>(T v)
         {
             return new Return<T>(v);
         }
-        public static Choice<A> Choice<A>(Parser<A> p, Parser<A> q)
+        public static Choice<A> Choice<A>(Parser<A> p, params Parser<A>[] ps)
         {
-            return new Choice<A>(p, q);
+            return new Choice<A>(p, ps);
         }
-        public static Satisfy Satisfy(Func<char, bool> predicate)
+        public static Satisfy Satisfy(Func<char, bool> predicate, string expecting)
         {
-            return new Satisfy(predicate);
+            return new Satisfy(predicate, expecting);
         }
         public static Digit Digit()
         {
             return new Digit();
+        }
+        public static Letter Letter()
+        {
+            return new Letter();
+        }
+        public static LetterOrDigit LetterOrDigit()
+        {
+            return new LetterOrDigit();
         }
         public static Character Character(char c)
         {
@@ -51,6 +63,24 @@ namespace Monad.Parsec
         public static StringParse String(IEnumerable<char> str)
         {
             return new StringParse(str);
+        }
+        public static ParserChar ParserChar(char c, int column=0, int line=0)
+        {
+            return new ParserChar(c, column, line);
+        }
+        public static Whitespace Whitespace()
+        {
+            return new Whitespace();
+        }
+
+        public static Func<A, Parser<ParserChar>> FromDelegate<A>(Func<A,Func<IEnumerable<ParserChar>, ParserResult<ParserChar>>> func)
+        {
+            return FromDelegate<A, ParserChar>(func);
+        }
+
+        public static Func<A, Parser<P>> FromDelegate<A, P>(Func<A, Func<IEnumerable<ParserChar>, ParserResult<P>>> func)
+        {
+            return (A a) => new Parser<P>(func(a));
         }
     }
 }

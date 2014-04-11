@@ -27,13 +27,13 @@ namespace CSharpMonad.UnitTests
         public int Eval(string expr)
         {
             var r = NewT.Expr().Parse(expr);
-            if (r.Count() == 0)
+            if (r.Value.Count() == 0)
             {
                 return 999;
             }
             else
             {
-                return r.First().Item1;
+                return r.Value.First().Item1;
             }
         }
     }
@@ -101,7 +101,7 @@ namespace CSharpMonad.UnitTests
                 inp => (from choice in
                             New.Choice<int>(
                                 from d in New.Digit()
-                                select Int32.Parse(d.ToString()),
+                                select Int32.Parse(d.Value.ToString()),
                                 from open in New.Character('(')
                                 from expr in NewT.Expr()
                                 from close in New.Character(')')

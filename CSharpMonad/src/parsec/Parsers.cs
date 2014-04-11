@@ -6,28 +6,61 @@ using System.Threading.Tasks;
 
 namespace Monad.Parsec
 {
-    public class Item : Parser<char>
+    public class Item : Parser<ParserChar>
     {
         public Item()
             :
             base(
                 inp => inp.Count() == 0
-                    ? Empty.Return<char>()
-                    : Tuple.Create(inp.Head(), inp.Tail()).Cons()
+                    ? ParserResult.Fail<ParserChar>("a character",inp)
+                    : Tuple.Create(inp.Head(), inp.Tail()).Cons().Success()
             )
         { }
     }
 
     public class Failure<A> : Parser<A>
     {
-        public Failure()
+        readonly IEnumerable<ParserError> errors;
+
+        public Failure(ParserError error)
             :
             base(
-                inp => Empty.Return<A>()
+                inp => ParserResult.Fail<A>(error)
             )
-        { }
+        {
+            errors = error.Cons();
+        }
 
+        private Failure(IEnumerable<ParserError> errors)
+            :
+            base(
+                inp => ParserResult.Fail<A>(errors)
+            )
+        {
+            this.errors = errors;
+        }
 
+        public Failure(ParserError error, IEnumerable<ParserError> errors)
+            :
+            base(
+                inp => ParserResult.Fail<A>(error.Cons(errors))
+            )
+        {
+            this.errors = error.Cons(errors);
+        }
+
+        public IEnumerable<ParserError> Errors
+        {
+            get
+            {
+                return errors;
+            }
+        }
+
+        public Failure<A> AddError(ParserError error)
+        {
+            return new Failure<A>(error.Cons(errors));
+        }
     }
 
     public class Return<A> : Parser<A>
@@ -35,41 +68,66 @@ namespace Monad.Parsec
         public Return(A v)
             :
             base(
-                inp => Tuple.Create(v, inp).Cons()
+                inp => Tuple.Create(v, inp).Cons().Success()
             )
         { }
-
     }
 
     public class Choice<A> : Parser<A>
     {
-        public Choice(Parser<A> p, Parser<A> q)
+        IEnumerable<Parser<A>> parsers;
+
+        public Choice(Parser<A> p, params Parser<A>[] ps)
             :
             base(
                 inp =>
                 {
+                    var errors = new List<ParserError>();
                     var pres = p.Parse(inp);
-                    if (pres.Count() == 0)
-                        return q.Parse(inp);
+
+                    foreach(var parser in ps)
+                    {
+                        if (pres.IsFaulted)
+                        {
+                            errors.AddRange(pres.Errors);
+                            pres = parser.Parse(inp);
+                        }
+                        else
+                        {
+                            return pres;
+                        }
+                    }
+
+                    if( pres.IsFaulted )
+                    {
+                        return ParserResult.Fail<A>( 
+                            String.Join(", ",errors.Select(e=>e.Expected)),
+                            inp
+                            );
+                    }
                     else
+                    {
                         return pres;
+                    }
                 }
             )
-        { }
+        {
+            parsers = p.Cons(ps);
+        }
     }
 
-    public class Satisfy : Parser<char>
+    public class Satisfy : Parser<ParserChar>
     {
-        public Satisfy(Func<char, bool> pred)
+        public Satisfy(Func<char, bool> pred, string expecting)
             :
             base(
                 inp =>
-                    inp.Count() == 0 
-                        ? New.Failure<char>().Parse(inp)
-                        : (from res in New.Item().Parse(inp)
-                           select pred(res.Item1)
+                    inp.Count() == 0
+                        ? New.Failure<ParserChar>( ParserError.Create(expecting, inp) ).Parse(inp)
+                        : (from res in New.Item().Parse(inp).Value
+                           select pred(res.Item1.Value)
                               ? New.Return(res.Item1).Parse(inp.Tail())
-                              : New.Failure<char>().Parse(inp))
+                              : ParserResult.Fail<ParserChar>(expecting, inp))
                           .First()
             )
         { }
@@ -79,7 +137,25 @@ namespace Monad.Parsec
     {
         public Digit()
             :
-            base(c=> Char.IsDigit(c))
+            base(c=> Char.IsDigit(c), "a digit")
+        {
+        }
+    }
+
+    public class Letter : Satisfy
+    {
+        public Letter()
+            :
+            base(c => Char.IsLetter(c), "a letter")
+        {
+        }
+    }
+
+    public class LetterOrDigit : Satisfy
+    {
+        public LetterOrDigit()
+            :
+            base(c => Char.IsLetterOrDigit(c), "a letter or a digit")
         {
         }
     }
@@ -88,7 +164,7 @@ namespace Monad.Parsec
     {
         public Character(char isChar)
             :
-            base(c => c == isChar)
+            base(c => c == isChar, "'"+isChar+"'")
         { }
     }
 
@@ -115,21 +191,22 @@ namespace Monad.Parsec
                 inp =>
                 {
                     var v = parser.Parse(inp);
-                    if (v.Count() == 0) return Empty.Return<IEnumerable<A>>();
+                    if (v.IsFaulted)
+                        return ParserResult.Fail<IEnumerable<A>>(v.Errors);
 
-                    var fst = v.First();
+                    var fst = v.Value.First();
                     var vs = New.Many(parser).Parse(fst.Item2);
-                    if (v.Count() == 0) return New.Return(fst.Item1.Cons()).Parse(fst.Item2);
+                    if (vs.IsFaulted)
+                        return New.Return(fst.Item1.Cons()).Parse(fst.Item2);
 
-                    var snd = vs.First();
-
+                    var snd = vs.Value.First();
                     return New.Return(fst.Item1.Cons(snd.Item1)).Parse(snd.Item2);
                 }
             )
         { }
     }
 
-    public class StringParse : Parser<IEnumerable<char>>
+    public class StringParse : Parser<IEnumerable<ParserChar>>
     {
         public StringParse(string str)
             :
@@ -141,11 +218,27 @@ namespace Monad.Parsec
             :
             base(
                 inp => str.Count() == 0
-                          ? New.Return(new char[0] as IEnumerable<char>).Parse(inp)
+                          ? New.Return(new ParserChar[0] as IEnumerable<ParserChar>).Parse(inp)
                           : (from x in New.Character(str.Head())
                              from xs in New.String(str.Tail())
                              select x.Cons(xs) )
                             .Parse(inp)
+            )
+        { }
+    }
+
+    public class Whitespace : Parser<IEnumerable<ParserChar>>
+    {
+        public Whitespace()
+            :
+            base(
+                inp => New.Many(
+                            New.Character(' ')
+                                .Or(New.Character('\t'))
+                                .Or(New.Character('\n'))
+                                .Or(New.Character('\r'))
+                        )
+                        .Parse(inp)
             )
         { }
     }

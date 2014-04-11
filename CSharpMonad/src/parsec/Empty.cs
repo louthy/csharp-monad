@@ -8,9 +8,9 @@ namespace Monad.Parsec
 {
     public static class Empty
     {
-        public static IEnumerable<Tuple<A, IEnumerable<char>>> Return<A>()
+        public static IEnumerable<Tuple<A, IEnumerable<ParserChar>>> Return<A>()
         {
-            return new Tuple<A, IEnumerable<char>>[0];
+            return new Tuple<A, IEnumerable<ParserChar>>[0];
         }
     }
 }

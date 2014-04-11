@@ -14,9 +14,13 @@ namespace Monad.Parsec
                 input =>
                 {
                     var res = self.Parse(input);
-                    if (res.Count() == 0) return null;
-                    var fst = res.First();
-                    if (!predicate(fst.Item1)) return null;
+                    if (res.IsFaulted) 
+                        return res;
+
+                    var fst = res.Value.First();
+                    if (!predicate(fst.Item1))
+                        return ParserResult.Fail<T>(new ParserError[0]);
+
                     return res;
                 });
         }
@@ -27,9 +31,14 @@ namespace Monad.Parsec
                 input =>
                 {
                     var res = self.Parse(input);
-                    if (res.Count() == 0) return Empty.Return<U>();
-                    var fst = res.First();
-                    return Tuple.Create<U, IEnumerable<char>>(select(fst.Item1), fst.Item2).Cons();
+                    if (res.IsFaulted)
+                        return ParserResult.Fail<U>(res.Errors);
+
+                    var fst = res.Value.First();
+                    return ParserResult.Success(
+                        Tuple.Create<U, IEnumerable<ParserChar>>(
+                            select(fst.Item1), fst.Item2).Cons()
+                        );
                 });
         }
 
@@ -43,14 +52,60 @@ namespace Monad.Parsec
                 input =>
                 {
                     var res = parser.Parse(input);
-                    if (res.Count() == 0) return Empty.Return<V>();
-                    var fst = res.First();
+                    if (res.IsFaulted) 
+                        return ParserResult.Fail<V>(res.Errors);
+
+                    var fst = res.Value.First();
                     var res2 = bind(fst.Item1).Parse(fst.Item2);
-                    if (res2.Count() == 0) return Empty.Return<V>();
-                    var snd = res2.First();
-                    return Tuple.Create<V, IEnumerable<char>>(select(fst.Item1, snd.Item1), snd.Item2).Cons();
+                    if (res2.IsFaulted)
+                        return ParserResult.Fail<V>(res2.Errors);
+
+                    var snd = res2.Value.First();
+                    return ParserResult.Success<V>(
+                        Tuple.Create<V, IEnumerable<ParserChar>>(select(fst.Item1, snd.Item1), snd.Item2).Cons()
+                        );
                 }
             );
+        }
+
+        public static Parser<T> Or<T>(this Parser<T> self, Parser<T> alternative)
+        {
+            return new Parser<T>(
+                input =>
+                {
+                    var res = self.Parse(input);
+                    if (res.IsFaulted)
+                        return alternative.Parse(input);
+                    else
+                        return res;
+                });
+        }
+
+        public static Parser<U> And<T,U>(this Parser<T> self, Parser<U> also)
+        {
+            return new Parser<U>(
+                input =>
+                {
+                    var res = self.Parse(input);
+                    if (res.IsFaulted)
+                        return ParserResult.Fail<U>(res.Errors);
+                    else
+                        return also.Parse(res.Value.First().Item2);
+                });
+        }
+
+        public static bool IsEqualTo(this IEnumerable<ParserChar> self, string rhs)
+        {
+            return self.Count() != rhs.Length
+                ? false
+                : self.Zip(rhs, (left, right) => left.Value == right)
+                      .Where(match => match == false)
+                      .Count() == 0;
+        }
+
+        public static bool IsNotEqualTo(this IEnumerable<ParserChar> self, string rhs)
+        {
+            return !self.IsEqualTo(rhs);
         }
     }
 }

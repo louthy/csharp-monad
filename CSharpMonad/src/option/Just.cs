@@ -58,6 +58,5 @@ namespace Monad
         {
             return Just(Value);
         }
-
     }
 }

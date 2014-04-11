@@ -44,14 +44,20 @@
     <Compile Include="src\Error.cs" />
     <Compile Include="src\IO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\Just.cs" />
-    <Compile Include="src\Nothing.cs" />
-    <Compile Include="src\Option.cs" />
+    <Compile Include="src\option\Just.cs" />
+    <Compile Include="src\option\Nothing.cs" />
+    <Compile Include="src\option\Option.cs" />
     <Compile Include="src\parsec\Empty.cs" />
     <Compile Include="src\parsec\New.cs" />
     <Compile Include="src\parsec\Parser.cs" />
+    <Compile Include="src\parsec\ParserChar.cs" />
+    <Compile Include="src\parsec\ParserError.cs" />
     <Compile Include="src\parsec\ParserExt.cs" />
+    <Compile Include="src\parsec\ParserResult.cs" />
     <Compile Include="src\parsec\Parsers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\parsec\token\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
