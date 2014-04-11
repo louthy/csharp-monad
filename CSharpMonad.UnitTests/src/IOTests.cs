@@ -1,19 +1,19 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Monad;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System.Reflection;
 using System.IO;
 
 namespace Monad.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class IOTests
     {
-        [TestMethod]
+        [Test]
         public void TestIOMonadLazyLoading()
         {
             var m = I.O(() =>
@@ -23,7 +23,7 @@ namespace Monad.UnitTests
             var data = m();
         }
 
-        [TestMethod]
+        [Test]
         public void TestIOMonadBinding()
         {
             string data = "Testing 123";
@@ -37,7 +37,7 @@ namespace Monad.UnitTests
             Assert.IsTrue(result.Invoke() == "Testing 123");
         }
 
-        [TestMethod]
+        [Test]
         public void TestIOMonadBindingFluent()
         {
             string data = "Testing 123";

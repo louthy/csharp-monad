@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace CSharpMonad.UnitTests.ML
     // Inspired by http://blogs.msdn.com/b/lukeh/archive/2007/08/19/monadic-parser-combinators-using-c-3-0.aspx
     //
 
-    [TestClass]
+    [TestFixture]
     public class MLTests
     {
         Parser<IEnumerable<ParserChar>> Id;
@@ -25,7 +25,7 @@ namespace CSharpMonad.UnitTests.ML
         Parser<Term> Term1;
         Parser<Term> Parser;
 
-        [TestMethod]
+        [Test]
         public void BuildMLParser()
         {
             Id = from w in New.Whitespace()
@@ -73,7 +73,7 @@ namespace CSharpMonad.UnitTests.ML
                      select t;
         }
 
-        [TestMethod]
+        [Test]
         public void TestIdParser()
         {
             BuildMLParser();
@@ -91,7 +91,7 @@ namespace CSharpMonad.UnitTests.ML
             Assert.IsTrue(r.Errors.First().Input.First().Column == 4);
         }
 
-        [TestMethod]
+        [Test]
         public void TestTerm1Parser()
         {
             BuildMLParser();
@@ -101,7 +101,7 @@ namespace CSharpMonad.UnitTests.ML
             Assert.IsTrue(r.Value.First().Item1.GetType().Name.Contains("VarTerm"));
         }
 
-        [TestMethod]
+        [Test]
         public void TestLetTermParser()
         {
             BuildMLParser();
@@ -116,7 +116,7 @@ namespace CSharpMonad.UnitTests.ML
 
         }
 
-        [TestMethod]
+        [Test]
         public void TestLetIdParser()
         {
             BuildMLParser();
@@ -126,7 +126,7 @@ namespace CSharpMonad.UnitTests.ML
             Assert.IsTrue(r.Value.First().Item1.AsString() == "let");
         }
 
-        [TestMethod]
+        [Test]
         public void TestInIdParser()
         {
             BuildMLParser();
@@ -136,7 +136,7 @@ namespace CSharpMonad.UnitTests.ML
             Assert.IsTrue(r.Value.First().Item1.AsString() == "in");
         }
 
-        [TestMethod]
+        [Test]
         public void RunMLParser()
         {
             BuildMLParser();

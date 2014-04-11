@@ -1,15 +1,15 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Monad;
+using NUnit.Framework;
 
 
 namespace Monad.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class ErrorTests
     {
 
@@ -41,7 +41,7 @@ namespace Monad.UnitTests
             return () => 10000;
         }
 
-        [TestMethod]
+        [Test]
         public void TestErrorMonadLaws()
         {
             var value = 1000;
@@ -75,7 +75,7 @@ namespace Monad.UnitTests
 
         }
 
-        [TestMethod]
+        [Test]
         public void TestErrorMonadSuccess()
         {
             var result = (from val1 in DoSomething(10)
@@ -87,7 +87,7 @@ namespace Monad.UnitTests
             Assert.IsTrue(result.Value == 21, "Value should be 21");
         }
 
-        [TestMethod]
+        [Test]
         public void TestErrorMonadFail()
         {
             var result = (from val1 in DoSomething(10)
@@ -101,7 +101,7 @@ namespace Monad.UnitTests
 
         }
 
-        [TestMethod]
+        [Test]
         public void TestErrorMonadSuccessFluent()
         {
             var result = DoSomething(10).Then(val2 => val2 + 10).Return();
@@ -111,7 +111,7 @@ namespace Monad.UnitTests
 
         }
 
-        [TestMethod]
+        [Test]
         public void TestErrorMonadFailFluent()
         {
             var result = DoSomething(10)

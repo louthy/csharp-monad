@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +8,10 @@ using Monad;
 
 namespace CSharpMonad.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class OptionTests
     {
-        [TestMethod]
+        [Test]
         public void TestBinding()
         {
             var option = 1000.ToOption();
