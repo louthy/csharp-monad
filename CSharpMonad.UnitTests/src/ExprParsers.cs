@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 using Monad.Parsec;
 using System;
 using System.Collections.Generic;
@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace CSharpMonad.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class TestExpr
     {
-        [TestMethod]
+        [Test]
         public void ExpressionTests()
         {
             var ten = Eval("2*3+4");

@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 using Monad;
 using Monad.Parsec;
 using System;
@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace CSharpMonad.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class ParsecTests
     {
-        [TestMethod]
+        [Test]
         public void TestBinding()
         {
             var p = from x in New.Item()
@@ -37,7 +37,7 @@ namespace CSharpMonad.UnitTests
 
         }
 
-        [TestMethod]
+        [Test]
         public void TestDigitList()
         {
             var p = from open in New.Character('[')
@@ -71,7 +71,7 @@ namespace CSharpMonad.UnitTests
 
         }
 
-        [TestMethod]
+        [Test]
         public void TestString()
         {
             var r = New.String("he").Parse("hell").Value.Single();
@@ -83,7 +83,7 @@ namespace CSharpMonad.UnitTests
             Assert.IsTrue(r.Item2.AsString() == ", world");
         }
 
-        [TestMethod]
+        [Test]
         public void TestMany()
         {
             var r = New.Many(New.Character('a')).Parse("aaabcde").Value.Single();
@@ -91,7 +91,7 @@ namespace CSharpMonad.UnitTests
             Assert.IsTrue(r.Item2.AsString() == "bcde");
         }
 
-        [TestMethod]
+        [Test]
         public void TestMany1()
         {
             var r = New.Many1(New.Character('a')).Parse("aaabcde").Value.Single();
@@ -102,21 +102,21 @@ namespace CSharpMonad.UnitTests
             Assert.IsTrue(r2.Value.Count() == 0);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDigit()
         {
             var r = New.Digit().Parse("1").Value.Single();
             Assert.IsTrue(r.Item1.Value == '1');
         }
 
-        [TestMethod]
+        [Test]
         public void TestChar()
         {
             var r = New.Character('X').Parse("X").Value.Single();
             Assert.IsTrue(r.Item1.Value == 'X');
         }
 
-        [TestMethod]
+        [Test]
         public void TestSatisfy()
         {
             var r = New.Satisfy(c => c == 'x', "'x'").Parse("xbxcxdxe").Value.Single();
@@ -124,7 +124,7 @@ namespace CSharpMonad.UnitTests
             Assert.IsTrue(r.Item2.AsString() == "bxcxdxe");
         }
 
-        [TestMethod]
+        [Test]
         public void TestItem()
         {
             Assert.IsTrue(
@@ -138,7 +138,7 @@ namespace CSharpMonad.UnitTests
                 );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFailure()
         {
             var inp = "abc".ToParserChar();
@@ -152,7 +152,7 @@ namespace CSharpMonad.UnitTests
                 );
         }
 
-        [TestMethod]
+        [Test]
         public void TestReturn()
         {
             var r = New.Return(1).Parse("abc").Value.Single();
@@ -162,7 +162,7 @@ namespace CSharpMonad.UnitTests
                 );
         }
 
-        [TestMethod]
+        [Test]
         public void TestChoice()
         {
             var r = New.Choice(New.Item(), New.Return(New.ParserChar('d'))).Parse("abc").Value.Single();
@@ -187,7 +187,7 @@ namespace CSharpMonad.UnitTests
                 );
         }
 
-        [TestMethod]
+        [Test]
         public void TestWhiteSpace()
         {
             var r = New.Whitespace().Parse(" ");
@@ -197,7 +197,7 @@ namespace CSharpMonad.UnitTests
 
         }
 
-        [TestMethod]
+        [Test]
         public void TestWhiteSpace2()
         {
             var r = New.Whitespace().Parse("a");
