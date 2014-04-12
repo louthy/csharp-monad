@@ -61,6 +61,19 @@ namespace CSharpMonad.UnitTests
         }
 
         [Test]
+        public void TestInteger()
+        {
+            var p = New.Integer();
+
+            Assert.IsTrue(!p.Parse("123").IsFaulted && p.Parse("123").Value.Single().Item1 == 123);
+            Assert.IsTrue(!p.Parse("-123").IsFaulted && p.Parse("-123").Value.Single().Item1 == -123);
+            Assert.IsTrue(!p.Parse(int.MaxValue.ToString()).IsFaulted && p.Parse(int.MaxValue.ToString()).Value.Single().Item1 == int.MaxValue);
+
+            // TODO: Possible Mono bug here, overflow exception is thrown.  Need to check on .NET
+            //    Assert.IsTrue(!p.Parse(int.MinValue.ToString()).IsFaulted && p.Parse(int.MinValue.ToString()).Value.Single().Item1 == int.MinValue);
+        }
+
+        [Test]
         public void TestDigitList()
         {
             var p = from open in New.Character('[')

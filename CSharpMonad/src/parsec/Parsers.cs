@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Monad;
 
 namespace Monad.Parsec
 {
@@ -75,8 +76,6 @@ namespace Monad.Parsec
 
     public class Choice<A> : Parser<A>
     {
-        IEnumerable<Parser<A>> parsers;
-
         public Choice(Parser<A> p, params Parser<A>[] ps)
             :
             base(
@@ -112,7 +111,6 @@ namespace Monad.Parsec
                 }
             )
         {
-            parsers = p.Cons(ps);
         }
     }
 
@@ -160,12 +158,72 @@ namespace Monad.Parsec
         }
     }
 
+    public class Integer : Parser<int>
+    {
+        public Integer()
+            :
+            base( inp =>
+                (from minus in New.ZeroOrOne(New.Character('-'))
+                 from digits in New.Many1( New.Digit() )
+                 let v = DigitsToInt(digits)
+                 select minus.Count() == 0
+                    ? v
+                    : -v)
+                .Parse(inp)
+            )
+        {
+        }
+
+        private static int DigitsToInt(IEnumerable<ParserChar> digits)
+        {
+            return Int32.Parse(digits.AsString());
+        }
+    }
+
     public class Character : Satisfy
     {
         public Character(char isChar)
             :
             base(c => c == isChar, "'"+isChar+"'")
         { }
+    }
+
+    public class ZeroOrOne<A> : Parser<IEnumerable<A>>
+    {
+        public ZeroOrOne(Parser<A> parser)
+            : base( 
+                inp =>
+                New.Choice(
+                    new ValueToListParser<A>(parser),
+                    New.Return<IEnumerable<A>>( new A[0] )
+                )
+                .Parse(inp)
+            )
+        {
+        }
+    }
+
+    class ValueToListParser<A> : Parser<IEnumerable<A>>
+    {
+        public ValueToListParser(Parser<A> parser)
+            :
+            base( inp => 
+            {
+                var res = parser.Parse(inp);
+                if( res.IsFaulted )
+                {
+                    return ParserResult.Fail<IEnumerable<A>>(res.Errors);
+                }
+                else
+                {
+                    var a = res.Value.First();
+                    return new ParserResult<IEnumerable<A>>(
+                        Tuple.Create( a.Item1.Cons(), a.Item2 ).Cons()
+                    );
+                }
+            })
+        {
+        }
     }
 
     public class Many<A> : Parser<IEnumerable<A>>

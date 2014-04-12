@@ -44,6 +44,10 @@ namespace Monad.Parsec
         {
             return new LetterOrDigit();
         }
+        public static Integer Integer()
+        {
+            return new Integer();
+        }
         public static Character Character(char c)
         {
             return new Character(c);
@@ -55,6 +59,10 @@ namespace Monad.Parsec
         public static Many1<T> Many1<T>(Parser<T> parser)
         {
             return new Many1<T>(parser);
+        }
+        public static ZeroOrOne<T> ZeroOrOne<T>(Parser<T> parser)
+        {
+            return new ZeroOrOne<T>(parser);
         }
         public static StringParse String(string str)
         {
