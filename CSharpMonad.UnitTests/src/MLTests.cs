@@ -1,4 +1,4 @@
-﻿﻿using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,22 +102,22 @@ namespace CSharpMonad.UnitTests.ML
         }
 
         [Test]
-		public void TestApplTermParser()
+        public void TestApplTermParser()
         {
             BuildMLParser();
 
-			var r = Term.Parse("add x y z w");
+            var r = Term.Parse("add x y z w");
             Assert.IsTrue(!r.IsFaulted);
         }
 
-		[Test]
-		public void TestLetTermParser()
-		{
-			BuildMLParser();
+        [Test]
+        public void TestLetTermParser()
+        {
+            BuildMLParser();
 
-			var r = Term.Parse("let add = x in y");
-			Assert.IsTrue(!r.IsFaulted);
-		}
+            var r = Term.Parse("let add = x in y");
+            Assert.IsTrue(!r.IsFaulted);
+        }
 
         [Test]
         public void TestLetIdParser()
@@ -153,9 +153,9 @@ namespace CSharpMonad.UnitTests.ML
 
             Assert.IsTrue(!result.IsFaulted);
 
-			Term ast = result.Value.Single().Item1;
+            Term ast = result.Value.Single().Item1;
 
-			// TODO: Check the validity of the produced AST
+            // TODO: Check the validity of the produced AST
 
         }
     }
