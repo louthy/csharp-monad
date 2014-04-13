@@ -19,81 +19,94 @@ Once the Either monad is in the Left state it cancels the monad bind function an
 
 __Example__
 
-    public Either<string, int> Two()
-    {
-        return 2;
-    }
+First we set up some methods that return either a Left or a Right.  In this case Two() returns a Left, and Error() returns a Right.
+    
+        public Either<string, int> Two()
+        {
+            return 2;
+        }
+    
+    
+        public Either<string, int> Error()
+        {
+            return "Error!!";
+        }
+
+The Either monad has implicit conversion operators to remove the need to explicitly create an Either<L,R> type, however if you ever need to there are two helper methods to do so:
+
+        Either.Left<L,R>(...)
+        Either.Right<L,R>(...)
 
 
-    public Either<string, int> Error()
-    {
-        return "Error!!";
-    }
-
-        
-    var r =
-        from lhs in Two()
-        from rhs in Two()
-        select lhs+rhs;
-
-    Assert.IsTrue(r.IsRight && r.Right == 4);
-
-
-    var r =
-        from lhs in Two()
-        from rhs in Error()
-        select lhs+rhs;
-        
-    Assert.IsTrue(r.IsLeft && r.Left == "Error!!");
+Below are some examples of using Either<L,R> in LINQ.  Note, whenever a Left is returned it cancels the entire bind operation, so any functions after the Left will not be processed.
+    
+            
+        var r =
+            from lhs in Two()
+            from rhs in Two()
+            select lhs+rhs;
+    
+        Assert.IsTrue(r.IsRight && r.Right == 4);
+    
+    
+        var r =
+            from lhs in Two()
+            from mid in Error()
+            from rhs in Two()
+            select lhs+mid+rhs;
+            
+        Assert.IsTrue(r.IsLeft && r.Left == "Error!!");
 
 
 You can also use the pattern matching methods to project the either value or to delegate to handlers:
 
-    // Delegate with named properties
-    var unit =
-        (from one in Two()
-         from two in Two()
-         select one + two)
-        .Match(
-            Right: r => Assert.IsTrue(r == 4),
-            Left: l => Assert.IsFalse(true)
-        );
+__Example__
+
+        // Delegate with named properties
+        var unit =
+            (from one in Two()
+             from two in Two()
+             select one + two)
+            .Match(
+                Right: r => Assert.IsTrue(r == 4),
+                Left: l => Assert.IsFalse(true)
+            );
+            
+        // Delegate without named properties
+        var unit =
+            (from one in Two()
+             from two in Two()
+             select one + two)
+            .Match(
+                right => Assert.IsTrue(right == 4),
+                left => Assert.IsFalse(true)
+            );        
+            
+            
+        // Project with named properties
+        var result =
+            (from one in Two()
+             from two in Two()
+             select one + two)
+            .Match(
+                Right: r => r * 2,
+                Left: l => 0
+            );
+            
+        Assert.IsTrue(result == 8);
         
-    // Delegate without named properties
-    var unit =
-        (from one in Two()
-         from two in Two()
-         select one + two)
-        .Match(
-            right => Assert.IsTrue(right == 4),
-            left => Assert.IsFalse(true)
-        );        
         
-        
-    // Project with named properties
-    var result =
-        (from one in Two()
-         from two in Two()
-         select one + two)
-        .Match(
-            Right: r => r * 2,
-            Left: l => 0
-        );
-        
-    Assert.IsTrue(result == 8);
-    
-    
-    // Project without named properties
-    var result =
-        (from one in Two()
-         from two in Two()
-         select one + two)
-        .Match(
-            r => r * 2,
-            l => 0
-        );
-        
-    Assert.IsTrue(result == 8);
+        // Project without named properties
+        var result =
+            (from one in Two()
+             from two in Two()
+             select one + two)
+            .Match(
+                r => r * 2,
+                l => 0
+            );
+            
+        Assert.IsTrue(result == 8);
 
         
 
