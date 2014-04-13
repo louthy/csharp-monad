@@ -1,0 +1,185 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Monad.Parsec.Token.Numbers
+{
+    public class Integer : Parser<IntegerToken>
+    {
+        public Integer()
+            :
+            base(
+                inp => (from lex in Tok.Lexeme( new Int() )
+                        select lex)
+                       .Fail("integer")
+                       .Parse(inp)
+            )
+        { }
+    }
+
+    public class Natural : Parser<IntegerToken>
+    {
+        public Natural()
+            :
+            base(
+                inp => (from lex in Tok.Lexeme(new Int())
+                        select lex)
+                       .Fail("natural")
+                       .Parse(inp)
+            )
+        { }
+    }
+
+
+    public class Int : Parser<IntegerToken>
+    {
+        public Int()
+            :
+            base(
+                inp => (from f in Tok.Lexeme<ParserChar>(new Sign())
+                        from n in new Nat()
+                        select new IntegerToken( 
+                            f.Value == '-' ? -n.Value : n.Value, 
+                            f.Location
+                        ))
+                       .Parse(inp)
+            )
+        { }
+    }
+
+    public class Sign : Parser<ParserChar>
+    {
+        public Sign()
+            :
+            base(
+                inp =>
+                {
+                    var r = New.Character('-')
+                               .Or(New.Character('+'))
+                               .Parse(inp);
+
+                    return r.IsFaulted
+                        ? ParserResult.Success(Tuple.Create(new ParserChar('+'), r.Value.First().Item2).Cons())
+                        : r;
+                }
+        )
+        { }
+    }
+
+    public class Nat : Parser<IntegerToken>
+    {
+        public Nat()
+            :
+            base( inp => new ZeroNumber().Or(new Decimal()).Parse(inp) )
+        {}
+    }
+
+    public class ZeroNumber : Parser<IntegerToken>
+    {
+        public ZeroNumber()
+            :
+            base(
+                inp => (from z in New.Character('0')
+                        from y in New.Choice(
+                            Tok.Numbers.Hexadecimal() as Parser<IntegerToken>,
+                            Tok.Numbers.Octal() as Parser<IntegerToken>,
+                            Tok.Numbers.Decimal() as Parser<IntegerToken>,
+                            New.Return(new IntegerToken(0, SrcLoc.Null)) as Parser<IntegerToken>
+                            )
+                        select new IntegerToken(0, inp.Count() == 0 ? SrcLoc.EndOfSource : inp.First().Location ))
+                        .Fail("")
+                        .Parse(inp)
+            )
+        {}
+    }
+
+    public class Decimal : Parser<IntegerToken>
+    {
+        public Decimal()
+            :
+            base( 
+                inp =>{
+                    var r = New.Many1(New.Digit()).Parse(inp);
+                    if( r.IsFaulted )
+                    {
+                        return ParserResult.Fail<IntegerToken>(r.Errors);
+                    }
+                    else
+                    {
+                        var val = r.Value.First();
+                        return ParserResult.Success<IntegerToken>(
+                            Tuple.Create(
+                                new IntegerToken( Int32.Parse(val.Item1.AsString()), inp.First().Location ),
+                                val.Item2
+                            ).Cons()
+                        );
+                    }
+                }
+            )
+        {}
+    }
+
+    public class Hexadecimal : Parser<IntegerToken>
+    {
+        public Hexadecimal()
+            :
+            base(
+                inp =>
+                {
+                    var r = (from x in New.Character('x').Or(New.Character('X'))
+                             from d in New.Many1(New.HexDigit())
+                             select d)
+                             .Parse(inp);
+
+                    if (r.IsFaulted)
+                    {
+                        return ParserResult.Fail<IntegerToken>(r.Errors);
+                    }
+                    else
+                    {
+                        var val = r.Value.First();
+                        return ParserResult.Success<IntegerToken>(
+                            Tuple.Create(
+                                new IntegerToken(Convert.ToInt32(val.Item1.AsString(),16), inp.First().Location),
+                                val.Item2
+                            ).Cons()
+                        );
+                    }
+                }
+            )
+        { }
+    }
+
+    public class Octal : Parser<IntegerToken>
+    {
+        public Octal()
+            :
+            base(
+                inp =>
+                {
+                    var r = (from x in New.Character('o').Or(New.Character('O'))
+                             from d in New.Many1(New.OctalDigit())
+                             select d)
+                             .Parse(inp);
+
+                    if (r.IsFaulted)
+                    {
+                        return ParserResult.Fail<IntegerToken>(r.Errors);
+                    }
+                    else
+                    {
+                        var val = r.Value.First();
+                        return ParserResult.Success<IntegerToken>(
+                            Tuple.Create(
+                                new IntegerToken(Convert.ToInt32(val.Item1.AsString(), 8), inp.First().Location),
+                                val.Item2
+                            ).Cons()
+                        );
+                    }
+                }
+            )
+        { }
+    }
+}

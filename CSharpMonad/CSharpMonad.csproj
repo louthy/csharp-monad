@@ -48,6 +48,15 @@
     <Compile Include="src\option\Nothing.cs" />
     <Compile Include="src\option\Option.cs" />
     <Compile Include="src\parsec\Empty.cs" />
+    <Compile Include="src\parsec\expr\Assoc.cs" />
+    <Compile Include="src\parsec\expr\Operator.cs" />
+    <Compile Include="src\parsec\language\EmptyDef.cs" />
+    <Compile Include="src\parsec\language\HaskellStyle.cs" />
+    <Compile Include="src\parsec\language\JavaStyle.cs" />
+    <Compile Include="src\parsec\token\idents\Idents.cs" />
+    <Compile Include="src\parsec\token\ops\Ops.cs" />
+    <Compile Include="src\parsec\token\TokenParser.cs" />
+    <Compile Include="src\parsec\token\LanguageDef.cs" />
     <Compile Include="src\parsec\New.cs" />
     <Compile Include="src\parsec\Parser.cs" />
     <Compile Include="src\parsec\ParserChar.cs" />
@@ -55,10 +64,16 @@
     <Compile Include="src\parsec\ParserExt.cs" />
     <Compile Include="src\parsec\ParserResult.cs" />
     <Compile Include="src\parsec\Parsers.cs" />
+    <Compile Include="src\parsec\Tok.cs" />
+    <Compile Include="src\parsec\token\bracketing\Bracketing.cs" />
+    <Compile Include="src\parsec\token\chars\Chars.cs" />
+    <Compile Include="src\parsec\token\numbers\Numbers.cs" />
+    <Compile Include="src\parsec\token\TokenParsers.cs" />
+    <Compile Include="src\parsec\token\TokenTypes.cs" />
+    <Compile Include="src\parsec\SrcLoc.cs" />
+    <Compile Include="src\Unit.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\parsec\token\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

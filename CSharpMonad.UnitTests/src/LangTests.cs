@@ -29,49 +29,57 @@ namespace CSharpMonad.UnitTests.Lang
         [Test]
         public void BuildLangParser()
         {
-            var opChars = ";.,<>?/\\|\"':}{[]=+-_)(*&^%$£@!".AsEnumerable();
+            var opChars = ";.,<>?/\\|\"':=+-_*&^%$£@!".AsEnumerable();
 
-            Id = from w in New.Whitespace()
+            Id = from w in New.WhiteSpace()
                  from c in New.Letter()
                  from cs in New.Many(New.LetterOrDigit())
                  select c.Cons(cs);
 
-            Op = from w in New.Whitespace()
-                 from o in New.Satisfy(c => opChars.Contains(c),"an operator")
-                 from os in New.Many(New.Satisfy(c => opChars.Contains(c),"an operator"))
-                 select o.Cons(os);
+            Op = (from w in New.WhiteSpace()
+                  from o in New.Satisfy(c => opChars.Contains(c), "an operator")
+                  from os in New.Many(New.Satisfy(c => opChars.Contains(c), "an operator"))
+                  select o.Cons(os))
+                 .Fail("an operator");
 
-            Ident = from s in Id 
-                    where 
-                        s.IsNotEqualTo("let") && 
-                        s.IsNotEqualTo("in") 
-                    select s;
+            Ident = (from s in Id
+                     where
+                        s.IsNotEqualTo("let") &&
+                        s.IsNotEqualTo("in")
+                     select s)
+                    .Fail("identifier");
 
-            LetId = from s in Id
-                    where s.IsEqualTo("let")
-                    select s;
+            LetId = (from s in Id
+                     where s.IsEqualTo("let")
+                     select s)
+                    .Fail("let");
 
-            InId = from s in Id
-                   where s.IsEqualTo("in")
-                   select s;
+            InId = (from s in Id
+                    where s.IsEqualTo("in")
+                    select s)
+                   .Fail("'in'");
 
-            Semi = from s in Op
-                   where s.IsEqualTo(";")
-                   select s;
+            Semi = (from s in Op
+                    where s.IsEqualTo(";")
+                    select s)
+                   .Fail("';'");
 
-            LambdaArrow = from s in Op
-                          where s.IsEqualTo("=>")
-                          select s;
+            LambdaArrow = (from s in Op
+                           where s.IsEqualTo("=>")
+                           select s)
+                          .Fail("a lambda arrow '=>'");
 
-            Integer = from w in New.Whitespace()
-                      from d in New.Integer()
-                      select new IntegerTerm(d) as Term;
+            Integer = (from w in New.WhiteSpace()
+                       from d in New.Integer()
+                       select new IntegerTerm(d) as Term)
+                      .Fail("an integer");
 
-            String = from w in New.Whitespace()
-                     from o in New.Character('"')
-                     from cs in New.Many(New.Satisfy(c => c != '"', "a string"))
-                     from c in New.Character('"')
-                     select new StringTerm(cs) as Term;
+            String = (from w in New.WhiteSpace()
+                      from o in New.Character('"')
+                      from cs in New.Many(New.Satisfy(c => c != '"'))
+                      from c in New.Character('"')
+                      select new StringTerm(cs) as Term)
+                     .Fail("a string literal");
 
             Term1 = Integer
                     .Or(String)
@@ -80,7 +88,8 @@ namespace CSharpMonad.UnitTests.Lang
                     .Or(from u1 in Lang.WsChr('(')
                         from t in Term
                         from u2 in Lang.WsChr(')')
-                        select t);
+                        select t)
+                    .Fail("a term");
 
             Term = (from x in Ident
                     from arrow in LambdaArrow
@@ -95,11 +104,12 @@ namespace CSharpMonad.UnitTests.Lang
                         select new LetTerm(x, t, c) as Term)
                     .Or(from t in Term1
                         from ts in New.Many(Term1)
-                        select new AppTerm(t, ts) as Term);
+                        select new AppTerm(t, ts) as Term)
+                    .Fail("a term");
 
             Parser = from t in Term
                      from u in Lang.WsChr(';')
-                     from w in New.Whitespace()
+                     from w in New.WhiteSpace()
                      select t;
         }
 
@@ -120,11 +130,13 @@ namespace CSharpMonad.UnitTests.Lang
 
             if (result.IsFaulted)
             {
-                foreach (var error in result.Errors)
-                {
-                    var msg = error.Message + "Expected: " + error.Expected + " at " + error.Location + " - " + error.Input.AsString().Substring(0, Math.Min(30, error.Input.AsString().Length)) + "...";
-                    Console.WriteLine(msg);
-                }
+                string errs = System.String.Join("\n",
+                    result.Errors.Select(e=>
+                        e.Message + "Expected " + e.Expected + " at " + e.Location + 
+                        " - " + e.Input.AsString().Substring(0, Math.Min(30, e.Input.AsString().Length))
+                        + "...")
+                    );
+                Console.WriteLine(errs);
             }
 
             Assert.IsTrue(!result.IsFaulted);
@@ -205,7 +217,7 @@ namespace CSharpMonad.UnitTests.Lang
         public WsChrParser(char c)
             :
             base(
-                inp => New.Whitespace()
+                inp => New.WhiteSpace()
                 .And(New.Character(c))
                 .Parse(inp)
             )

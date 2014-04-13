@@ -48,11 +48,11 @@ namespace CSharpMonad.UnitTests
             Assert.IsTrue(res.Item1.First().Value == 'a' &&
                           res.Item1.Second().Value == 'c');
 
-            Assert.IsTrue(res.Item1.First().Line == 1);
-            Assert.IsTrue(res.Item1.First().Column == 1);
+            Assert.IsTrue(res.Item1.First().Location.Line == 1);
+            Assert.IsTrue(res.Item1.First().Location.Column == 1);
 
-            Assert.IsTrue(res.Item1.Second().Line == 1);
-            Assert.IsTrue(res.Item1.Second().Column == 3);
+            Assert.IsTrue(res.Item1.Second().Location.Line == 1);
+            Assert.IsTrue(res.Item1.Second().Location.Column == 3);
 
             int found = p.Parse("ab").Value.Count();
 
@@ -102,8 +102,8 @@ namespace CSharpMonad.UnitTests
             var r3 = p.Parse("[1,2,3,4*");
             Assert.IsTrue(r3.IsFaulted);
             Assert.IsTrue(r3.Errors.First().Expected == "']'");
-            Assert.IsTrue(r3.Errors.First().Input.First().Line == 1);
-            Assert.IsTrue(r3.Errors.First().Input.First().Column == 9);
+            Assert.IsTrue(r3.Errors.First().Location.Line == 1);
+            Assert.IsTrue(r3.Errors.First().Location.Column == 9);
 
         }
 
@@ -226,7 +226,7 @@ namespace CSharpMonad.UnitTests
         [Test]
         public void TestWhiteSpace()
         {
-            var r = New.Whitespace().Parse(" ");
+            var r = New.WhiteSpace().Parse(" ");
             Assert.IsFalse(r.IsFaulted);
             Assert.IsTrue(r.Value.Count() == 1);
             Assert.IsTrue(r.Value.Single().Item1.AsString() == " ");
@@ -236,7 +236,7 @@ namespace CSharpMonad.UnitTests
         [Test]
         public void TestWhiteSpace2()
         {
-            var r = New.Whitespace().Parse("a");
+            var r = New.WhiteSpace().Parse("a");
             Assert.IsFalse(r.IsFaulted);
             Assert.IsTrue(r.Value.Count() == 1);
 

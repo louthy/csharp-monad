@@ -9,14 +9,14 @@ namespace Monad.Parsec
     public class ParserChar
     {
         public readonly char Value;
-        public readonly int Column;
-        public readonly int Line;
+        public readonly SrcLoc Location;
 
-        public ParserChar(char c, int column, int line)
+        public ParserChar(char c, SrcLoc location = null)
         {
             Value = c;
-            Column = column;
-            Line = line;
+            Location = location == null
+                ? SrcLoc.Null
+                : location;
         }
 
         public override string ToString()

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Monad;
+using Monad.Parsec;
 
 namespace Monad.Parsec
 {
@@ -13,7 +14,7 @@ namespace Monad.Parsec
             :
             base(
                 inp => inp.Count() == 0
-                    ? ParserResult.Fail<ParserChar>("a character",inp)
+                    ? ParserResult.Fail<ParserChar>("a character", inp)
                     : Tuple.Create(inp.Head(), inp.Tail()).Cons().Success()
             )
         { }
@@ -78,36 +79,27 @@ namespace Monad.Parsec
     {
         public Choice(Parser<A> p, params Parser<A>[] ps)
             :
+            this(p,ps.AsEnumerable())
+        {
+        }
+
+        public Choice(IEnumerable<Parser<A>> ps)
+            :
+            this(ps.Head(),ps.Tail())
+        {
+        }
+
+        public Choice(Parser<A> p, IEnumerable<Parser<A>> ps)
+            :
             base(
                 inp =>
                 {
-                    var errors = new List<ParserError>();
-                    var pres = p.Parse(inp);
-
-                    foreach(var parser in ps)
-                    {
-                        if (pres.IsFaulted)
-                        {
-                            errors.AddRange(pres.Errors);
-                            pres = parser.Parse(inp);
-                        }
-                        else
-                        {
-                            return pres;
-                        }
-                    }
-
-                    if( pres.IsFaulted )
-                    {
-                        return ParserResult.Fail<A>( 
-                            String.Join(", ",errors.Select(e=>e.Expected)),
-                            inp
-                            );
-                    }
-                    else
-                    {
-                        return pres;
-                    }
+                    var r = p.Parse(inp);
+                    return r.IsFaulted
+                        ? ps.Count() > 0
+                            ? new Choice<A>(ps.Head(), ps.Tail()).Parse(inp)
+                            : ParserResult.Fail<A>("choice not satisfied", inp)
+                        : r;
                 }
             )
         {
@@ -121,7 +113,7 @@ namespace Monad.Parsec
             base(
                 inp =>
                     inp.Count() == 0
-                        ? New.Failure<ParserChar>( ParserError.Create(expecting, inp) ).Parse(inp)
+                        ? New.Failure<ParserChar>(ParserError.Create(expecting, inp)).Parse(inp)
                         : (from res in New.Item().Parse(inp).Value
                            select pred(res.Item1.Value)
                               ? New.Return(res.Item1).Parse(inp.Tail())
@@ -131,11 +123,45 @@ namespace Monad.Parsec
         { }
     }
 
+    public class OneOf : Satisfy
+    {
+        public OneOf(string chars)
+            :
+            base(ch => chars.Contains(ch), "one of: " + chars)
+        { }
+        public OneOf(IEnumerable<char> chars)
+            :
+            base(ch => chars.Contains(ch), "one of: " + chars)
+        { }
+        public OneOf(IEnumerable<ParserChar> chars)
+            :
+            base(ch => chars.Select(pc=>pc.Value).Contains(ch), "one of: " + chars)
+        { }
+    }
+
     public class Digit : Satisfy
     {
         public Digit()
             :
-            base(c=> Char.IsDigit(c), "a digit")
+            base(c => Char.IsDigit(c), "a digit")
+        {
+        }
+    }
+
+    public class OctalDigit : Satisfy
+    {
+        public OctalDigit()
+            :
+            base(c => "01234567".Contains(c), "an octal-digit")
+        {
+        }
+    }
+
+    public class HexDigit : Satisfy
+    {
+        public HexDigit()
+            :
+            base(c => Char.IsDigit(c) || "abcdefABCDEF".Contains(c) , "a hex-digit")
         {
         }
     }
@@ -162,9 +188,9 @@ namespace Monad.Parsec
     {
         public Integer()
             :
-            base( inp =>
-                (from minus in New.ZeroOrOne(New.Character('-'))
-                 from digits in New.Many1( New.Digit() )
+            base(inp =>
+                (from minus in New.Try(New.Character('-'))
+                 from digits in New.Many1(New.Digit())
                  let v = DigitsToInt(digits)
                  select minus.Count() == 0
                     ? v
@@ -184,18 +210,18 @@ namespace Monad.Parsec
     {
         public Character(char isChar)
             :
-            base(c => c == isChar, "'"+isChar+"'")
+            base(c => c == isChar, "'" + isChar + "'")
         { }
     }
 
-    public class ZeroOrOne<A> : Parser<IEnumerable<A>>
+    public class Try<A> : Parser<IEnumerable<A>>
     {
-        public ZeroOrOne(Parser<A> parser)
-            : base( 
+        public Try(Parser<A> parser)
+            : base(
                 inp =>
                 New.Choice(
                     new ValueToListParser<A>(parser),
-                    New.Return<IEnumerable<A>>( new A[0] )
+                    New.Return<IEnumerable<A>>(new A[0])
                 )
                 .Parse(inp)
             )
@@ -207,10 +233,10 @@ namespace Monad.Parsec
     {
         public ValueToListParser(Parser<A> parser)
             :
-            base( inp => 
+            base(inp =>
             {
                 var res = parser.Parse(inp);
-                if( res.IsFaulted )
+                if (res.IsFaulted)
                 {
                     return ParserResult.Fail<IEnumerable<A>>(res.Errors);
                 }
@@ -218,7 +244,7 @@ namespace Monad.Parsec
                 {
                     var a = res.Value.First();
                     return new ParserResult<IEnumerable<A>>(
-                        Tuple.Create( a.Item1.Cons(), a.Item2 ).Cons()
+                        Tuple.Create(a.Item1.Cons(), a.Item2).Cons()
                     );
                 }
             })
@@ -234,7 +260,7 @@ namespace Monad.Parsec
                 inp =>
                     New.Choice(
                         New.Many1(parser),
-                        New.Return<IEnumerable<A>>( new A[0] )
+                        New.Return<IEnumerable<A>>(new A[0])
                     )
                     .Parse(inp)
             )
@@ -268,7 +294,7 @@ namespace Monad.Parsec
     {
         public StringParse(string str)
             :
-            this( str as IEnumerable<char> )
+            this(str as IEnumerable<char>)
         {
         }
 
@@ -279,15 +305,15 @@ namespace Monad.Parsec
                           ? New.Return(new ParserChar[0] as IEnumerable<ParserChar>).Parse(inp)
                           : (from x in New.Character(str.Head())
                              from xs in New.String(str.Tail())
-                             select x.Cons(xs) )
+                             select x.Cons(xs))
                             .Parse(inp)
             )
         { }
     }
 
-    public class Whitespace : Parser<IEnumerable<ParserChar>>
+    public class WhiteSpace : Parser<IEnumerable<ParserChar>>
     {
-        public Whitespace()
+        public WhiteSpace()
             :
             base(
                 inp => New.Many(
@@ -297,6 +323,57 @@ namespace Monad.Parsec
                                 .Or(New.Character('\r'))
                         )
                         .Parse(inp)
+            )
+        { }
+    }
+
+    public class SimpleSpace : Parser<IEnumerable<ParserChar>>
+    {
+        public SimpleSpace()
+            :
+            base(
+                inp => New.Many( New.Character(' ') )
+                          .Parse(inp)
+            )
+        { }
+    }
+
+    public class Between<O,C,B> : Parser<B>
+    {
+        public Between(
+            Parser<O> openParser,
+            Parser<C> closeParser,
+            Parser<B> betweenParser
+            )
+            :
+            base(
+                inp => (from o in openParser
+                        from b in betweenParser
+                        from c in closeParser
+                        select b)
+                       .Parse(inp)
+            )
+        {
+        }
+    }
+
+    public class NotFollowedBy<A> : Parser<Unit>
+    {
+        public NotFollowedBy(Parser<A> parser)
+            :
+            base(
+                inp => 
+                {
+                    var res = (from c in parser select c).Parse(inp);
+                    if( res.IsFaulted )
+                    {
+                        return Tuple.Create( Unit.Return(), inp ).Cons().Success();
+                    }
+                    else
+                    {
+                        return ParserResult.Fail<Unit>(ParserError.Create("unexpected",inp));
+                    }
+                }
             )
         { }
     }

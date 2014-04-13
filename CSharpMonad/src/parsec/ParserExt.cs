@@ -94,6 +94,19 @@ namespace Monad.Parsec
                 });
         }
 
+        public static Parser<T> Fail<T>(this Parser<T> self, string expected, string message = "")
+        {
+            return new Parser<T>(
+                    input =>
+                    {
+                        var res = self.Parse(input);
+                        return res.IsFaulted
+                            ? ParserResult.Fail<T>(ParserError.Create(expected, input, message).Cons(res.Errors))
+                            : res;
+                    }
+                );
+        }
+
         public static bool IsEqualTo(this IEnumerable<ParserChar> self, string rhs)
         {
             return self.Count() != rhs.Length

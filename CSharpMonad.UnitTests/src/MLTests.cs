@@ -28,7 +28,7 @@ namespace CSharpMonad.UnitTests.ML
         [Test]
         public void BuildMLParser()
         {
-            Id = from w in New.Whitespace()
+            Id = from w in New.WhiteSpace()
                  from c in New.Letter()
                  from cs in New.Many(New.LetterOrDigit())
                  select c.Cons(cs);
@@ -88,7 +88,7 @@ namespace CSharpMonad.UnitTests.ML
 
             r = Id.Parse("   1Testing123   ");
             Assert.IsTrue(r.IsFaulted);
-            Assert.IsTrue(r.Errors.First().Input.First().Column == 4);
+            Assert.IsTrue(r.Errors.First().Location.Column == 4);
         }
 
         [Test]
@@ -209,7 +209,7 @@ namespace CSharpMonad.UnitTests.ML
         public WsChrParser(char c)
             :
             base(
-                inp => New.Whitespace()
+                inp => New.WhiteSpace()
                           .And(New.Character(c))
                           .Parse(inp)
             )

@@ -46,7 +46,7 @@ namespace Monad
                     continue;
                 }
 
-                yield return new ParserChar(c, col, line);
+                yield return new ParserChar(c, SrcLoc.Return(line,col));
 
                 if (c == '\n')
                 {

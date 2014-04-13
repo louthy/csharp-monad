@@ -10,9 +10,7 @@ namespace Monad.Parsec
         public readonly string Message;
         public readonly string Expected;
         public readonly IEnumerable<ParserChar> Input;
-        public readonly int Line;
-        public readonly int Column;
-        public readonly string Location;
+        public readonly SrcLoc Location;
 
         public ParserError(string expected, IEnumerable<ParserChar> input, string message = "")
         {
@@ -22,13 +20,11 @@ namespace Monad.Parsec
             if (input.Count() > 0)
             {
                 var fst = input.First();
-                Line = fst.Line;
-                Column = fst.Column;
-                Location = Line + ":" + Column;
+                Location = fst.Location;
             }
             else
             {
-                Location = "end of input";
+                Location = SrcLoc.EndOfSource;
             }
         }
 
