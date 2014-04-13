@@ -41,14 +41,14 @@ First we set up some methods that return either a `Left` or a `Right`.  In this 
 ```
 
 The `Either` monad has implicit conversion operators to remove the need to explicitly create an `Either<L,R>` type, however if you ever need to there are two helper methods to do so:
-```
+```C#
         Either.Left<L,R>(...)
         Either.Right<L,R>(...)
 ```
 
 Below are some examples of using `Either<L,R>` in LINQ.  Note, whenever a `Left` is returned it cancels the entire bind operation, so any functions after the `Left` will not be processed.
     
-```            
+```C#            
         var r =
             from lhs in Two()
             from rhs in Two()
@@ -69,7 +69,7 @@ You can also use the pattern matching methods to project the either value or to 
 
 __Example__
 
-```
+```C#
         // Delegate with named properties
         var unit =
             (from one in Two()
@@ -124,7 +124,7 @@ Use `.Return()` at the end of an expression to invoke the bind function.  You ca
 
 __Example__
 
-```
+```C#
         private Error<int> DoSomething(int value)
         {
             return () => value + 1;
@@ -159,7 +159,7 @@ The IO monad may be seen as unnecessary in C# where everything has side-effects,
 
 __Example__
 
-```
+```C#
         private static IO<Unit> DeleteFile(string tmpFileName)
         {
             return () =>
@@ -199,7 +199,7 @@ __Example__
 ## Option monad 
 
 If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit like `Nullable<T>` but it works with reference types too and implements the monad bind function.  The bind is cancelled as soon as `Option<T>.Nothing` is returned by any method.  Also known as the `Maybe` monad.
-```
+```C#
         result = from o in MaybeGetAnInt()
                  from o2 in Option<int>.Nothing
                  select o2;
@@ -226,7 +226,7 @@ You can check the result by looking at the HasValue property, however an even ev
 
 This is all work in progress, but very stable and functional.  It's probably easiest to check the unit test code for examples of usage.  Here's a very simple expression parser:
 
-```
+```C#
     public class TestExpr
     {
         public void ExpressionTests()
