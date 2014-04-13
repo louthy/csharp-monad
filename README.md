@@ -28,7 +28,7 @@ __Example__
 
 First we set up some methods that return either a `Left` or a `Right`.  In this case `Two()` returns a `Left`, and `Error()` returns a `Right`.
 
-```    
+```C#    
         public Either<string, int> Two()
         {
             return 2;
