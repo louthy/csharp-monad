@@ -7,7 +7,7 @@ using Monad.Parsec.Token;
 
 namespace Monad.Parsec.Token.Chars
 {
-    public class CharLiteral : Parser<ParserChar>
+    public class CharLiteral : Parser<CharLiteralToken>
     {
         public CharLiteral()
             :
@@ -18,6 +18,7 @@ namespace Monad.Parsec.Token.Chars
                         New.Character('\'').Fail("end of character"),
                         new CharacterChar()
                     ))
+                    .Select(ch => new CharLiteralToken(ch,inp.First().Location))
                     .Fail("character")
                     .Parse(inp)
             )

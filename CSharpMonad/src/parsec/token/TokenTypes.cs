@@ -60,6 +60,27 @@ namespace Monad.Parsec.Token
         }
     }
 
+    public class CharToken : Token
+    {
+        public readonly ParserChar Value;
+
+        public CharToken(ParserChar value, SrcLoc location = null)
+            :
+            base(location)
+        {
+            Value = value;
+        }
+    }
+
+    public class CharLiteralToken : CharToken
+    {
+        public CharLiteralToken(ParserChar value, SrcLoc location = null)
+            :
+            base(value,location)
+        {
+        }
+    }
+
     public class StringToken : Token
     {
         public readonly IEnumerable<ParserChar> Value;
@@ -69,6 +90,24 @@ namespace Monad.Parsec.Token
             base(location)
         {
             Value = value;
+        }
+    }
+
+    public class WhiteSpaceToken : StringToken
+    {
+        public WhiteSpaceToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+            :
+            base(value,location)
+        {
+        }
+    }
+
+    public class StringLiteralToken : StringToken
+    {
+        public StringLiteralToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+            :
+            base(value, location)
+        {
         }
     }
 
@@ -104,6 +143,63 @@ namespace Monad.Parsec.Token
         public ReservedOpToken(IEnumerable<ParserChar> value, SrcLoc location = null)
             :
             base(value, location)
+        {
+        }
+    }
+
+    public class SymbolToken : StringToken
+    {
+        public SymbolToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+            :
+            base(value, location)
+        {
+        }
+    }
+
+    public class BracketingToken : Token
+    {
+        public readonly IEnumerable<Token> Tokens;
+
+        public BracketingToken(IEnumerable<Token> tokens, SrcLoc location = null)
+            :
+            base(location)
+        {
+            Tokens = tokens;
+        }
+    }
+
+    public class AnglesToken : BracketingToken
+    {
+        public AnglesToken(IEnumerable<Token> tokens, SrcLoc location = null)
+            :
+            base(tokens,location)
+        {
+        }
+    }
+
+    public class BracesToken : BracketingToken
+    {
+        public BracesToken(IEnumerable<Token> tokens, SrcLoc location = null)
+            :
+            base(tokens, location)
+        {
+        }
+    }
+
+    public class ParensToken : BracketingToken
+    {
+        public ParensToken(IEnumerable<Token> tokens, SrcLoc location = null)
+            :
+            base(tokens, location)
+        {
+        }
+    }
+
+    public class BracketsToken : BracketingToken
+    {
+        public BracketsToken(IEnumerable<Token> tokens, SrcLoc location = null)
+            :
+            base(tokens, location)
         {
         }
     }

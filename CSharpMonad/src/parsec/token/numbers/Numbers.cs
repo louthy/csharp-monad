@@ -61,7 +61,7 @@ namespace Monad.Parsec.Token.Numbers
                                .Parse(inp);
 
                     return r.IsFaulted
-                        ? ParserResult.Success(Tuple.Create(new ParserChar('+'), r.Value.First().Item2).Cons())
+                        ? ParserResult.Success(Tuple.Create(new ParserChar('+'), inp).Cons())
                         : r;
                 }
         )

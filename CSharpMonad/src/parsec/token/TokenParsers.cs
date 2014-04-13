@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace Monad.Parsec.Token
 {
-    public class Symbol : Parser<IEnumerable<ParserChar>>
+    public class Symbol : Parser<SymbolToken>
     {
         public Symbol(string name)
             :
             base(
                 inp => Tok.Lexeme<IEnumerable<ParserChar>>(New.String(name))
+                          .Select( str => new SymbolToken(str, inp.First().Location) )
                           .Parse(inp)
             )
         { }
