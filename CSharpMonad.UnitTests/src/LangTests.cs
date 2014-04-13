@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Monad;
 using Monad.Parsec;
 
-namespace CSharpMonad.UnitTests.Lang
+namespace Monad.UnitTests.Lang
 {
     [TestFixture]
     public class LangTests

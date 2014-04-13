@@ -53,6 +53,7 @@
     <Compile Include="src\OptionTests.cs" />
     <Compile Include="src\ParsecTests.cs" />
     <Compile Include="src\LangTests.cs" />
+    <Compile Include="src\EitherTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharpMonad\CSharpMonad.csproj">

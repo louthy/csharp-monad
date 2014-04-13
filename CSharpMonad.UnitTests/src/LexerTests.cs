@@ -10,7 +10,7 @@ using Monad.Parsec;
 using Monad.Parsec.Language;
 using Monad.Parsec.Token;
 
-namespace CSharpMonad.UnitTests.src
+namespace Monad.UnitTests.src
 {
     [TestFixture]
     public class LexerTests

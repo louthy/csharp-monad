@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Monad;
 
-namespace CSharpMonad.UnitTests
+namespace Monad.UnitTests
 {
     [TestFixture]
     public class OptionTests

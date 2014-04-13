@@ -11,6 +11,8 @@
     <AssemblyName>Monad</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -73,6 +75,7 @@
     <Compile Include="src\parsec\token\TokenTypes.cs" />
     <Compile Include="src\parsec\SrcLoc.cs" />
     <Compile Include="src\Unit.cs" />
+    <Compile Include="src\Either.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

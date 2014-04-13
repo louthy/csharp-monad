@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CSharpMonad.UnitTests
+namespace Monad.UnitTests
 {
     [TestFixture]
     public class ParsecTests
