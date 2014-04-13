@@ -1,7 +1,14 @@
 csharp-monad
 ============
 
-Library of monads for C#
+Library of monads for C#:
+
+* Either<L,R>
+* Error<T>
+* IO<T>
+* Option<T>
+* Parser<T>
+
 
 The library is stable but it's still in development, so as you can see documentation is pretty sparse right now.
 
