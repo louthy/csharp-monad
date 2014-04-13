@@ -7,11 +7,101 @@ The library is stable but it's still in development, so as you can see documenta
 
 The Token section of the parser components are very work in progress.
 
+
+## Either monad
+
+The Either monad represents values with two possibilities: a value of Left or Right.
+Either is sometimes used to represent a value which is either correct or an error, by convention, 'Left' is used to hold an error value 'Right' is used to hold a correct value.
+
+So you can see that Either has a very close relationship to the Error monad.  However, the Either monad won't capture exceptions.  Either would primarily be used for known error values rather than exceptional ones.
+
+Once the Either monad is in the Left state it cancels the monad bind function and returns immediately.
+
+__Example__
+
+    public Either<string, int> Two()
+    {
+        return 2;
+    }
+
+
+    public Either<string, int> Error()
+    {
+        return "Error!!";
+    }
+
+        
+    var r =
+        from lhs in Two()
+        from rhs in Two()
+        select lhs+rhs;
+
+    Assert.IsTrue(r.IsRight && r.Right == 4);
+
+
+    var r =
+        from lhs in Two()
+        from rhs in Error()
+        select lhs+rhs;
+        
+    Assert.IsTrue(r.IsLeft && r.Left == "Error!!");
+
+
+You can also use the pattern matching methods to project the either value or to delegate to handlers:
+
+    // Delegate with named properties
+    var unit =
+        (from one in Two()
+         from two in Two()
+         select one + two)
+        .Match(
+            Right: r => Assert.IsTrue(r == 4),
+            Left: l => Assert.IsFalse(true)
+        );
+        
+    // Delegate without named properties
+    var unit =
+        (from one in Two()
+         from two in Two()
+         select one + two)
+        .Match(
+            right => Assert.IsTrue(right == 4),
+            left => Assert.IsFalse(true)
+        );        
+        
+        
+    // Project with named properties
+    var result =
+        (from one in Two()
+         from two in Two()
+         select one + two)
+        .Match(
+            Right: r => r * 2,
+            Left: l => 0
+        );
+        
+    Assert.IsTrue(result == 8);
+    
+    
+    // Project without named properties
+    var result =
+        (from one in Two()
+         from two in Two()
+         select one + two)
+        .Match(
+            r => r * 2,
+            l => 0
+        );
+        
+    Assert.IsTrue(result == 8);
+
+        
+
 ## Error monad
 
 Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure. Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
 
-Use .Result() at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing IsFaulted on the ErrorResult<T> returned from Result(), the Exception property will hold the thrown exception.
+Use .Return() at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing IsFaulted on the ErrorResult<T> returned from Result(), the Exception property will hold the thrown exception.
 
 __Example__
 
