@@ -1,4 +1,28 @@
-﻿using System;
+﻿////////////////////////////////////////////////////////////////////////////////////////
+// The MIT License (MIT)
+// 
+// Copyright (c) 2014 Paul Louth
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -51,6 +75,18 @@ namespace Monad.Parsec
         public static OneOf OneOf(IEnumerable<ParserChar> chars)
         {
             return new OneOf(chars);
+        }
+        public static NoneOf NoneOf(string chars)
+        {
+            return new NoneOf(chars);
+        }
+        public static NoneOf NoneOf(IEnumerable<char> chars)
+        {
+            return new NoneOf(chars);
+        }
+        public static NoneOf NoneOf(IEnumerable<ParserChar> chars)
+        {
+            return new NoneOf(chars);
         }
         public static Parser<IEnumerable<A>> SepBy<A,B>(Parser<A> parser, Parser<B> sepParser)
         {
@@ -132,6 +168,38 @@ namespace Monad.Parsec
         public static Between<O, C, B> Between<O, C, B>(Parser<O> openParser, Parser<C> closeParser, Parser<B> betweenParser)
         {
             return new Between<O, C, B>(openParser,closeParser,betweenParser);
+        }
+
+        public static Parser<Unit> SkipMany1<A>(Parser<A> skipParser)
+        {
+            return new Parser<Unit>(
+                inp =>
+                {
+                    var resA = skipParser.Parse(inp);
+                    return resA.IsFaulted
+                        ? new ParserResult<Unit>(resA.Errors)
+                        : SkipMany<A>(skipParser).Parse(inp);
+                }
+            );
+        }
+
+        public static Parser<Unit> SkipMany<A>(Parser<A> skipParser)
+        {
+            return new Parser<Unit>(
+                inp =>
+                {
+                    do
+                    {
+                        var resA = skipParser.Parse(inp);
+                        if (resA.IsFaulted)
+                            return new ParserResult<Unit>(Tuple.Create(Unit.Return(), inp).Cons());
+
+                        inp = resA.Value.First().Item2;
+                    }
+                    while (inp.Count() > 0);
+                    return new ParserResult<Unit>(Tuple.Create(Unit.Return(), inp).Cons());
+                }
+            );
         }
 
         public static Func<A, Parser<ParserChar>> FromDelegate<A>(Func<A,Func<IEnumerable<ParserChar>, ParserResult<ParserChar>>> func)

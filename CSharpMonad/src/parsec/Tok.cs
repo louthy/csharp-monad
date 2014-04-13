@@ -1,4 +1,28 @@
-﻿using Monad.Parsec.Token;
+﻿////////////////////////////////////////////////////////////////////////////////////////
+// The MIT License (MIT)
+// 
+// Copyright (c) 2014 Paul Louth
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+
+using Monad.Parsec.Token;
 using Monad.Parsec.Token.Chars;
 using System;
 using System.Collections.Generic;
@@ -8,6 +32,9 @@ using System.Threading.Tasks;
 
 namespace Monad.Parsec
 {
+    /// <summary>
+    /// Utility class for quick intellisensed access to token parsers
+    /// </summary>
     public static class Tok
     {
         public static TokenParser MakeTokenParser(LanguageDef def)
@@ -34,11 +61,25 @@ namespace Monad.Parsec
         /// <summary>
         /// One line comment
         /// </summary>
-        /// <param name="commentStart"></param>
-        /// <returns></returns>
-        public static OneLineComment OneLineComment(string commentStart)
+        public static OneLineComment OneLineComment(LanguageDef def)
         {
-            return new OneLineComment(commentStart);
+            return new OneLineComment(def);
+        }
+
+        /// <summary>
+        /// Multi line comment
+        /// </summary>
+        public static MultiLineComment MultiLineComment(LanguageDef def)
+        {
+            return new MultiLineComment(def);
+        }
+
+        /// <summary>
+        /// Whitespace 
+        /// </summary>
+        public static Monad.Parsec.Token.WhiteSpace WhiteSpace(LanguageDef def)
+        {
+            return new Monad.Parsec.Token.WhiteSpace(def);
         }
 
         /// <summary>
@@ -71,6 +112,17 @@ namespace Monad.Parsec
             public static EscapeCode EscapeCode()
             {
                 return new EscapeCode();
+            }
+        }
+
+        /// <summary>
+        /// Strings
+        /// </summary>
+        public static class Strings
+        {
+            public static Token.Strings.StringLiteral StringLiteral()
+            {
+                return new Token.Strings.StringLiteral();
             }
         }
 
@@ -151,11 +203,11 @@ namespace Monad.Parsec
         /// </summary>
         public static class Id
         {
-            public static Token.Idents.Identifier Identifier(GeneralLanguageDef def)
+            public static Token.Idents.Identifier Identifier(LanguageDef def)
             {
                 return new Token.Idents.Identifier(def);
             }
-            public static Token.Idents.Reserved Reserved(string name, GeneralLanguageDef def)
+            public static Token.Idents.Reserved Reserved(string name, LanguageDef def)
             {
                 return new Token.Idents.Reserved(name, def);
             }
@@ -166,11 +218,11 @@ namespace Monad.Parsec
         /// </summary>
         public static class Ops
         {
-            public static Token.Ops.Operator Operator(GeneralLanguageDef def)
+            public static Token.Ops.Operator Operator(LanguageDef def)
             {
                 return new Token.Ops.Operator(def);
             }
-            public static Token.Ops.ReservedOp ReservedOp(string name, GeneralLanguageDef def)
+            public static Token.Ops.ReservedOp ReservedOp(string name, LanguageDef def)
             {
                 return new Token.Ops.ReservedOp(name, def);
             }

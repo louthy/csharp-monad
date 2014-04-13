@@ -46,6 +46,7 @@
     <Compile Include="src\Error.cs" />
     <Compile Include="src\IO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Memoise.cs" />
     <Compile Include="src\option\Just.cs" />
     <Compile Include="src\option\Nothing.cs" />
     <Compile Include="src\option\Option.cs" />
@@ -54,10 +55,12 @@
     <Compile Include="src\parsec\expr\Operator.cs" />
     <Compile Include="src\parsec\language\EmptyDef.cs" />
     <Compile Include="src\parsec\language\Haskell98Def.cs" />
+    <Compile Include="src\parsec\language\HaskellDef.cs" />
     <Compile Include="src\parsec\language\HaskellStyle.cs" />
     <Compile Include="src\parsec\language\JavaStyle.cs" />
     <Compile Include="src\parsec\token\idents\Idents.cs" />
     <Compile Include="src\parsec\token\ops\Ops.cs" />
+    <Compile Include="src\parsec\token\strings\Strings.cs" />
     <Compile Include="src\parsec\token\TokenParser.cs" />
     <Compile Include="src\parsec\token\LanguageDef.cs" />
     <Compile Include="src\parsec\New.cs" />

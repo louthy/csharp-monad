@@ -1,4 +1,29 @@
-﻿using System;
+﻿////////////////////////////////////////////////////////////////////////////////////////
+// The MIT License (MIT)
+// 
+// Copyright (c) 2014 Paul Louth
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +31,23 @@ using System.Threading.Tasks;
 
 namespace Monad.Parsec.Token
 {
+    /// <summary>
+    /// Token parser
+    /// </summary>
+    /// <typeparam name="A"></typeparam>
+    public class TokenParser : GenTokenParser<Token>
+    {
+        public TokenParser(LanguageDef def)
+            :
+            base(def)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Generic token parser
+    /// </summary>
+    /// <typeparam name="A"></typeparam>
     public class GenTokenParser<A>
         where A : Token
     {
@@ -14,7 +56,7 @@ namespace Monad.Parsec.Token
         public readonly Parser<IEnumerable<OperatorToken>> Operator;
         public readonly IReadOnlyDictionary<string, Parser<IEnumerable<ReservedOpToken>>> ReservedOp;
         public readonly Parser<CharLiteralToken> CharLiteral;
-        public readonly Parser<StringLiteralToken> StringLiteral; //TODO
+        public readonly Parser<StringLiteralToken> StringLiteral;
         public readonly Parser<IntegerToken> Natural;
         public readonly Parser<IntegerToken> Integer;
         public readonly Parser<FloatToken> Float;
@@ -24,7 +66,7 @@ namespace Monad.Parsec.Token
         public readonly Parser<IntegerToken> Octal;
         public readonly Func<string, Parser<SymbolToken>> Symbol;
         public readonly Func<Parser<A>, Parser<A>> Lexeme;
-        public readonly Parser<IEnumerable<ParserChar>> WhiteSpace;
+        public readonly Parser<Unit> WhiteSpace;
         public readonly Func<Parser<IEnumerable<A>>, Parser<IEnumerable<A>>> Parens;
         public readonly Func<Parser<IEnumerable<A>>, Parser<IEnumerable<A>>> Braces;
         public readonly Func<Parser<IEnumerable<A>>, Parser<IEnumerable<A>>> Angles;
@@ -38,27 +80,21 @@ namespace Monad.Parsec.Token
         public readonly Func<Parser<A>, Parser<IEnumerable<A>>> CommaSep;
         public readonly Func<Parser<A>, Parser<IEnumerable<A>>> CommaSep1;
 
-        public GenTokenParser(GeneralLanguageDef def)
+        public GenTokenParser(LanguageDef def)
         {
             Identifier = Tok.Id.Identifier(def);
             Reserved = def.ReservedNames.ToDictionary(name => name, name => Tok.Id.Reserved(name, def) as Parser<IEnumerable<ReservedToken>>);
-
             Operator = Tok.Ops.Operator(def);
             ReservedOp = def.ReservedOpNames.ToDictionary(name => name, name => Tok.Ops.ReservedOp(name, def) as Parser<IEnumerable<ReservedOpToken>>);
-
             CharLiteral = Tok.Chars.CharLiteral();
-
-            // stringLiteral = Tok.Strings.StringLiteral() TODO
-
+            StringLiteral = Tok.Strings.StringLiteral();
             Natural = Tok.Numbers.Natural();
             Integer = Tok.Numbers.Integer();
             
             // floating = Tok.Numbers.Floating(); TODO
             // naturalOrFloat = Tok.Numbers.NaturalOrFloating(); TODO
 
-            // TODO - Use the proper whiteSpace code from Text-Parsec-Token
-            WhiteSpace = New.WhiteSpace() as Parser<IEnumerable<ParserChar>>;  
-
+            WhiteSpace = Tok.WhiteSpace(def);
             Decimal = Tok.Numbers.Decimal();
             Hexadecimal = Tok.Numbers.Hexadecimal();
             Octal = Tok.Numbers.Octal();
@@ -78,315 +114,4 @@ namespace Monad.Parsec.Token
             SemiSep1 = (Parser<A> p) => New.SepBy1(p, Semi);
         }
     }
-
-    /// <summary>
-    /// This is ugly as hell
-    /// </summary>
-    /// <typeparam name="A"></typeparam>
-    public class TokenParser : Parser<IEnumerable<Token>>
-    {
-        public TokenParser(GeneralLanguageDef def)
-            :
-            base(
-                inp =>
-                {
-                    List<Token> tokens = new List<Token>();
-
-                    var current = inp;
-                    var lexer = new GenTokenParser<Token>(def);
-
-                    start:
-
-                    while (current.Count() > 0)
-                    {
-                        {
-                            // Identifier
-                            var ids = lexer.Identifier.Parse(current);
-                            if (!ids.IsFaulted && ids.Value.Count() > 0)
-                            {
-                                var fst = ids.Value.First();
-                                if (fst.Item1.Count() > 0)
-                                {
-                                    tokens.Add(fst.Item1.First());
-                                    current = fst.Item2;
-                                    goto start;
-                                }
-                            }
-                        }
-
-                        {
-                            // Reserved
-                            foreach (var reserved in lexer.Reserved.Values)
-                            {
-                                var res = reserved.Parse(current);
-                                if (!res.IsFaulted && res.Value.Count() > 0)
-                                {
-                                    var fst = res.Value.First();
-                                    if (fst.Item1.Count() > 0)
-                                    {
-                                        tokens.Add(fst.Item1.First());
-                                        current = fst.Item2;
-                                        goto start;
-                                    }
-                                }
-                            }
-                        }
-
-                        {
-                            // Operator
-                            var ops = lexer.Operator.Parse(current);
-                            if (!ops.IsFaulted && ops.Value.Count() > 0)
-                            {
-                                var fst = ops.Value.First();
-                                if (fst.Item1.Count() > 0)
-                                {
-                                    tokens.Add(fst.Item1.First());
-                                    current = fst.Item2;
-                                    goto start;
-                                }
-                            }
-                        }
-
-                        {
-                            // ReservedOps
-                            foreach (var reservedOp in lexer.ReservedOp.Values)
-                            {
-                                var resOp = reservedOp.Parse(current);
-                                if (!resOp.IsFaulted && resOp.Value.Count() > 0)
-                                {
-                                    var fst = resOp.Value.First();
-                                    if (fst.Item1.Count() > 0)
-                                    {
-                                        tokens.Add(fst.Item1.First());
-                                        current = fst.Item2;
-                                        goto start;
-                                    }
-                                }
-                            }
-                        }
-
-                        {
-                            // CharLiteral
-                            var cl = lexer.CharLiteral.Parse(current);
-                            if (!cl.IsFaulted && cl.Value.Count() > 0)
-                            {
-                                var fst = cl.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            /*
-                            // StringLiteral
-                            var cl = lexer.StringLiteral.Parse(current);
-                            if (!cl.IsFaulted && cl.Value.Count() > 0)
-                            {
-                                var fst = cl.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }*/
-                        }
-
-                        {
-                            /*
-                            // Float
-                            var res = lexer.Float.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }*/
-                        }
-
-                        {
-                            // Integer
-                            var res = lexer.Integer.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Natural
-                            var res = lexer.Natural.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Hexadecimal
-                            var res = lexer.Hexadecimal.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Octal
-                            var res = lexer.Octal.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Decimal
-                            var res = lexer.Decimal.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Parens
-                            var res = lexer.Parens(new TokenParser(def)).Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.AddRange(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Parens
-                            var res = lexer.Parens(new TokenParser(def)).Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(new ParensToken(fst.Item1, fst.Item1.First().Location));
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Braces
-                            var res = lexer.Braces(new TokenParser(def)).Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(new BracesToken(fst.Item1, fst.Item1.First().Location));
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // What if they're used in operators?
-                            // Brackets
-                            var res = lexer.Brackets(new TokenParser(def)).Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(new BracketsToken(fst.Item1, fst.Item1.First().Location));
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // What if they're used in operators?
-                            // Angles
-                            var res = lexer.Angles(new TokenParser(def)).Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(new AnglesToken(fst.Item1, fst.Item1.First().Location));
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Semi
-                            var res = lexer.Semi.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Dot
-                            var res = lexer.Dot.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Comma
-                            var res = lexer.Comma.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-                        }
-
-                        {
-                            // Colon
-                            var res = lexer.Comma.Parse(current);
-                            if (!res.IsFaulted && res.Value.Count() > 0)
-                            {
-                                var fst = res.Value.First();
-                                tokens.Add(fst.Item1);
-                                current = fst.Item2;
-                                goto start;
-                            }
-
-                            if (res.IsFaulted)
-                            {
-                                return ParserResult.Fail<IEnumerable<Token>>(ParserError.Create("unexpected", current));
-                            }
-                        }
-                    }
-                    return new ParserResult<IEnumerable<Token>>(
-                        Tuple.Create<IEnumerable<Token>, IEnumerable<ParserChar>>(
-                            tokens,
-                            new ParserChar[0]).Cons()
-                        );
-                }
-            )
-        {
-        }
-    }
-
 }
