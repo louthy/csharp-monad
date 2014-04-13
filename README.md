@@ -5,6 +5,7 @@ Library of monads for C#
 
 The library is stable but it's still in development, so as you can see documentation is pretty sparse right now.
 
+The Token section of the parser components are very work in progress.
 
 ## Error monad
 
