@@ -148,7 +148,7 @@ __Example__
                       from val2 in DoSomethingError(val1)
                       from val3 in DoNotEverEnterThisFunction(val2)
                       select val3)
-                     .Result();
+                     .Return();
 
         Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
 ```
@@ -163,9 +163,7 @@ __Example__
         private static IO<Unit> DeleteFile(string tmpFileName)
         {
             return () =>
-                Unit.Return(
-                    () => File.Delete(tmpFileName)
-                );
+                Unit.Return( () => File.Delete(tmpFileName) );
         }
 
         private static IO<string> ReadFile(string tmpFileName)
@@ -176,9 +174,7 @@ __Example__
         private static IO<Unit> WriteFile(string tmpFileName, string data)
         {
             return () =>
-                Unit.Return(
-                    () => File.WriteAllText(tmpFileName, data)
-                );
+                Unit.Return( () => File.WriteAllText(tmpFileName, data) );
         }
 
         private static IO<string> GetTempFileName()
@@ -213,9 +209,9 @@ If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit l
                 ? rnd.ToOption()
                 : Option<int>.Nothing;
         }
-
+```
 You can check the result by looking at the HasValue property, however an even even nicer way is to use pattern matching for a proper functional expression:
-
+```C#
         var result = MaybeGetAnInt().Match(
                         Just: v => v * 10,
                         Nothing: 0
