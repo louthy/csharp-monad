@@ -82,21 +82,21 @@ namespace Monad.UnitTests.Lex
                            from name in identifier
                            from args in manyargs
                            from body in expr
-                           select new Function(name.Head(), args, body) as Term;
+                           select new Function(name, args, body) as Term;
 
             var externFn = from _ in reserved("extern")
                            from name in identifier
                            from args in manyargs
-                           select new Extern(name.Head(), args) as Term;
+                           select new Extern(name, args) as Term;
 
             var call = from name in identifier
                        from args in commaSepExpr
-                       select new Call(name.Head(), args);
-
+                       select new Call(name, args) as Term;
 
             var factor = from f in
                              New.Try(integer)
                                 .OrTry(function)
+                                .OrTry(call)
                                 .OrTry(variable)
                                 .Or(from ps in
                                         parens(from es in expr select es as IEnumerable<Token>)
@@ -195,8 +195,8 @@ namespace Monad.UnitTests.Lex
 
         public class Var : Term
         {
-            public IEnumerable<IdentifierToken> Id;
-            public Var(IEnumerable<IdentifierToken> id, SrcLoc location = null)
+            public IdentifierToken Id;
+            public Var(IdentifierToken id, SrcLoc location = null)
                 :
                 base(location)
             {

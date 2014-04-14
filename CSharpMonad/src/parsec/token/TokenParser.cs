@@ -50,8 +50,8 @@ namespace Monad.Parsec.Token
     /// <typeparam name="A"></typeparam>
     public class GenTokenParser<A>
     {
-        public readonly Parser<IEnumerable<IdentifierToken>> Identifier;
-        public readonly Parser<IEnumerable<OperatorToken>> Operator;
+        public readonly Parser<IdentifierToken> Identifier;
+        public readonly Parser<OperatorToken> Operator;
         public readonly Parser<CharLiteralToken> CharLiteral;
         public readonly Parser<StringLiteralToken> StringLiteral;
         public readonly Parser<IntegerToken> Natural;
@@ -84,18 +84,18 @@ namespace Monad.Parsec.Token
         public readonly Func<Parser<A>, Parser<IEnumerable<A>>> CommaSep;
         public readonly Func<Parser<A>, Parser<IEnumerable<A>>> CommaSep1;
 
-        private readonly IReadOnlyDictionary<string, Parser<IEnumerable<ReservedToken>>> reserved;
-        private readonly IReadOnlyDictionary<string, Parser<IEnumerable<ReservedOpToken>>> reservedOp;
+        private readonly IReadOnlyDictionary<string, Parser<ReservedToken>> reserved;
+        private readonly IReadOnlyDictionary<string, Parser<ReservedOpToken>> reservedOp;
 
-        public readonly Func<string, Parser<IEnumerable<ReservedToken>>> Reserved;
-        public readonly Func<string, Parser<IEnumerable<ReservedOpToken>>> ReservedOp;
+        public readonly Func<string, Parser<ReservedToken>> Reserved;
+        public readonly Func<string, Parser<ReservedOpToken>> ReservedOp;
 
         public GenTokenParser(LanguageDef def)
         {
             Identifier = Tok.Id.Identifier(def);
-            reserved = def.ReservedNames.ToDictionary(name => name, name => Tok.Id.Reserved(name, def) as Parser<IEnumerable<ReservedToken>>);
+            reserved = def.ReservedNames.ToDictionary(name => name, name => Tok.Id.Reserved(name, def) as Parser<ReservedToken>);
             Operator = Tok.Ops.Operator(def);
-            reservedOp = def.ReservedOpNames.ToDictionary(name => name, name => Tok.Ops.ReservedOp(name, def) as Parser<IEnumerable<ReservedOpToken>>);
+            reservedOp = def.ReservedOpNames.ToDictionary(name => name, name => Tok.Ops.ReservedOp(name, def) as Parser<ReservedOpToken>);
             CharLiteral = Tok.Chars.CharLiteral();
             StringLiteral = Tok.Strings.StringLiteral();
             Natural = Tok.Numbers.Natural();

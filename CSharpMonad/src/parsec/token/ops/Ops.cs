@@ -41,24 +41,23 @@ namespace Monad.Parsec.Token.Ops
         }
     }
 
-    public class ReservedOp : Parser<IEnumerable<ReservedOpToken>>
+    public class ReservedOp : Parser<ReservedOpToken>
     {
         public ReservedOp(string name, GeneralLanguageDef languageDef)
             :
             base(
                 inp => Tok.Lexeme(
-                    New.Try(
                         from op in New.String(name)
                         from nf in New.NotFollowedBy( languageDef.OpLetter )
                                       .Fail("end of " + op.AsString())
                         select new ReservedOpToken(op, inp.First().Location)
-                    ))
+                    )
                     .Parse(inp)
             )
         { }
     }
 
-    public class Operator : Parser<IEnumerable<OperatorToken>>
+    public class Operator : Parser<OperatorToken>
     {
         public Operator(GeneralLanguageDef languageDef)
             :
@@ -66,18 +65,16 @@ namespace Monad.Parsec.Token.Ops
                 inp =>
                 {
                     var res = Tok.Lexeme(
-                        New.Try<OperatorToken>(
-                            from name in new Oper(languageDef)
-                            where !OpsHelper.IsReservedOp(name, languageDef)
-                            select new OperatorToken(name, inp.First().Location)
-                        ))
+                        from name in new Oper(languageDef)
+                        where !OpsHelper.IsReservedOp(name, languageDef)
+                        select new OperatorToken(name, inp.First().Location))
                         .Parse(inp);
 
                     if (res.IsFaulted)
                         return res;
 
                     if (res.Value.IsEmpty())
-                        return ParserResult.Fail<IEnumerable<OperatorToken>>("unexpected: reserved operator", inp);
+                        return ParserResult.Fail<OperatorToken>("unexpected: reserved operator", inp);
 
                     return res;
                 }

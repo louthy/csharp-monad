@@ -98,6 +98,8 @@ namespace Monad.UnitTests
                     Right: r => Assert.IsTrue(false),
                     Left: l => Assert.IsTrue(l == "Error!!")
                 );
+
+            Console.WriteLine(unit.ToString());
         }
 
         [Test]
@@ -112,6 +114,7 @@ namespace Monad.UnitTests
                     right => Assert.IsFalse(true),
                     left => Assert.IsTrue(left == "Error!!")
                 );
+            Console.WriteLine(unit.ToString());
         }
 
         [Test]
@@ -125,6 +128,7 @@ namespace Monad.UnitTests
                     Right: r => Assert.IsTrue(r == 4),
                     Left: l => Assert.IsFalse(true)
                 );
+            Console.WriteLine(unit.ToString());
         }
 
         [Test]
@@ -138,6 +142,7 @@ namespace Monad.UnitTests
                     right => Assert.IsTrue(right == 4),
                     left => Assert.IsFalse(true)
                 );
+            Console.WriteLine(unit.ToString());
         }
 
         [Test]

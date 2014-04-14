@@ -50,24 +50,23 @@ namespace Monad.Parsec.Token.Idents
         }
     }
 
-    public class Reserved : Parser<IEnumerable<ReservedToken>>
+    public class Reserved : Parser<ReservedToken>
     {
         public Reserved(string name, GeneralLanguageDef languageDef)
             :
             base(
                 inp => Tok.Lexeme(
-                    New.Try(
                         from cs in IdentHelper.CaseString(name, languageDef)
                         from nf in New.NotFollowedBy( languageDef.IdentLetter )
                                       .Fail("end of " + cs.AsString())
                         select new ReservedToken(cs,inp.First().Location)
-                    ))
+                    )
                     .Parse(inp)
             )
         { }
     }
 
-    public class Identifier : Parser<IEnumerable<IdentifierToken>>
+    public class Identifier : Parser<IdentifierToken>
     {
         public Identifier(GeneralLanguageDef languageDef)
             :
@@ -75,18 +74,17 @@ namespace Monad.Parsec.Token.Idents
                 inp =>
                 {
                     var res = Tok.Lexeme(
-                        New.Try<IdentifierToken>(
                             from name in new Ident(languageDef)
                             where !IdentHelper.IsReservedName(name, languageDef)
                             select new IdentifierToken(name, inp.First().Location)
-                        ))
+                        )
                         .Parse(inp);
 
                     if (res.IsFaulted)
                         return res;
 
                     if (res.Value.IsEmpty())
-                        return ParserResult.Fail<IEnumerable<IdentifierToken>>("unexpected: reserved word",inp);
+                        return ParserResult.Fail<IdentifierToken>("unexpected: reserved word",inp);
 
                     return res;
                 }
