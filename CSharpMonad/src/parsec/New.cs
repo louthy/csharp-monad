@@ -188,15 +188,24 @@ namespace Monad.Parsec
             return new Parser<Unit>(
                 inp =>
                 {
+                    bool consumed = false;
+
+                    if( inp.IsEmpty() ) 
+                        return new ParserResult<Unit>(Tuple.Create(Unit.Return(), inp).Cons());
+
                     do
                     {
+                        var head = inp.Head();
+
                         var resA = skipParser.Parse(inp);
                         if (resA.IsFaulted)
                             return new ParserResult<Unit>(Tuple.Create(Unit.Return(), inp).Cons());
 
                         inp = resA.Value.First().Item2;
+
+                        consumed = inp.IsEmpty() || (inp.Head().Location.GetHashCode() != head.Location.GetHashCode());
                     }
-                    while (!inp.IsEmpty());
+                    while (consumed && !inp.IsEmpty());
                     return new ParserResult<Unit>(Tuple.Create(Unit.Return(), inp).Cons());
                 }
             );

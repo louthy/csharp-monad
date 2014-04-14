@@ -48,15 +48,13 @@ namespace Monad.Parsec.Expr
 
         private static Parser<A> MakeParser<A>(IEnumerable<Operator<A>> ops, Parser<A> term)
         {
-            throw new NotImplementedException();
             /*
              * Currently struggling to parse the haskell equivalent.  I'll make it work once I 
              * stop my head exploding.
              * 
              * http://hackage.haskell.org/package/parsec-3.0.0/docs/src/Text-Parsec-Expr.html
              * 
-             *
-
+             */
             return ops.Foldr(
                 Tuple.Create(
                     new Operator<A>[0].AsEnumerable(),
@@ -73,9 +71,9 @@ namespace Monad.Parsec.Expr
                     var prefixOp = New.Choice(prefix).Fail("");
                     var postfixOp = New.Choice(postfix).Fail("");
 
-                    Func<string, Choice<A>, Parser<IEnumerable<A>>> ambiguous = (string assoc, Choice<A> op) =>
+                    Func<string, Choice<OperatorDef<A>>, Parser<IEnumerable<OperatorDef<A>>>> ambiguous = (string assoc, Choice<OperatorDef<A>> op) =>
                         from p in
-                            New.Try<A>(
+                            New.Try<OperatorDef<A>>(
                                 (from o in op
                                  select o)
                                 .Fail("ambiguous use of a " + assoc + " associative operator")
@@ -83,31 +81,56 @@ namespace Monad.Parsec.Expr
                         select p;
 
 
-                    var ambiguousRight = ambiguous("right", rassocOp);
-                    var ambiguousLeft = ambiguous("left", lassocOp);
-                    var ambiguousNon = ambiguous("non", nassocOp);
+                    var ambiguousRight = from a in ambiguous("right", rassocOp) select default(A); // Not sure about what the result should be
+                    var ambiguousLeft = from a in ambiguous("left", lassocOp) select default(A); // Not sure about what the result should be
+                    var ambiguousNon = from a in ambiguous("non", nassocOp) select default(A); // Not sure about what the result should be
 
-                    var postfixP = postfixOp;//.Or(New.Return(id));
-                    var prefixP = prefixOp;//.Or(New.Return(id));
+                    var postfixP = postfixOp.Or(New.Return(OperatorDef.Id<A>()));
+                    var prefixP = prefixOp.Or(New.Return(OperatorDef.Id<A>()));
 
                     Parser<A> termP = from pre in prefixP
                                       from x in term
                                       from post in postfixP
-                                      select (post(pre(x)));
+                                      select (post.UnaryFn(pre.UnaryFn(x)));
 
-                    Func<Parser<A>,Parser<A>> rassocP = a => from f in rassocOp
-                                                             from y in (from z in termP
-                                                                        from rz in rassocP1(z)
-                                                                        select rz)
-                                                             select f(x,y);
+                    Func<A,Parser<A>> rassocP1 = null;
 
+                    Func<A,Parser<A>> rassocP = x => (from f in rassocOp
+                                                      from y in (from z in termP
+                                                                 from rz in rassocP1(z)
+                                                                 select rz)
+                                                      select f.BinaryFn(x,y))   // f(x,y)
+                                                     .Or(ambiguousLeft)
+                                                     .Or(ambiguousNon);
 
-                    //return new Parser<A>();
+                    rassocP1 = x => rassocP(x).Or(New.Return(x));
+
+                    Func<A, Parser<A>> lassocP1 = null;
+
+                    Func<A, Parser<A>> lassocP = x => (from f in lassocOp
+                                                       from y in termP
+                                                       from l in lassocP1(f.BinaryFn(x, y))
+                                                       select l)
+                                                      .Or(ambiguousRight);  // Not sure about this
+
+                    lassocP1 = x => (from l in lassocP(x)
+                                     select l)
+                                    .Or(New.Return(x));
+
+                    Func<A, Parser<A>> nassocP = x => (from f in nassocOp
+                                                       from y in termP
+                                                       from r in ambiguousRight
+                                                                .Or(ambiguousLeft)
+                                                                .Or(ambiguousNon)
+                                                                .Or(New.Return(f.BinaryFn(x, y)))
+                                                       select r);
+
+                    return from x in termP
+                           from r in rassocP(x).Or(lassocP(x).Or(nassocP(x).Or(New.Return(x)))).Fail("operator")
+                           select r;
                 }
-            );*/
+            );
         }
-
-
 
         /// <summary>
         /// Assigns the operator to one of the five buckets in state provided
@@ -126,10 +149,10 @@ namespace Monad.Parsec.Expr
             IEnumerable<Operator<A>>,
             IEnumerable<Operator<A>>> state)
         {
-            switch (op.OpType)
+            switch (op.Def.Type)
             {
                 case OperatorType.Infix:
-                    switch ((op as Infix<A>).Assoc)
+                    switch (op.Def.Assoc)
                     {
                         case Assoc.None:
                             return Tuple.Create(state.Item1, state.Item2, op.Cons(state.Item3), state.Item4, state.Item5);

@@ -33,12 +33,116 @@ using Monad;
 using Monad.Parsec;
 using Monad.Parsec.Language;
 using Monad.Parsec.Token;
+using Monad.Parsec.Expr;
 
 namespace Monad.UnitTests.Lex
 {
     [TestFixture]
     public class LexerTests
     {
+        /// <summary>
+        /// This test is work in progress.  It looks very pretty but does nothing at the moment.
+        /// </summary>
+        [Test]
+        public void LexerTest()
+        {
+            Parser<Term> expr = null;
+            Func<Parser<Term>, Parser<Term>> contents;
+
+            var def = new Lang();
+            var lexer = Tok.MakeTokenParser(def);
+            var binops = BuildOperatorsTable<Term>();
+
+            // Lexer
+            var intlex = lexer.Integer;
+            var floatlex = lexer.Float;
+            var parens = lexer.ParensM;
+            var commaSep = lexer.CommaSep;
+            var semiSep = lexer.SemiSep;
+            var identifier = lexer.Identifier;
+            var reserved = lexer.Reserved;
+            var reservedOp = lexer.ReservedOp;
+            var whiteSpace = lexer.WhiteSpace;
+
+            // Parser
+
+            var integer = from n in intlex
+                          select new Integer(n) as Term;
+
+            var variable = from v in identifier
+                           select new Var(v) as Term;
+
+            var manyargs = parens(from ts in New.Many(variable) 
+                                  select ts as IEnumerable<Token>);
+
+            var commaSepExpr = parens(from cs in commaSep(from t in expr select t as Token)
+                                      select cs as IEnumerable<Token>);
+
+            var function = from d in reserved("def")
+                           from name in identifier
+                           from args in manyargs
+                           from body in expr
+                           select new Function(name.Head(), args, body) as Term;
+
+            var externFn = from _ in reserved("extern")
+                           from name in identifier
+                           from args in manyargs
+                           select new Extern(name.Head(), args) as Term;
+
+            var call = from name in identifier
+                       from args in commaSepExpr
+                       select new Call(name.Head(), args);
+
+
+            var factor = from f in
+                             New.Try(integer)
+                                .OrTry(function)
+                                .OrTry(variable)
+                                .Or(from ps in
+                                        parens(from es in expr select es as IEnumerable<Token>)
+                                    select (from t in ps
+                                            select new Expression(t) as Term)
+                                )
+                         select f.Head();
+
+            var defn = from f in New.Try(externFn)
+                                    .OrTry(function)
+                                    .OrTry(expr)
+                       select f.Head();
+
+            contents = p =>
+                from ws in whiteSpace
+                from r in p
+                select r;
+
+            var toplevel = from ts in
+                               New.Many(
+                                   from fn in defn
+                                   from semi in reservedOp(";")
+                                   select fn
+                                   )
+                           select ts.Head();
+
+            expr = Ex.BuildExpressionParser<Term>(binops, factor);
+
+            Func<string,ParserResult<Term>> parseExpr = src => contents(expr).Parse(src);
+
+            var result = parseExpr(TestData1);
+
+            if (result.IsFaulted)
+            {
+                string errs = System.String.Join("\n",
+                    result.Errors.Select(e =>
+                        e.Message + "Expected " + e.Expected + " at " + e.Location +
+                        " - " + e.Input.AsString().Substring(0, Math.Min(30, e.Input.AsString().Length))
+                        + "...")
+                    );
+                Console.WriteLine(errs);
+            }
+
+            Assert.IsTrue(!result.IsFaulted);
+        }
+
         class Lang : EmptyDef
         {
             public Lang()
@@ -47,6 +151,23 @@ namespace Monad.UnitTests.Lex
                 ReservedNames = new string[] { "def", "extern" };
                 CommentLine = "#";
             }
+        }
+
+        private static OperatorTable<T> BuildOperatorsTable<T>()
+        {
+            var equals = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "=", a => a, Assoc.Left));
+            var mult = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "*", a => a, Assoc.Left));
+            var divide = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "/", a => a, Assoc.Left));
+            var plus = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "+", a => a, Assoc.Left));
+            var minus = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "-", a => a, Assoc.Left));
+            var lessThan = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "<", a => a, Assoc.Left));
+
+            var prec0 = equals.Cons();
+            var prec1 = mult.Cons(); prec1 = divide.Cons(prec1);
+            var prec2 = plus.Cons(); prec2 = minus.Cons(prec2);
+            var prec3 = lessThan.Cons();
+            var binops = new OperatorTable<T>(new IEnumerable<Operator<T>>[] { prec0, prec1, prec2, prec3 });
+            return binops;
         }
 
         public class Term : Token
@@ -74,8 +195,8 @@ namespace Monad.UnitTests.Lex
 
         public class Var : Term
         {
-            public IdentifierToken Id;
-            public Var(IdentifierToken id, SrcLoc location = null)
+            public IEnumerable<IdentifierToken> Id;
+            public Var(IEnumerable<IdentifierToken> id, SrcLoc location = null)
                 :
                 base(location)
             {
@@ -83,55 +204,63 @@ namespace Monad.UnitTests.Lex
             }
         }
 
-        [Test]
-        public void LexerTest()
+        public class Function : Term
         {
-            var def = new Lang();
-            var lexer = Tok.MakeTokenParser(def);
+            public IdentifierToken Id;
+            public IEnumerable<Token> Args;
+            public Token Body;
 
-            // Lexer
-            var intlex = lexer.Integer;
-            var floatlex = lexer.Float;
-            var parens = lexer.ParensM;
-            var commaSep = lexer.CommaSep;
-            var semiSep = lexer.SemiSep;
-            var identifier = lexer.Identifier;
-            var reserved = lexer.Reserved;
-            var reservedOp = lexer.ReservedOp;
-
-            // Parser
-            var integer = from n in intlex
-                          select new Integer(n);
-
-            //var expr = Ex.BuildExpressionParser 
-
-            var variable = from v in identifier
-                           select new Var(v.First());
-
-            var manyargs = parens(from ts in New.Many(variable) 
-                                  select ts as IEnumerable<Token>);
-
-//            var function = from d in reserved("def")
-//                           from name in identifier
-//                           from args in manyargs
-//                           from body in expr
- //                          select new Function(name, args, body);
-
-            /*
-
-            if (result.IsFaulted)
+            public Function(IdentifierToken id, IEnumerable<Token> args, Token body, SrcLoc location = null)
+                :
+                base(location)
             {
-                string errs = System.String.Join("\n",
-                    result.Errors.Select(e =>
-                        e.Message + "Expected " + e.Expected + " at " + e.Location +
-                        " - " + e.Input.AsString().Substring(0, Math.Min(30, e.Input.AsString().Length))
-                        + "...")
-                    );
-                Console.WriteLine(errs);
+                Id = id;
             }
-
-            Assert.IsTrue(!result.IsFaulted);
-            */
         }
+
+        public class Extern : Term
+        {
+            public IdentifierToken Id;
+            public IEnumerable<Token> Args;
+
+            public Extern(IdentifierToken id, IEnumerable<Token> args, SrcLoc location = null)
+                :
+                base(location)
+            {
+                Id = id;
+            }
+        }
+
+        public class Call : Term
+        {
+            public IdentifierToken Name;
+            public IEnumerable<Token> Args;
+
+            public Call(IdentifierToken name, IEnumerable<Token> args, SrcLoc location = null)
+                :
+                base(location)
+            {
+                Name = name;
+                Args = args;
+            }
+        }
+
+        public class Expression : Term
+        {
+            public Token Expr;
+            public Expression(Token expr, SrcLoc location = null)
+                :
+                base(location)
+            {
+                Expr = expr;
+            }
+        }
+
+        private static string TestData1 = @"def foo(x y) x+foo(y, 4.0);
+            def foo(x y) x+y y;
+            def foo(x y) x+y );
+            extern sin(a);
+            }";
+
     }
 }

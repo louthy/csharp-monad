@@ -72,5 +72,13 @@ namespace Monad.Parsec
         {
             return String.Format("({0},{1})", Line, Column);
         }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Line << 16) | Column;
+            }
+        }
     }
 }

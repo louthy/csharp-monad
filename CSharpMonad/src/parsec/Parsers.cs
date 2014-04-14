@@ -109,7 +109,7 @@ namespace Monad.Parsec
 
         public Choice(IEnumerable<Parser<A>> ps)
             :
-            this(ps.Head(),ps.Tail())
+            this(ps.HeadSafe(), ps.Tail())
         {
         }
 
@@ -118,6 +118,9 @@ namespace Monad.Parsec
             base(
                 inp =>
                 {
+                    if (p == null)
+                        return ParserResult.Fail<A>("choice not satisfied", inp);
+
                     var r = p.Parse(inp);
                     return r.IsFaulted
                         ? ps.IsEmpty()
@@ -266,6 +269,11 @@ namespace Monad.Parsec
                 .Parse(inp)
             )
         {
+        }
+
+        public Try<A> OrTry(Parser<A> p)
+        {
+            return New.Try<A>(p);
         }
     }
 

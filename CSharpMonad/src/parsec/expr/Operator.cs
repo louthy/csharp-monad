@@ -35,27 +35,73 @@ namespace Monad.Parsec.Expr
 {
     public enum OperatorType
     {
+        None,
         Infix,
         Postfix,
         Prefix
     }
 
-    public abstract class Operator<A> : Parser<A>
+    public class OperatorDef<A>
     {
-        public Operator(Func<IEnumerable<ParserChar>, ParserResult<A>> fn)
-            :
-            base(fn)
-        {
+        public readonly OperatorType Type;
+        public readonly string Op;
+        public readonly Func<A, A, A> BinaryFn;
+        public readonly Func<A, A> UnaryFn;
+        public readonly Assoc Assoc;
 
+        public OperatorDef(
+            OperatorType type,
+            string op,
+            Func<A, A, A> fn,
+            Assoc assoc
+            )
+        {
+            Type = type;
+            Op = op;
+            BinaryFn = fn;
+            Assoc = assoc;
         }
 
-        public abstract OperatorType OpType
+        public OperatorDef(
+            OperatorType type,
+            string op,
+            Func<A, A> fn,
+            Assoc assoc
+            )
         {
-            get;
+            Type = type;
+            Op = op;
+            UnaryFn = fn;
+            Assoc = assoc;
         }
     }
 
-    public class Infix<A> : Operator<OperatorToken<A>>
+    public static class OperatorDef
+    {
+        public static OperatorDef<A> Id<A>()
+        {
+            return new OperatorDef<A>(OperatorType.None, "<id>", a => a, Assoc.None);
+        }
+    }
+
+    public class Operator<A> : Parser<OperatorDef<A>>
+    {
+        public readonly OperatorDef<A> Def;
+
+        public Operator(OperatorDef<A> operatorDef)
+            :
+            base(
+                inp => (from o in New.String(operatorDef.Op)    // TODO: New.String probably isn't good enough
+                        select operatorDef)
+                       .Parse(inp)
+            )
+        {
+            Def = operatorDef;
+        }
+    }
+
+    /*
+    public class Infix<A> : Operator<A>
     {
         public readonly Assoc Assoc;
 
@@ -80,7 +126,7 @@ namespace Monad.Parsec.Expr
         }
     }
 
-    public class Prefix<A> : Operator<OperatorToken<A>>
+    public class Prefix<A> : Operator<A>
     {
         public Prefix(string operatorStr, Parser<A> rhsParser)
             :
@@ -102,7 +148,7 @@ namespace Monad.Parsec.Expr
         }
     }
 
-    public class Postfix<A> : Operator<OperatorToken<A>>
+    public class Postfix<A> : Operator<A>
     {
         public Postfix(string operatorStr, Parser<A> lhsParser)
             :
@@ -122,5 +168,5 @@ namespace Monad.Parsec.Expr
                 return OperatorType.Postfix;
             }
         }
-    }
+    }*/
 }

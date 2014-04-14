@@ -33,6 +33,16 @@ namespace Monad.Parsec.Expr
     {
         List<IEnumerable<Operator<A>>> ops = new List<IEnumerable<Operator<A>>>();
 
+        public OperatorTable(IEnumerable<IEnumerable<Operator<A>>> range)
+        {
+            AddRange(range);
+        }
+
+        public void AddRange(IEnumerable<IEnumerable<Operator<A>>> range)
+        {
+            ops.AddRange(range);
+        }
+
         public IEnumerable<IEnumerable<Operator<A>>> AsEnumerable()
         {
             return ops;
@@ -47,5 +57,7 @@ namespace Monad.Parsec.Expr
         {
             return ((IEnumerable<IEnumerable<Operator<A>>>)ops).GetEnumerator();
         }
+
+        //public void Add( )
     }
 }

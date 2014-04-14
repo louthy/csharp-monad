@@ -105,7 +105,7 @@ namespace Monad.Parsec
                 });
         }
 
-        public static Parser<U> And<T,U>(this Parser<T> self, Parser<U> also)
+        public static Parser<U> And<T, U>(this Parser<T> self, Parser<U> also)
         {
             return new Parser<U>(
                 input =>
