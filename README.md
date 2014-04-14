@@ -148,7 +148,7 @@ __Example__
                       from val2 in DoSomethingError(val1)
                       from val3 in DoNotEverEnterThisFunction(val2)
                       select val3)
-                     .Result();
+                     .Return();
 
         Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
 ```
