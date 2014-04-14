@@ -196,7 +196,7 @@ namespace Monad.Parsec
 
                         inp = resA.Value.First().Item2;
                     }
-                    while (inp.HasHead());
+                    while (!inp.IsEmpty());
                     return new ParserResult<Unit>(Tuple.Create(Unit.Return(), inp).Cons());
                 }
             );

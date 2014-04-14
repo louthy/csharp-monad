@@ -50,7 +50,7 @@ namespace Monad.Parsec
         {
             get
             {
-                return !Value.HasHead();
+                return Value.IsEmpty();
             }
         }
     }

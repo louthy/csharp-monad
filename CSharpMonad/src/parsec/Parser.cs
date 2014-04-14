@@ -40,6 +40,9 @@ namespace Monad.Parsec
 
         public Parser(Func<IEnumerable<ParserChar>, ParserResult<A>> func)
 		{
+            // This memoisation will only work if the exact same reference
+            // is passed to Parse.  We could obviously hash the entire enumerable
+            // but I suspect that would negate any benefits from the memoisation.
 			this.Value = func.Memo();
 		}
 

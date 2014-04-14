@@ -41,13 +41,13 @@ namespace Monad.Parsec
             Message = message;
             Expected = expected;
             Input = input;
-            if (input.HasHead())
+            if (input.IsEmpty())
             {
-                Location = input.Head().Location;
+                Location = SrcLoc.EndOfSource;
             }
             else
             {
-                Location = SrcLoc.EndOfSource;
+                Location = input.Head().Location;
             }
         }
 

@@ -38,9 +38,9 @@ namespace Monad
             return self.Take(amount).Count() == amount;
         }
 
-        public static bool HasHead<T>(this IEnumerable<T> self)
+        public static bool IsEmpty<T>(this IEnumerable<T> self)
         {
-            return self.CanTake(1);
+            return !self.CanTake(1);
         }
 
         public static T HeadSafe<T>(this IEnumerable<T> self)

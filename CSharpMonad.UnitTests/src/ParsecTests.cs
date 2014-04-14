@@ -78,9 +78,9 @@ namespace Monad.UnitTests
             Assert.IsTrue(res.Item1.Second().Location.Line == 1);
             Assert.IsTrue(res.Item1.Second().Location.Column == 3);
 
-            bool found = p.Parse("ab").Value.HasHead();
+            bool found = p.Parse("ab").Value.IsEmpty();
 
-            Assert.IsTrue(!found);
+            Assert.IsTrue(found);
 
         }
 
@@ -121,7 +121,7 @@ namespace Monad.UnitTests
             var r2 = p.Parse("[1,2,3,4");
             Assert.IsTrue(r2.IsFaulted);
             Assert.IsTrue(r2.Errors.First().Expected == "']'");
-            Assert.IsTrue(!r2.Errors.First().Input.HasHead());
+            Assert.IsTrue(r2.Errors.First().Input.IsEmpty());
 
             var r3 = p.Parse("[1,2,3,4*");
             Assert.IsTrue(r3.IsFaulted);
@@ -159,7 +159,7 @@ namespace Monad.UnitTests
             Assert.IsTrue(r.Item2.AsString() == "bcde");
 
             var r2 = New.Many1(New.Character('a')).Parse("bcde");
-            Assert.IsTrue(!r2.Value.HasHead());
+            Assert.IsTrue(r2.Value.IsEmpty());
         }
 
         [Test]
@@ -188,7 +188,7 @@ namespace Monad.UnitTests
         public void TestItem()
         {
             Assert.IsTrue(
-                !New.Item().Parse("").Value.HasHead()
+                New.Item().Parse("").Value.IsEmpty()
                 );
 
             var r = New.Item().Parse("abc").Value.Single();
@@ -207,9 +207,7 @@ namespace Monad.UnitTests
 
             var result = parser.Parse(inp);
 
-            Assert.IsTrue(
-                !result.Value.HasHead()
-                );
+            Assert.IsTrue( result.Value.IsEmpty() );
         }
 
         [Test]
