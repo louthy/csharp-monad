@@ -163,9 +163,7 @@ __Example__
         private static IO<Unit> DeleteFile(string tmpFileName)
         {
             return () =>
-                Unit.Return(
-                    () => File.Delete(tmpFileName)
-                );
+                Unit.Return( () => File.Delete(tmpFileName) );
         }
 
         private static IO<string> ReadFile(string tmpFileName)
@@ -176,9 +174,7 @@ __Example__
         private static IO<Unit> WriteFile(string tmpFileName, string data)
         {
             return () =>
-                Unit.Return(
-                    () => File.WriteAllText(tmpFileName, data)
-                );
+                Unit.Return( () => File.WriteAllText(tmpFileName, data) );
         }
 
         private static IO<string> GetTempFileName()
