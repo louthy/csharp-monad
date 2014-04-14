@@ -29,16 +29,98 @@ using System.Text;
 using System.Threading.Tasks;
 using Monad;
 using Monad.Parsec;
+using Monad.Parsec.Token;
 
 namespace Monad.Parsec.Expr
 {
-    /*
-    public class Operator<SYM,U,M,A>
+    public enum OperatorType
     {
+        Infix,
+        Postfix,
+        Prefix
     }
 
-    public class Infix<SYM, U, M, A> : Operator<SYM, U, M, A>
+    public abstract class Operator<A> : Parser<A>
     {
-        
-    }*/
+        public Operator(Func<IEnumerable<ParserChar>, ParserResult<A>> fn)
+            :
+            base(fn)
+        {
+
+        }
+
+        public abstract OperatorType OpType
+        {
+            get;
+        }
+    }
+
+    public class Infix<A> : Operator<OperatorToken<A>>
+    {
+        public readonly Assoc Assoc;
+
+        public Infix(string operatorStr, Parser<A> lhsParser, Parser<A> rhsParser)
+            :
+            base(
+                inp => (from lhs in lhsParser
+                        from op in New.String(operatorStr)
+                        from rhs in rhsParser
+                        select new OperatorToken<A>(operatorStr,lhs,rhs,OperatorType.Infix,inp.First().Location))
+                       .Parse(inp)        
+            )
+        {
+        }
+
+        public override OperatorType OpType
+        {
+            get
+            {
+                return OperatorType.Infix;
+            }
+        }
+    }
+
+    public class Prefix<A> : Operator<OperatorToken<A>>
+    {
+        public Prefix(string operatorStr, Parser<A> rhsParser)
+            :
+            base(
+                inp => (from op in New.String(operatorStr)
+                        from rhs in rhsParser
+                        select new OperatorToken<A>(operatorStr,default(A),rhs,OperatorType.Prefix,inp.First().Location))
+                       .Parse(inp)
+            )
+        {
+        }
+
+        public override OperatorType OpType
+        {
+            get
+            {
+                return OperatorType.Prefix;
+            }
+        }
+    }
+
+    public class Postfix<A> : Operator<OperatorToken<A>>
+    {
+        public Postfix(string operatorStr, Parser<A> lhsParser)
+            :
+            base(
+                inp => (from lhs in lhsParser
+                        from op in New.String(operatorStr)
+                        select new OperatorToken<A>(operatorStr, lhs, default(A), OperatorType.Prefix, inp.First().Location))
+                       .Parse(inp)
+            )
+        {
+        }
+
+        public override OperatorType OpType
+        {
+            get
+            {
+                return OperatorType.Postfix;
+            }
+        }
+    }
 }

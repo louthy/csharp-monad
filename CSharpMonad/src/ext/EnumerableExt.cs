@@ -81,5 +81,84 @@ namespace Monad
             }
         }
 
+        /// <summary>
+        /// Foldr
+        /// </summary>
+        public static U Foldr<T, U>(this IEnumerable<T> self, U state, Func<T, U, U> func)
+        {
+            foreach (var item in self)
+            {
+                state = func(item, state);
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Foldr
+        /// </summary>
+        public static U Foldr<T, U>(this IEnumerable<T> self, U state, Func<U, U> func)
+        {
+            foreach (var item in self)
+            {
+                state = func(state);
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Foldl
+        /// </summary>
+        public static U Foldl<T, U>(this IEnumerable<T> self, U state, Func<T, U, U> func)
+        {
+            return self.Reverse().Foldr(state, func);
+        }
+        /*
+        /// <summary>
+        /// Foldl
+        /// </summary>
+        public static U Foldl<T, U>(this IEnumerable<T> self, U state, Func<U, U> func)
+        {
+            return self.Reverse().Foldr(state, func);
+        }
+
+        /// <summary>
+        /// Foldr
+        /// </summary>
+        public static U Foldr<T, U>(this IEnumerable<IEnumerable<T>> self, U state, Func<IEnumerable<T>, U, U> func)
+        {
+            foreach (var item in self)
+            {
+                state = func(item, state);
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Foldr
+        /// </summary>
+        public static U Foldr<T, U>(this IEnumerable<IEnumerable<T>> self, U state, Func<U, U> func)
+        {
+            foreach (var item in self)
+            {
+                state = func(state);
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Foldl
+        /// </summary>
+        public static U Foldl<T, U>(this IEnumerable<IEnumerable<T>> self, U state, Func<IEnumerable<T>, U, U> func)
+        {
+            return self.Reverse().Foldr(state, func);
+        }
+
+        /// <summary>
+        /// Foldl
+        /// </summary>
+        public static U Foldl<T, U>(this IEnumerable<IEnumerable<T>> self, U state, Func<U, U> func)
+        {
+            return self.Reverse().Foldr(state, func);
+        }*/
     }
 }

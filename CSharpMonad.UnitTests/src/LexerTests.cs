@@ -34,24 +34,90 @@ using Monad.Parsec;
 using Monad.Parsec.Language;
 using Monad.Parsec.Token;
 
-namespace Monad.UnitTests.src
+namespace Monad.UnitTests.Lex
 {
     [TestFixture]
     public class LexerTests
     {
-        [Test]
-        public void Haskell98LexerTest()
+        class Lang : EmptyDef
         {
-/*
-            var lexer = new TokenParser(new Haskell98Def());
+            public Lang()
+            {
+                ReservedOpNames = new string[] { "+", "*", "-", ";" };
+                ReservedNames = new string[] { "def", "extern" };
+                CommentLine = "#";
+            }
+        }
 
-            var result = lexer.Parse(
-@"call2 :: Expr -> Parser Expr
-call2 lhs = do
-    rhs <- expr
-    rhsr <- call2 rhs
-    return $ Call lhs rhsr"
-);
+        public class Term : Token
+        {
+            SrcLoc location;
+
+            public Term(SrcLoc location)
+                :
+                base(location)
+            {
+                this.location = location;
+            }
+        }
+
+        public class Integer : Term
+        {
+            public IntegerToken Value;
+            public Integer(IntegerToken t, SrcLoc location = null)
+                :
+                base(location)
+            {
+                Value = t;
+            }
+        }
+
+        public class Var : Term
+        {
+            public IdentifierToken Id;
+            public Var(IdentifierToken id, SrcLoc location = null)
+                :
+                base(location)
+            {
+                Id = id;
+            }
+        }
+
+        [Test]
+        public void LexerTest()
+        {
+            var def = new Lang();
+            var lexer = Tok.MakeTokenParser(def);
+
+            // Lexer
+            var intlex = lexer.Integer;
+            var floatlex = lexer.Float;
+            var parens = lexer.ParensM;
+            var commaSep = lexer.CommaSep;
+            var semiSep = lexer.SemiSep;
+            var identifier = lexer.Identifier;
+            var reserved = lexer.Reserved;
+            var reservedOp = lexer.ReservedOp;
+
+            // Parser
+            var integer = from n in intlex
+                          select new Integer(n);
+
+            //var expr = Ex.BuildExpressionParser 
+
+            var variable = from v in identifier
+                           select new Var(v.First());
+
+            var manyargs = parens(from ts in New.Many(variable) 
+                                  select ts as IEnumerable<Token>);
+
+//            var function = from d in reserved("def")
+//                           from name in identifier
+//                           from args in manyargs
+//                           from body in expr
+ //                          select new Function(name, args, body);
+
+            /*
 
             if (result.IsFaulted)
             {
@@ -65,7 +131,7 @@ call2 lhs = do
             }
 
             Assert.IsTrue(!result.IsFaulted);
- */
+            */
         }
     }
 }

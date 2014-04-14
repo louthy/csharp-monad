@@ -30,7 +30,11 @@ using System.Threading.Tasks;
 
 namespace Monad.Parsec
 {
-	public class Parser<A>
+    public interface IParser<out A>
+    {
+    }
+
+	public class Parser<A> : IParser<A>
 	{
         public readonly Func<IEnumerable<ParserChar>,  ParserResult<A>> Value;
 
@@ -53,5 +57,17 @@ namespace Monad.Parsec
 		{
 			return new Parser<A>(func);
 		}
+
+        public static implicit operator Parser<A>(Func<IEnumerable<ParserChar>, ParserResult<A>> func)
+        {
+            return new Parser<A>(func);
+        }
+
+        public static implicit operator A(Parser<A> parser)
+        {
+            return from p in parser
+                   select p;
+        }
+
 	}
 }

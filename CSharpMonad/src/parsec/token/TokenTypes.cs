@@ -30,7 +30,11 @@ using System.Threading.Tasks;
 
 namespace Monad.Parsec.Token
 {
-    public abstract class Token
+    public interface IToken
+    {
+    }
+
+    public abstract class Token : IToken
     {
         public readonly SrcLoc Location;
 
