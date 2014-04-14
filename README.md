@@ -209,9 +209,9 @@ If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit l
                 ? rnd.ToOption()
                 : Option<int>.Nothing;
         }
-
+```
 You can check the result by looking at the HasValue property, however an even even nicer way is to use pattern matching for a proper functional expression:
-
+```C#
         var result = MaybeGetAnInt().Match(
                         Just: v => v * 10,
                         Nothing: 0
