@@ -53,7 +53,7 @@
     <Compile Include="src\option\Option.cs" />
     <Compile Include="src\parsec\Empty.cs" />
     <Compile Include="src\parsec\expr\Assoc.cs" />
-    <Compile Include="src\parsec\ExprParser.cs" />
+    <Compile Include="src\parsec\expr\ExprParser.cs" />
     <Compile Include="src\parsec\expr\ExprToken.cs" />
     <Compile Include="src\parsec\expr\Operator.cs" />
     <Compile Include="src\parsec\expr\OperatorToken.cs" />
