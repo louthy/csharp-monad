@@ -37,9 +37,9 @@ namespace Monad.Parsec
         public Item()
             :
             base(
-                inp => inp.Count() == 0
-                    ? ParserResult.Fail<ParserChar>("a character", inp)
-                    : Tuple.Create(inp.Head(), inp.Tail()).Cons().Success()
+                inp => inp.HasHead()
+                    ? Tuple.Create(inp.Head(), inp.Tail()).Cons().Success()
+                    : ParserResult.Fail<ParserChar>("a character", inp)
             )
         { }
     }
@@ -120,7 +120,7 @@ namespace Monad.Parsec
                 {
                     var r = p.Parse(inp);
                     return r.IsFaulted
-                        ? ps.Count() > 0
+                        ? ps.HasHead()
                             ? new Choice<A>(ps.Head(), ps.Tail()).Parse(inp)
                             : ParserResult.Fail<A>("choice not satisfied", inp)
                         : r;
@@ -232,9 +232,9 @@ namespace Monad.Parsec
                 (from minus in New.Try(New.Character('-'))
                  from digits in New.Many1(New.Digit())
                  let v = DigitsToInt(digits)
-                 select minus.Count() == 0
-                    ? v
-                    : -v)
+                 select minus.HasHead()
+                    ? -v
+                    : v)
                 .Parse(inp)
             )
         {
@@ -341,7 +341,7 @@ namespace Monad.Parsec
         public StringParse(IEnumerable<char> str)
             :
             base(
-                inp => str.Count() == 0
+                inp => !str.HasHead()
                           ? New.Return(new ParserChar[0] as IEnumerable<ParserChar>).Parse(inp)
                           : (from x in New.Character(str.Head())
                              from xs in New.String(str.Tail())

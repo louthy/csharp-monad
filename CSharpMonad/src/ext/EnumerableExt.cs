@@ -33,6 +33,21 @@ namespace Monad
 {
     public static class EnumerableExt
     {
+        public static bool CanTake<T>(this IEnumerable<T> self, int amount)
+        {
+            return self.Take(amount).Count() == amount;
+        }
+
+        public static bool HasHead<T>(this IEnumerable<T> self)
+        {
+            return self.CanTake(1);
+        }
+
+        public static T HeadSafe<T>(this IEnumerable<T> self)
+        {
+            return self.FirstOrDefault();
+        }
+
         public static T Head<T>(this IEnumerable<T> self)
         {
             return self.First();
@@ -112,53 +127,5 @@ namespace Monad
         {
             return self.Reverse().Foldr(state, func);
         }
-        /*
-        /// <summary>
-        /// Foldl
-        /// </summary>
-        public static U Foldl<T, U>(this IEnumerable<T> self, U state, Func<U, U> func)
-        {
-            return self.Reverse().Foldr(state, func);
-        }
-
-        /// <summary>
-        /// Foldr
-        /// </summary>
-        public static U Foldr<T, U>(this IEnumerable<IEnumerable<T>> self, U state, Func<IEnumerable<T>, U, U> func)
-        {
-            foreach (var item in self)
-            {
-                state = func(item, state);
-            }
-            return state;
-        }
-
-        /// <summary>
-        /// Foldr
-        /// </summary>
-        public static U Foldr<T, U>(this IEnumerable<IEnumerable<T>> self, U state, Func<U, U> func)
-        {
-            foreach (var item in self)
-            {
-                state = func(state);
-            }
-            return state;
-        }
-
-        /// <summary>
-        /// Foldl
-        /// </summary>
-        public static U Foldl<T, U>(this IEnumerable<IEnumerable<T>> self, U state, Func<IEnumerable<T>, U, U> func)
-        {
-            return self.Reverse().Foldr(state, func);
-        }
-
-        /// <summary>
-        /// Foldl
-        /// </summary>
-        public static U Foldl<T, U>(this IEnumerable<IEnumerable<T>> self, U state, Func<U, U> func)
-        {
-            return self.Reverse().Foldr(state, func);
-        }*/
     }
 }

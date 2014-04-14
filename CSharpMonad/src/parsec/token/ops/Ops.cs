@@ -76,7 +76,7 @@ namespace Monad.Parsec.Token.Ops
                     if (res.IsFaulted)
                         return res;
 
-                    if (res.Value.Count() == 0)
+                    if (!res.Value.HasHead())
                         return ParserResult.Fail<IEnumerable<OperatorToken>>("unexpected: reserved operator", inp);
 
                     return res;

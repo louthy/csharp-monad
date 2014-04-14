@@ -86,4 +86,41 @@ namespace Monad
             return memo.Value;
         }
     }
+
+    /// <summary>
+    /// Extension method for Func<T,R>
+    /// </summary>
+    public static class MemoExt
+    {
+        /// <summary>
+        /// Memoise the function
+        /// </summary>
+        public static Func<T, R> Memo<T, R>(this Func<T, R> f)
+        {
+            Dictionary<T, R> cache = new Dictionary<T, R>();
+            return t => cache.ContainsKey(t)
+                ? cache[t]
+                : (cache[t] = f(t));
+        }
+
+        /// <summary>
+        /// Memoise the function
+        /// </summary>
+        public static Func<T1, T2, R> Memo<T1, T2, R>(this Func<T1, T2, R> f)
+        {
+            Func<T1, Func<T2, R>> del = (T1 t1) => (T2 t2) => f(t1, t2);
+            del = del.Memo();
+            return (T1 t1, T2 t2) => del(t1)(t2);
+        }
+
+        /// <summary>
+        /// Memoise the function
+        /// </summary>
+        public static Func<T1, T2, T3, R> Memo<T1, T2, T3, R>(this Func<T1, T2, T3, R> f)
+        {
+            Func<T1, Func<T2, Func<T3, R>>> del = (T1 t1) => (T2 t2) => (T3 t3) => f(t1, t2, t3);
+            del = del.Memo();
+            return (T1 t1, T2 t2, T3 t3) => del(t1)(t2)(t3);
+        }
+    }
 }

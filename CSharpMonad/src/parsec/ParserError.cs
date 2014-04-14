@@ -41,10 +41,9 @@ namespace Monad.Parsec
             Message = message;
             Expected = expected;
             Input = input;
-            if (input.Count() > 0)
+            if (input.HasHead())
             {
-                var fst = input.First();
-                Location = fst.Location;
+                Location = input.Head().Location;
             }
             else
             {

@@ -85,7 +85,7 @@ namespace Monad.Parsec.Token.Idents
                     if (res.IsFaulted)
                         return res;
 
-                    if (res.Value.Count() == 0)
+                    if (!res.Value.HasHead())
                         return ParserResult.Fail<IEnumerable<IdentifierToken>>("unexpected: reserved word",inp);
 
                     return res;

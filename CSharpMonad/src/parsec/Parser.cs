@@ -40,7 +40,7 @@ namespace Monad.Parsec
 
         public Parser(Func<IEnumerable<ParserChar>, ParserResult<A>> func)
 		{
-			this.Value = func;
+			this.Value = func.Memo();
 		}
 
         public ParserResult<A> Parse(IEnumerable<ParserChar> input)

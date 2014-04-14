@@ -55,7 +55,7 @@ namespace Monad.Parsec.Expr
              * 
              * http://hackage.haskell.org/package/parsec-3.0.0/docs/src/Text-Parsec-Expr.html
              * 
-             * 
+             *
 
             return ops.Foldr(
                 Tuple.Create(
@@ -67,9 +67,6 @@ namespace Monad.Parsec.Expr
                     ),
                     SplitOp).Apply((rassoc, lassoc, nassoc, prefix, postfix) =>
                 {
-                    x =>
-                    {
-
                     var rassocOp = New.Choice(rassoc);
                     var lassocOp = New.Choice(lassoc);
                     var nassocOp = New.Choice(nassoc);
@@ -106,7 +103,6 @@ namespace Monad.Parsec.Expr
 
 
                     //return new Parser<A>();
-                    }
                 }
             );*/
         }
