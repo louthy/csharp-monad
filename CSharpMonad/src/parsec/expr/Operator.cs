@@ -109,7 +109,7 @@ namespace Monad.Parsec.Expr
             base(
                 inp => (from lhs in lhsParser
                         from op in New.String(operatorStr)
-                        select new OperatorToken<A>(operatorStr, lhs, default(A), OperatorType.Prefix, inp.First().Location))
+                        select new OperatorToken<A>(operatorStr, lhs, default(A), OperatorType.Postfix, inp.First().Location))
                        .Parse(inp)
             )
         {
