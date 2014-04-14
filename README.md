@@ -3,11 +3,11 @@ csharp-monad
 
 Library of monads for C#:
 
-* Either<L,R>
-* Error<T>
-* IO<T>
-* Option<T>
-* Parser<T>
+* `Either<L,R>`
+* `Error<T>`
+* `IO<T>`
+* `Option<T>`
+* `Parser<T>`
 
 
 The library is stable but it's still in development, so as you can see documentation is pretty sparse right now.
@@ -17,45 +17,45 @@ The Token section of the parser components are very work in progress.
 
 ## Either monad
 
-The Either monad represents values with two possibilities: a value of Left or Right.
-Either is sometimes used to represent a value which is either correct or an error, by convention, 'Left' is used to hold an error value 'Right' is used to hold a correct value.
+The `Either` monad represents values with two possibilities: a value of `Left` or `Right`.
+`Either` is sometimes used to represent a value which is either correct or an error, by convention, `Left` is used to hold an error value `Right` is used to hold a correct value.
 
-So you can see that Either has a very close relationship to the Error monad.  However, the Either monad won't capture exceptions.  Either would primarily be used for known error values rather than exceptional ones.
+So you can see that Either has a very close relationship to the `Error` monad.  However, the `Either` monad won't capture exceptions.  `Either` would primarily be used for known error values rather than exceptional ones.
 
-Once the Either monad is in the Left state it cancels the monad bind function and returns immediately.
+Once the `Either` monad is in the `Left` state it cancels the monad bind function and returns immediately.
 
 __Example__
 
-First we set up some methods that return either a Left or a Right.  In this case Two() returns a Left, and Error() returns a Right.
-    
+First we set up some methods that return either a `Left` or a `Right`.  In this case `Two()` returns a `Left`, and `Error()` returns a `Right`.
+
+```C#    
         public Either<string, int> Two()
         {
             return 2;
         }
     
-    
         public Either<string, int> Error()
         {
             return "Error!!";
         }
+```
 
-The Either monad has implicit conversion operators to remove the need to explicitly create an Either<L,R> type, however if you ever need to there are two helper methods to do so:
-
+The `Either` monad has implicit conversion operators to remove the need to explicitly create an `Either<L,R>` type, however if you ever need to there are two helper methods to do so:
+```C#
         Either.Left<L,R>(...)
         Either.Right<L,R>(...)
+```
 
-
-Below are some examples of using Either<L,R> in LINQ.  Note, whenever a Left is returned it cancels the entire bind operation, so any functions after the Left will not be processed.
+Below are some examples of using `Either<L,R>` in LINQ.  Note, whenever a `Left` is returned it cancels the entire bind operation, so any functions after the `Left` will not be processed.
     
-            
+```C#            
         var r =
             from lhs in Two()
             from rhs in Two()
             select lhs+rhs;
     
         Assert.IsTrue(r.IsRight && r.Right == 4);
-    
-    
+
         var r =
             from lhs in Two()
             from mid in Error()
@@ -63,12 +63,13 @@ Below are some examples of using Either<L,R> in LINQ.  Note, whenever a Left is 
             select lhs+mid+rhs;
             
         Assert.IsTrue(r.IsLeft && r.Left == "Error!!");
-
+```
 
 You can also use the pattern matching methods to project the either value or to delegate to handlers:
 
 __Example__
 
+```C#
         // Delegate with named properties
         var unit =
             (from one in Two()
@@ -88,9 +89,8 @@ __Example__
                 right => Assert.IsTrue(right == 4),
                 left => Assert.IsFalse(true)
             );        
-            
-            
-        // Project with named properties
+
+        // Projection with named properties
         var result =
             (from one in Two()
              from two in Two()
@@ -102,8 +102,7 @@ __Example__
             
         Assert.IsTrue(result == 8);
         
-        
-        // Project without named properties
+        // Projection without named properties
         var result =
             (from one in Two()
              from two in Two()
@@ -114,17 +113,18 @@ __Example__
             );
             
         Assert.IsTrue(result == 8);
-
+```
         
 
 ## Error monad
 
 Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure. Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
 
-Use .Return() at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing IsFaulted on the ErrorResult<T> returned from Result(), the Exception property will hold the thrown exception.
+Use `.Return()` at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from `Return()`, the Exception property will hold the thrown exception.
 
 __Example__
 
+```C#
         private Error<int> DoSomething(int value)
         {
             return () => value + 1;
@@ -150,9 +150,8 @@ __Example__
                       select val3)
                      .Result();
 
-
         Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
-
+```
 
 ## IO monad
 
@@ -160,6 +159,7 @@ The IO monad may be seen as unnecessary in C# where everything has side-effects,
 
 __Example__
 
+```C#
         private static IO<Unit> DeleteFile(string tmpFileName)
         {
             return () =>
@@ -195,11 +195,11 @@ __Example__
                      select dataFromFile;
 
         Assert.IsTrue(result.Invoke() == "Testing 123");
-
+```
 ## Option monad 
 
-If you're thinking of returning null, don't.  Use Option<T>.  It works a bit like Nullable<T> but it works with reference types too and implements the monad bind function.  The bind is cancelled as soon as Nothing is returned by any method.  Also known as the Maybe monad.
-
+If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit like `Nullable<T>` but it works with reference types too and implements the monad bind function.  The bind is cancelled as soon as `Option<T>.Nothing` is returned by any method.  Also known as the `Maybe` monad.
+```C#
         result = from o in MaybeGetAnInt()
                  from o2 in Option<int>.Nothing
                  select o2;
@@ -220,14 +220,13 @@ You can check the result by looking at the HasValue property, however an even ev
                         Just: v => v * 10,
                         Nothing: 0
                      );
-
-
+```
 
 ## Parsec
 
 This is all work in progress, but very stable and functional.  It's probably easiest to check the unit test code for examples of usage.  Here's a very simple expression parser:
 
-
+```C#
     public class TestExpr
     {
         public void ExpressionTests()
@@ -240,7 +239,6 @@ This is all work in progress, but very stable and functional.  It's probably eas
 
             Assert.IsTrue(fourteen == 14);
         }
-
 
         public int Eval(string expr)
         {
@@ -255,7 +253,6 @@ This is all work in progress, but very stable and functional.  It's probably eas
             }
         }
     }
-
 
     public class NewT
     {
@@ -332,7 +329,7 @@ This is all work in progress, but very stable and functional.  It's probably eas
         { }
 
     }
-
+```
 
 I will be updating this library with more parser components for language-parser building.  Watch this space :)
 
