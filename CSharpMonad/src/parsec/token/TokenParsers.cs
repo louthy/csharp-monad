@@ -36,24 +36,26 @@ namespace Monad.Parsec.Token
             :
             base(
                 inp => Tok.Lexeme<IEnumerable<ParserChar>>(New.String(name))
-                          .Select( str => new SymbolToken(str, inp.First().Location) )
+                          .Select(str => new SymbolToken(str, inp.First().Location))
                           .Parse(inp)
             )
-        { }
+        {
+        }
     }
 
     public class Lexeme<A> : Parser<A>
     {
         public Lexeme(Parser<A> p)
             :
-            base( 
-                inp=>
+            base(
+                inp =>
                     (from    x in p
-                     from    w in New.WhiteSpace()
-                     select  x)
+                                 from    w in New.WhiteSpace()
+                                 select  x)
                     .Parse(inp)
             )
-        { }
+        {
+        }
     }
 
     public class OneLineComment : Parser<Unit>
@@ -62,14 +64,15 @@ namespace Monad.Parsec.Token
             :
             base(
                 inp => (from c in
-                            New.Try(
-                                (from t in New.String(def.CommentLine)
-                                 from d in New.Many(New.Satisfy(ch => ch != '\n',"anything but a newline"))
-                                 select d))
-                        select Unit.Return())
+                                        New.Try(
+                                            (from t in New.String(def.CommentLine)
+                                                            from d in New.Many(New.Satisfy(ch => ch != '\n', "anything but a newline"))
+                                                            select d))
+                                    select Unit.Return())
                        .Parse(inp)
             )
-        { }
+        {
+        }
     }
 
     public class MultiLineComment : Parser<Unit>
@@ -77,13 +80,13 @@ namespace Monad.Parsec.Token
         public MultiLineComment(LanguageDef def)
             :
             base(
-                inp => (from open in New.Try( New.String(def.CommentStart) )
-                        from incom in 
+                inp => (from open in New.Try(New.String(def.CommentStart))
+                        from incom in
                             def.NestedComments
                                 ? new InCommentMulti(def) as Parser<Unit>
                                 : new InCommentSingle(def) as Parser<Unit>
                         select incom)
-                        .Parse(inp)
+                       .Parse(inp)
             )
         {
         }
@@ -94,51 +97,66 @@ namespace Monad.Parsec.Token
         public InCommentMulti(LanguageDef def)
             :
             base(
-                inp => (from end in New.Try(New.String(def.CommentEnd))
-                        select Unit.Return())
-                       .Or
-                       (from ml in new MultiLineComment(def)
-                        from ic1 in new InCommentMulti(def)
-                        select ic1)
-                       .Or
-                       (from sm in
-                            New.SkipMany1<Unit>(
-                                from chs in New.NoneOf(def.CommentStartEndDistinctChars.Value)
-                                select Unit.Return())
-                        from ic2 in new InCommentMulti(def)
-                        select ic2)
-                       .Or
-                       (from oo in New.OneOf(def.CommentStartEndDistinctChars.Value)
-                        from ic3 in new InCommentMulti(def)
-                        select ic3)
-                       .Fail("end of comment")
-                       .Parse(inp)
-            )
-        { }
+                inp =>
+            {
+                int depth = 1;
+                while(depth > 0)
+                {
+                    var res = New.String(def.CommentEnd).Parse(inp);
+                    if( !res.IsFaulted )
+                    {
+                        depth --;
+                        inp = res.Value.Head().Item2;
+                        continue;
+                    }
+
+                    res = New.String(def.CommentStart).Parse(inp);
+                    if( !res.IsFaulted )
+                    {
+                        depth ++;
+                        inp = res.Value.Head().Item2;
+                        continue;
+                    }
+
+                    var resU = New.SkipMany(New.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
+                    if( resU.Value.Head().Item2.IsEmpty() )
+                    {
+                        return New.Failure<Unit>(ParserError.Create("end of comment",inp)).Parse(inp);
+                    }
+                    inp = resU.Value.Head().Item2;
+                }
+                return New.Return<Unit>(Unit.Return()).Parse(inp);
+            })
+        {
+        }
     }
 
     public class InCommentSingle : Parser<Unit>
     {
         public InCommentSingle(LanguageDef def)
             :
-            base(
-                inp => (from end in New.Try(New.String(def.CommentEnd))
-                        select Unit.Return())
-                       .Or
-                       (from sm in
-                            New.SkipMany1<Unit>(
-                                from chs in New.NoneOf(def.CommentStartEndDistinctChars.Value)
-                                select Unit.Return())
-                        from ic2 in new InCommentSingle(def)
-                        select ic2)
-                       .Or
-                       (from oo in New.OneOf(def.CommentStartEndDistinctChars.Value)
-                        from ic3 in new InCommentSingle(def)
-                        select ic3)
-                       .Fail("end of comment")
-                       .Parse(inp)
-            )
-        { }    }
+        base(
+            inp =>
+            {
+                while(true)
+                {
+                    var res = New.String(def.CommentEnd).Parse(inp);
+                    if( !res.IsFaulted )
+                    {
+                        return New.Return<Unit>(Unit.Return()).Parse(res.Value.Head().Item2);
+                    }
+
+                    var resU = New.SkipMany(New.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
+                    if( resU.Value.Head().Item2.IsEmpty() )
+                    {
+                        return New.Failure<Unit>(ParserError.Create("end of comment",inp)).Parse(inp);
+                    }
+                    inp = resU.Value.Head().Item2;
+                }
+            })
+        {
+        }
+    }
 
     public class WhiteSpace : Parser<Unit>
     {
@@ -147,34 +165,34 @@ namespace Monad.Parsec.Token
             base(
                 inp =>
                     def.CommentLine == null && def.CommentStart == null 
-                        ? New.SkipMany( New.SimpleSpace().Fail("") ).Parse(inp)
+                        ? New.SkipMany(New.SimpleSpace().Fail("")).Parse(inp)
                         : def.CommentLine == null
                             ? New.SkipMany<IEnumerable<ParserChar>>(
-                                New.SimpleSpace()
+                    New.SimpleSpace()
                                     .Or(
-                                        Tok.MultiLineComment(def)
-                                           .Switch<Unit,IEnumerable<ParserChar>>( _ => new ParserChar[0], "")
-                                     ))
+                        Tok.MultiLineComment(def)
+                                           .Switch<Unit,IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
+                    ))
                                      .Parse(inp)
                             : def.CommentStart == null
                                 ? New.SkipMany<IEnumerable<ParserChar>>(
-                                      New.SimpleSpace()
+                    New.SimpleSpace()
                                          .Or(
-                                             Tok.OneLineComment(def)
-                                                .Switch<Unit,IEnumerable<ParserChar>>( _ => new ParserChar[0], "")
-                                         )).Parse(inp)
+                        Tok.OneLineComment(def)
+                                                .Switch<Unit,IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
+                    )).Parse(inp)
                                 : New.SkipMany<IEnumerable<ParserChar>>(
-                                      New.SimpleSpace()
+                    New.SimpleSpace()
                                          .Or(
-                                             Tok.OneLineComment(def)
+                        Tok.OneLineComment(def)
                                                 .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                                         )
+                    )
                                          .Or(
-                                            Tok.MultiLineComment(def)
+                        Tok.MultiLineComment(def)
                                                .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                                         )
+                    )
                                          .Fail("")
-                                      )
+                )
                                       .Parse(inp)
             )
         {

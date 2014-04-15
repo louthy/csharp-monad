@@ -48,12 +48,13 @@
     <Compile Include="src\ExprParsers.cs" />
     <Compile Include="src\IOTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\LexerTests.cs" />
     <Compile Include="src\MLTests.cs" />
     <Compile Include="src\OptionTests.cs" />
     <Compile Include="src\ParsecTests.cs" />
     <Compile Include="src\LangTests.cs" />
     <Compile Include="src\EitherTests.cs" />
+    <Compile Include="src\lex\LexerTests.cs" />
+    <Compile Include="src\lex\TokTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharpMonad\CSharpMonad.csproj">
@@ -72,4 +73,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="src\lex\" />
+  </ItemGroup>
 </Project>

@@ -163,6 +163,70 @@ namespace Monad.UnitTests
         }
 
         [Test]
+        public void TestSkipMany1()
+        {
+            var p = New.SkipMany1(New.Character('*'));
+
+            var r = p.Parse("****hello, world");
+            Assert.IsTrue(!r.IsFaulted);
+            var after = r.Value.Head().Item2.AsString();
+            Assert.IsTrue(after == "hello, world");
+
+            r = p.Parse("*hello, world");
+            Assert.IsTrue(!r.IsFaulted);
+            after = r.Value.Head().Item2.AsString();
+            Assert.IsTrue(after == "hello, world");
+
+            r = p.Parse("hello, world");
+            Assert.IsTrue(r.IsFaulted);
+        }
+
+        [Test]
+        public void TestSkipMany()
+        {
+            var p = New.SkipMany(New.Character('*'));
+
+            var r = p.Parse("****hello, world");
+            Assert.IsTrue(!r.IsFaulted);
+            var after = r.Value.Head().Item2.AsString();
+            Assert.IsTrue(after == "hello, world");
+
+            r = p.Parse("*hello, world");
+            Assert.IsTrue(!r.IsFaulted);
+            after = r.Value.Head().Item2.AsString();
+            Assert.IsTrue(after == "hello, world");
+
+            r = p.Parse("hello, world");
+            Assert.IsTrue(!r.IsFaulted);
+            after = r.Value.Head().Item2.AsString();
+            Assert.IsTrue(after == "hello, world");
+        }
+
+        [Test]
+        public void TestOneOf()
+        {
+            var p = New.OneOf("xyz");
+            var r = p.Parse("zzz");
+            Assert.IsTrue(!r.IsFaulted && r.Value.Head().Item1.Value == 'z');
+            r = p.Parse("xxx");
+            Assert.IsTrue(!r.IsFaulted && r.Value.Head().Item1.Value == 'x');
+            r = p.Parse("www");
+            Assert.IsTrue(r.IsFaulted);
+        }
+
+        [Test]
+        public void TestNoneOf()
+        {
+            var p = New.NoneOf("xyz");
+            var r = p.Parse("zzz");
+            Assert.IsTrue(r.IsFaulted);
+            r = p.Parse("xxx");
+            Assert.IsTrue(r.IsFaulted);
+            r = p.Parse("www");
+            Assert.IsTrue(!r.IsFaulted && r.Value.Head().Item1.Value == 'w' && r.Value.Head().Item2.AsString() == "ww");
+        }
+
+        [Test]
         public void TestDigit()
         {
             var r = New.Digit().Parse("1").Value.Single();

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CSharpMonad.UnitTests")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Monad.UnitTests")]
+[assembly: AssemblyDescription("Monad library unit tests")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("CSharpMonad.UnitTests")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyProduct("Monad.UnitTests")]
+[assembly: AssemblyCopyright("Copyright © Paul Louth 2014 - MIT License")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
