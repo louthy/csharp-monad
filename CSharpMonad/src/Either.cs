@@ -53,7 +53,7 @@ namespace Monad
         /// </summary>
         public static Either<R, L> Mempty<R, L>()
         {
-            return Either<R, L>.Mempty();
+            return new Either<R, L>(default(R));
         }
     }
 
@@ -314,23 +314,6 @@ namespace Monad
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Monadic zero
-        /// </summary>
-        public static Either<R, L> Mempty()
-        {
-            return new Either<R, L>(default(R));
-        }
-
-        /// <summary>
-        /// Get the dual
-        /// Swaps the arguments of Mappend
-        /// </summary>
-        public Either<R, L> GetDual(Either<R, L> rhs)
-        {
-            return rhs.Mappend(this);
         }
 
         /// <summary>

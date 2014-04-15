@@ -139,6 +139,37 @@ namespace Monad
             }
             return value;
         }
+
+        /// <summary>
+        /// Return - NOTE: You don't need to use this unless you're using the + operator
+        /// to append IO monads.  Return() will check for + and automatically combine the
+        /// results.  Regular invocation cannot do that.
+        /// </summary>
+        public static T Return<T>(this IO<T> self)
+        {
+            var mdel = (MulticastDelegate)self;
+            var invocationList = mdel.GetInvocationList();
+
+            if (invocationList.Count() > 1)
+            {
+                return invocationList.Select(del => (IO<T>)del).Mconcat().Return();
+            }
+            else
+            {
+                return self();
+            }
+        }
+    }
+
+    public static class IO
+    {
+        /// <summary>
+        /// Mempty
+        /// </summary>
+        public static IO<T> Mempty<T>()
+        {
+            return () => default(T);
+        }
     }
 
     /// <summary>

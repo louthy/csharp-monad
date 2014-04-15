@@ -128,7 +128,17 @@ namespace Monad
         {
             try
             {
-                return self();
+                var mdel = (MulticastDelegate)self;
+                var invocationList = mdel.GetInvocationList();
+
+                if (invocationList.Count() > 1)
+                {
+                    return invocationList.Select(del => (Error<T>)del).Mconcat().Return();
+                }
+                else
+                {
+                    return self();
+                }
             }
             catch (Exception e)
             {
@@ -340,6 +350,17 @@ namespace Monad
                 value = value.Mappend(m);
             }
             return value;
+        }
+    }
+
+    public class Error
+    {
+        /// <summary>
+        /// Mempty
+        /// </summary>
+        public static Error<T> Mempty<T>()
+        {
+            return () => default(T);
         }
     }
 }

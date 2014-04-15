@@ -126,23 +126,6 @@ namespace Monad
         public abstract Option<T> Mappend(Option<T> rhs);
 
         /// <summary>
-        /// Monadic zero
-        /// </summary>
-        public static Option<T> Mempty()
-        {
-            return new Just<T>(default(T));
-        }
-
-        /// <summary>
-        /// Get the dual
-        /// Swaps the arguments of Mappend
-        /// </summary>
-        public Option<T> GetDual(Option<T> rhs)
-        {
-            return rhs.Mappend(this);
-        }
-
-        /// <summary>
         /// Converts the Option to an enumerable
         /// </summary>
         /// <returns>
@@ -218,6 +201,20 @@ namespace Monad
         public bool Equals(T rhs)
         {
             return Equals((object)rhs);
+        }
+    }
+
+    /// <summary>
+    /// Option<T> extensions
+    /// </summary>
+    public static class Option
+    {
+        /// <summary>
+        /// Monadic zero
+        /// </summary>
+        public static Option<T> Mempty<T>()
+        {
+            return new Just<T>(default(T));
         }
     }
 
