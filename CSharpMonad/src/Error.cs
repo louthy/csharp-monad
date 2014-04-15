@@ -236,5 +236,37 @@ namespace Monad
                         }
                     });
         }
+
+        /// <summary>
+        /// Converts the Error to an enumerable of T
+        /// </summary>
+        /// <returns>
+        /// Success: A list with one T in
+        /// Error: An empty list
+        /// </returns>
+        public static IEnumerable<T> AsEnumerable<T>(this Error<T> self)
+        {
+            var res = self.Return();
+            if (res.IsFaulted)
+                yield break;
+            else
+                yield return res.Value;
+        }
+
+        /// <summary>
+        /// Converts the Error to an infinite enumerable of T
+        /// </summary>
+        /// <returns>
+        /// Success: An infinite list of T
+        /// Error: An empty list
+        /// </returns>
+        public static IEnumerable<T> AsEnumerableInfinite<T>(this Error<T> self)
+        {
+            var res = self.Return();
+            if (res.IsFaulted)
+                yield break;
+            else
+                while (true) yield return res.Value;
+        }
     }
 }

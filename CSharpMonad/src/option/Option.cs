@@ -133,6 +133,62 @@ namespace Monad
             return new Just<T>(default(T));
         }
 
+        /// <summary>
+        /// Mconcat
+        /// </summary>
+        public static Option<T> Mconcat(IEnumerable<Option<T>> ms)
+        {
+            var value = ms.Head();
+
+            foreach (var m in ms.Tail())
+            {
+                if (!value.HasValue)
+                    return value;
+
+                value = value.Mappend(m);
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Get the dual
+        /// Swaps the arguments of Mappend
+        /// </summary>
+        public Option<T> GetDual(Option<T> rhs)
+        {
+            return rhs.Mappend(this);
+        }
+
+        /// <summary>
+        /// Converts the Option to an enumerable
+        /// </summary>
+        /// <returns>
+        /// Just: A list with one T in
+        /// Nothing: An empty list
+        /// </returns>
+        public IEnumerable<T> AsEnumerable()
+        {
+            if (HasValue)
+                yield return Value;
+            else
+                yield break;
+        }
+
+        /// <summary>
+        /// Converts the Option to an infinite enumerable
+        /// </summary>
+        /// <returns>
+        /// Just: An infinite list of T
+        /// Nothing: An empty list
+        /// </returns>
+        public IEnumerable<T> AsEnumerableInfinte()
+        {
+            if (HasValue)
+                while(true) yield return Value;
+            else
+                yield break;
+        }
+
         public override int GetHashCode()
         {
             return HasValue

@@ -23,6 +23,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 
 namespace Monad
 {
@@ -53,6 +54,14 @@ namespace Monad
         public static Either<R, L> Mempty<R, L>()
         {
             return Either<R, L>.Mempty();
+        }
+
+        /// <summary>
+        /// Mconcat
+        /// </summary>
+        public static Either<R, L> Mconcat<R, L>(IEnumerable<Either<R, L>> ms)
+        {
+            return Either<R, L>.Mconcat(ms);
         }
     }
 
@@ -256,6 +265,23 @@ namespace Monad
         }
 
         /// <summary>
+        /// Mconcat
+        /// </summary>
+        public static Either<R, L> Mconcat(IEnumerable<Either<R, L>> ms)
+        {
+            var value = ms.Head();
+
+            foreach (var m in ms.Tail())
+            {
+                if (value.IsLeft) 
+                    return value;
+
+                value = value.Mappend(m);
+            }
+            return value;
+        }
+
+        /// <summary>
         /// Monadic append
         /// If the left-hand side or right-hand side are in a Left state, then Left propagates
         /// </summary>
@@ -280,7 +306,7 @@ namespace Monad
                     }
                     else
                     {
-                        // TODO: Consider replacing this with a Reflection.Emit which does this job efficiently.
+                        // TODO: Consider replacing this with a static Reflection.Emit which does this job efficiently.
                         switch (TypeOfR)
                         {
                             case "System.Int64":
@@ -321,6 +347,45 @@ namespace Monad
         public static Either<R, L> Mempty()
         {
             return new Either<R, L>(default(R));
+        }
+
+        /// <summary>
+        /// Get the dual
+        /// Swaps the arguments of Mappend
+        /// </summary>
+        public Either<R, L> GetDual(Either<R, L> rhs)
+        {
+            return rhs.Mappend(this);
+        }
+
+        /// <summary>
+        /// Converts the Either to an enumerable of R
+        /// </summary>
+        /// <returns>
+        /// Right: A list with one R in
+        /// Left: An empty list
+        /// </returns>
+        public IEnumerable<R> AsEnumerable()
+        {
+            if (IsRight)
+                yield return Right;
+            else
+                yield break;
+        }
+
+        /// <summary>
+        /// Converts the Either to an infinite enumerable
+        /// </summary>
+        /// <returns>
+        /// Just: An infinite list of R
+        /// Nothing: An empty list
+        /// </returns>
+        public IEnumerable<R> AsEnumerableInfinte()
+        {
+            if (IsRight)
+                while (true) yield return Right;
+            else
+                yield break;
         }
 
         /// <summary>
