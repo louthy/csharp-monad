@@ -3,7 +3,7 @@ csharp-monad
 
 Library of monads for C#:
 
-* `Either<L,R>`
+* `Either<R,L>`
 * `Error<T>`
 * `IO<T>`
 * `Option<T>`
@@ -29,24 +29,24 @@ __Example__
 First we set up some methods that return either a `Left` or a `Right`.  In this case `Two()` returns a `Left`, and `Error()` returns a `Right`.
 
 ```C#    
-        public Either<string, int> Two()
+        public Either<int, string> Two()
         {
             return 2;
         }
     
-        public Either<string, int> Error()
+        public Either<int, string> Error()
         {
             return "Error!!";
         }
 ```
 
-The `Either` monad has implicit conversion operators to remove the need to explicitly create an `Either<L,R>` type, however if you ever need to there are two helper methods to do so:
+The `Either` monad has implicit conversion operators to remove the need to explicitly create an `Either<R,L>` type, however if you ever need to there are two helper methods to do so:
 ```C#
-        Either.Left<L,R>(...)
-        Either.Right<L,R>(...)
+        Either.Left<R,L>(...)
+        Either.Right<R,L>(...)
 ```
 
-Below are some examples of using `Either<L,R>` in LINQ.  Note, whenever a `Left` is returned it cancels the entire bind operation, so any functions after the `Left` will not be processed.
+Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is returned it cancels the entire bind operation, so any functions after the `Left` will not be processed.
     
 ```C#            
         var r =
