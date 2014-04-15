@@ -97,13 +97,15 @@ namespace Monad.UnitTests.Lex
                        from args in commaSepExpr
                        select new Call(name, args) as Term;
 
+            var subexpr = (from ps in parens(from es in expr select es as IEnumerable<Token>)
+                           select (from t in ps select new Expression(t) as Term));
+
             var factor = from f in @try(integer)
                          | @try(externFn)
                          | @try(function)
                          | @try(call)
                          | @try(variable)
-                         | (from ps in parens(from es in expr select es as IEnumerable<Token>)
-                            select (from t in ps select new Expression(t) as Term))
+                         | subexpr
                          select fail(f);
 
             var defn = from f in @try(externFn)
@@ -116,12 +118,11 @@ namespace Monad.UnitTests.Lex
                 from r in p
                 select r;
 
-            var toplevel = from ts in
-                                many(
-                                   from fn in defn
-                                   from semi in reservedOp(";")
-                                   select fn
-                                   )
+            var toplevel = from ts in many(
+                               from fn in defn
+                               from semi in reservedOp(";")
+                               select fn
+                           )
                            select ts.Head();
 
             expr = Ex.BuildExpressionParser<Term>(binops, factor);
