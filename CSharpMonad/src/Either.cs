@@ -38,12 +38,21 @@ namespace Monad
         {
             return new Either<L,R>(left);
         }
+
         /// <summary>
         /// Construct an Either Right monad
         /// </summary>
         public static Either<L, R> Right<L, R>(R right)
         {
             return new Either<L,R>(right);
+        }
+
+        /// <summary>
+        /// Monadic zero
+        /// </summary>
+        public static Either<L, R> Mempty<L, R>()
+        {
+            return Either<L, R>.Mempty();
         }
     }
 
@@ -60,8 +69,11 @@ namespace Monad
     /// </summary>
     /// <typeparam name="L"></typeparam>
     /// <typeparam name="R"></typeparam>
-    public class Either<L,R>
+    public class Either<L,R> : IEquatable<Either<L,R>>
     {
+        static readonly string TypeOfR = typeof(R).ToString();
+        static readonly bool IsAppendable = typeof(IAppendable<R>).IsAssignableFrom(typeof(R));
+
         readonly L left;
         readonly R right;
 
@@ -127,22 +139,6 @@ namespace Monad
                     throw new InvalidOperationException("Not in the right state");
                 return right;
             }
-        }
-
-        /// <summary>
-        /// Implicit left operator conversion
-        /// </summary>
-        public static implicit operator Either<L, R>(L left)
-        {
-            return new Either<L, R>(left);
-        }
-
-        /// <summary>
-        /// Implicit right operator conversion
-        /// </summary>
-        public static implicit operator Either<L, R>(R right)
-        {
-            return new Either<L, R>(right);
         }
 
         /// <summary>
@@ -248,6 +244,207 @@ namespace Monad
         public Unit MatchLeft(Action<L> left)
         {
             return Unit.Return(() => left(this.Left));
+        }
+
+        /// <summary>
+        /// Monadic append
+        /// If the left-hand side or right-hand side are in a Left state, then Left propogates
+        /// </summary>
+        public static Either<L, R> operator +(Either<L, R> lhs, Either<L, R> rhs)
+        {
+            return lhs.Mappend(rhs);
+        }
+
+        /// <summary>
+        /// Monadic append
+        /// If the left-hand side or right-hand side are in a Left state, then Left propagates
+        /// </summary>
+        public virtual Either<L, R> Mappend(Either<L, R> rhs)
+        {
+            if (IsLeft)
+            {
+                return this;
+            }
+            else
+            {
+                if (rhs.IsLeft)
+                {
+                    return rhs.Left;
+                }
+                else
+                {
+                    if (IsAppendable)
+                    {
+                        var lhs = this.Right as IAppendable<R>;
+                        return new Either<L, R>(lhs.Append(rhs.Right));
+                    }
+                    else
+                    {
+                        // TODO: Consider replacing this with a Reflection.Emit which does this job efficiently.
+                        switch (TypeOfR)
+                        {
+                            case "System.Int64":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToInt64(right) + Convert.ToInt64(rhs.right)), typeof(R)));
+                            case "System.UInt64":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToUInt64(right) + Convert.ToUInt64(rhs.right)), typeof(R)));
+                            case "System.Int32":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToInt32(right) + Convert.ToInt32(rhs.right)), typeof(R)));
+                            case "System.UInt32":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToUInt32(right) + Convert.ToUInt32(rhs.right)), typeof(R)));
+                            case "System.Int16":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToInt16(right) + Convert.ToInt16(rhs.right)), typeof(R)));
+                            case "System.UInt16":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToUInt16(right) + Convert.ToUInt16(rhs.right)), typeof(R)));
+                            case "System.Decimal":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToDecimal(right) + Convert.ToDecimal(rhs.right)), typeof(R)));
+                            case "System.Double":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToDouble(right) + Convert.ToDouble(rhs.right)), typeof(R)));
+                            case "System.Single":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToSingle(right) + Convert.ToSingle(rhs.right)), typeof(R)));
+                            case "System.Char":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToChar(right) + Convert.ToChar(rhs.right)), typeof(R)));
+                            case "System.Byte":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToByte(right) + Convert.ToByte(rhs.right)), typeof(R)));
+                            case "System.String":
+                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToString(right) + Convert.ToString(rhs.right)), typeof(R)));
+                            default:
+                                throw new InvalidOperationException("Type " + typeof(R).Name + " is not appendable.  Consider implementing the IAppendable interface.");
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Monadic zero
+        /// </summary>
+        public static Either<L,R> Mempty()
+        {
+            return new Either<L, R>(default(R));
+        }
+
+        /// <summary>
+        /// Monadic equality
+        /// </summary>
+        public static bool operator ==(Either<L, R> lhs, Either<L, R> rhs)
+        {
+            return lhs.Equals(rhs);
+        }
+
+        /// <summary>
+        /// Monadic equality
+        /// </summary>
+        public static bool operator !=(Either<L, R> lhs, Either<L, R> rhs)
+        {
+            return !lhs.Equals(rhs);
+        }
+
+        /// <summary>
+        /// Monadic equality
+        /// </summary>
+        public static bool operator ==(Either<L, R> lhs, L rhs)
+        {
+            return lhs.Equals(new Either<L,R>(rhs));
+        }
+
+        /// <summary>
+        /// Monadic equality
+        /// </summary>
+        public static bool operator !=(Either<L, R> lhs, L rhs)
+        {
+            return !lhs.Equals(new Either<L, R>(rhs));
+        }
+
+        /// <summary>
+        /// Monadic equality
+        /// </summary>
+        public static bool operator ==(Either<L, R> lhs, R rhs)
+        {
+            return lhs.Equals(new Either<L, R>(rhs));
+        }
+
+        /// <summary>
+        /// Monadic equality
+        /// </summary>
+        public static bool operator !=(Either<L, R> lhs, R rhs)
+        {
+            return !lhs.Equals(new Either<L, R>(rhs));
+        }
+
+        /// <summary>
+        /// Implicit left operator conversion
+        /// </summary>
+        public static implicit operator Either<L, R>(L left)
+        {
+            return new Either<L, R>(left);
+        }
+
+        /// <summary>
+        /// Implicit right operator conversion
+        /// </summary>
+        public static implicit operator Either<L, R>(R right)
+        {
+            return new Either<L, R>(right);
+        }
+
+        public override int GetHashCode()
+        {
+            return IsLeft
+                ? Left == null ? 0 : Left.GetHashCode()
+                : Right == null ? 0 : Right.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (obj is Either<L,R>)
+                {
+                    var rhs = (Either<L,R>)obj;
+                    return IsRight && rhs.IsRight
+                        ? Right.Equals(rhs.Right)
+                        : IsLeft && rhs.IsLeft
+                            ? true
+                            : false;
+                }
+                else if (obj is R)
+                {
+                    var rhs = (R)obj;
+                    return IsRight
+                        ? Right.Equals(rhs)
+                        : false;
+                }
+                else if (obj is L)
+                {
+                    var rhs = (L)obj;
+                    return IsLeft
+                        ? Left.Equals(rhs)
+                        : false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public bool Equals(Either<L,R> rhs)
+        {
+            return Equals((object)rhs);
+        }
+
+        public bool Equals(L rhs)
+        {
+            return Equals((object)rhs);
+        }
+
+        public bool Equals(R rhs)
+        {
+            return Equals((object)rhs);
         }
     }
 

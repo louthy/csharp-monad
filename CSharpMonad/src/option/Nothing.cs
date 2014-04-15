@@ -75,5 +75,14 @@ namespace Monad
         {
             return Nothing;
         }
+
+        /// <summary>
+        /// Monadic append
+        /// If the lhs or rhs are in a Nothing state then Nothing propagates
+        /// </summary>
+        public override Option<T> Mappend(Option<T> rhs)
+        {
+            return this;
+        }
     }
 }

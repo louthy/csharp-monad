@@ -174,13 +174,10 @@ namespace Monad.UnitTests.Lex
 
         public class Term : Token
         {
-            public readonly SrcLoc Location;
-
             public Term(SrcLoc location)
                 :
                 base(location)
             {
-                Location = location;
             }
         }
 

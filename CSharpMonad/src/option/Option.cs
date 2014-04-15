@@ -33,7 +33,7 @@ namespace Monad
     /// <summary>
     /// Option monad
     /// </summary>
-    public abstract class Option<T>
+    public abstract class Option<T> : IEquatable<Option<T>>, IEquatable<T>
     {
         /// <summary>
         /// Represents a Option monad without a value
@@ -94,6 +94,92 @@ namespace Monad
         /// </summary>
         public abstract R Match<R>(Func<T, R> Just, R Nothing);
 
+        /// <summary>
+        /// Monadic append
+        /// If the left-hand side or right-hand side are in a Left state, then Left propogates
+        /// </summary>
+        public static Option<T> operator +(Option<T> lhs, Option<T> rhs)
+        {
+            return lhs.Mappend(rhs);
+        }
+
+        /// <summary>
+        /// Monadic equality
+        /// </summary>
+        public static bool operator ==(Option<T> lhs, Option<T> rhs)
+        {
+            return lhs.Equals(rhs);
+        }
+
+        /// <summary>
+        /// Monadic equality
+        /// </summary>
+        public static bool operator !=(Option<T> lhs, Option<T> rhs)
+        {
+            return !lhs.Equals(rhs);
+        }
+
+        /// <summary>
+        /// Monadic append
+        /// If the lhs or rhs are in a Nothing state then Nothing propagates
+        /// </summary>
+        public abstract Option<T> Mappend(Option<T> rhs);
+
+        /// <summary>
+        /// Monadic zero
+        /// </summary>
+        public static Option<T> Mempty()
+        {
+            return new Just<T>(default(T));
+        }
+
+        public override int GetHashCode()
+        {
+            return HasValue
+                ? Value == null ? 0 : Value.GetHashCode()
+                : Nothing.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (obj is Option<T>)
+                {
+                    var rhs = (Option<T>)obj;
+                    return HasValue && rhs.HasValue
+                        ? Value.Equals(rhs.Value)
+                        : !HasValue && !rhs.HasValue
+                            ? true
+                            : false;
+                }
+                else if( obj is T )
+                {
+                    var rhs = (T)obj;
+                    return HasValue
+                        ? Value.Equals(rhs)
+                        : false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public bool Equals(Option<T> rhs)
+        {
+            return Equals((object)rhs);
+        }
+
+        public bool Equals(T rhs)
+        {
+            return Equals((object)rhs);
+        }
     }
 
     /// <summary>

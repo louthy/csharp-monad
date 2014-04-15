@@ -45,6 +45,7 @@
     <Compile Include="src\ext\ObjectExt.cs" />
     <Compile Include="src\Error.cs" />
     <Compile Include="src\ext\TupleExt.cs" />
+    <Compile Include="src\IAppendable.cs" />
     <Compile Include="src\IO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Memoise.cs" />

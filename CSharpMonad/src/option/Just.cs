@@ -35,6 +35,8 @@ namespace Monad
     /// </summary>
     public class Just<T> : Option<T>
     {
+        static readonly string TypeOfT = typeof(T).ToString();
+        static readonly bool IsAppendable = typeof(IAppendable<T>).IsAssignableFrom(typeof(T));
         private readonly T value;
 
         public Just(T value)
@@ -81,6 +83,60 @@ namespace Monad
         public override R Match<R>(Func<T, R> Just, R Nothing)
         {
             return Just(Value);
+        }
+
+
+        /// <summary>
+        /// Monadic append
+        /// If the lhs or rhs are in a Nothing state then Nothing propagates
+        /// </summary>
+        public override Option<T> Mappend(Option<T> rhs)
+        {
+            if (!rhs.HasValue)
+            {
+                return rhs;
+            }
+            else
+            {
+                if (IsAppendable)
+                {
+                    var lhs = this.Value as IAppendable<T>;
+                    return new Just<T>(lhs.Append(rhs.Value));
+                }
+                else
+                {
+                    // TODO: Consider replacing this with a Reflection.Emit which does this job efficiently.
+                    switch (TypeOfT)
+                    {
+                        case "System.Int64":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToInt64(Value) + Convert.ToInt64(rhs.Value)), typeof(T)));
+                        case "System.UInt64":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToUInt64(Value) + Convert.ToUInt64(rhs.Value)), typeof(T)));
+                        case "System.Int32":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToInt32(Value) + Convert.ToInt32(rhs.Value)), typeof(T)));
+                        case "System.UInt32":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToUInt32(Value) + Convert.ToUInt32(rhs.Value)), typeof(T)));
+                        case "System.Int16":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToInt16(Value) + Convert.ToInt16(rhs.Value)), typeof(T)));
+                        case "System.UInt16":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToUInt16(Value) + Convert.ToUInt16(rhs.Value)), typeof(T)));
+                        case "System.Decimal":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToDecimal(Value) + Convert.ToDecimal(rhs.Value)), typeof(T)));
+                        case "System.Double":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToDouble(Value) + Convert.ToDouble(rhs.Value)), typeof(T)));
+                        case "System.Single":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToSingle(Value) + Convert.ToSingle(rhs.Value)), typeof(T)));
+                        case "System.Char":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToChar(Value) + Convert.ToChar(rhs.Value)), typeof(T)));
+                        case "System.Byte":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToByte(Value) + Convert.ToByte(rhs.Value)), typeof(T)));
+                        case "System.String":
+                            return new Just<T>((T)Convert.ChangeType((Convert.ToString(Value) + Convert.ToString(rhs.Value)), typeof(T)));
+                        default:
+                            throw new InvalidOperationException("Type " + typeof(T).Name + " is not appendable.  Consider implementing the IAppendable interface.");
+                    }
+                }
+            }
         }
     }
 }

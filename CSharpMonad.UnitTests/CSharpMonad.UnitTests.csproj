@@ -48,6 +48,7 @@
     <Compile Include="src\ExprParsers.cs" />
     <Compile Include="src\IOTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\MappendTests.cs" />
     <Compile Include="src\MLTests.cs" />
     <Compile Include="src\OptionTests.cs" />
     <Compile Include="src\ParsecTests.cs" />
@@ -73,7 +74,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="src\lex\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

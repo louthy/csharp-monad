@@ -57,7 +57,5 @@ namespace Monad.Parsec.Expr
         {
             return ((IEnumerable<IEnumerable<Operator<A>>>)ops).GetEnumerator();
         }
-
-        //public void Add( )
     }
 }
