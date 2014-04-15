@@ -49,6 +49,10 @@ namespace Monad.UnitTests.Lex
             Parser<Term> expr = null;
             Func<Parser<Term>, Parser<Term>> contents;
 
+            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = (Parser<Term> p) => New.Many(p);
+            Func<Parser<Term>,Parser<IEnumerable<Term>>> @try = (Parser<Term> p) => New.Try(p);
+            Func<IEnumerable<Term>,Term> fail = ts => ts.IsEmpty() ? new FailTerm() : ts.Head();
+
             var def = new Lang();
             var lexer = Tok.MakeTokenParser(def);
             var binops = BuildOperatorsTable<Term>();
@@ -72,7 +76,7 @@ namespace Monad.UnitTests.Lex
             var variable = from v in identifier
                            select new Var(v) as Term;
 
-            var manyargs = parens(from ts in New.Many(variable) 
+            var manyargs = parens(from ts in many(variable) 
                                   select ts as IEnumerable<Token>);
 
             var commaSepExpr = parens(from cs in commaSep(from t in expr select t as Token)
@@ -93,21 +97,18 @@ namespace Monad.UnitTests.Lex
                        from args in commaSepExpr
                        select new Call(name, args) as Term;
 
-            var factor = from f in
-                             New.Try(integer)
-                                .OrTry(function)
-                                .OrTry(call)
-                                .OrTry(variable)
-                                .Or(from ps in
-                                        parens(from es in expr select es as IEnumerable<Token>)
-                                    select (from t in ps
-                                            select new Expression(t) as Term)
-                                )
-                         select f.Head();
+            var factor = from f in @try(integer)
+                         | @try(externFn)
+                         | @try(function)
+                         | @try(call)
+                         | @try(variable)
+                         | (from ps in parens(from es in expr select es as IEnumerable<Token>)
+                            select (from t in ps select new Expression(t) as Term))
+                         select fail(f);
 
-            var defn = from f in New.Try(externFn)
-                                    .OrTry(function)
-                                    .OrTry(expr)
+            var defn = from f in @try(externFn)
+                       | @try(function)
+                       | @try(expr)
                        select f.Head();
 
             contents = p =>
@@ -116,7 +117,7 @@ namespace Monad.UnitTests.Lex
                 select r;
 
             var toplevel = from ts in
-                               New.Many(
+                                many(
                                    from fn in defn
                                    from semi in reservedOp(";")
                                    select fn
@@ -172,14 +173,23 @@ namespace Monad.UnitTests.Lex
 
         public class Term : Token
         {
-            SrcLoc location;
+            public readonly SrcLoc Location;
 
             public Term(SrcLoc location)
                 :
                 base(location)
             {
-                this.location = location;
+                Location = location;
             }
+        }
+
+        public class FailTerm : Term
+        {
+            // TODO: This class existing means there's bugs in the code somewhere
+            public FailTerm()
+                :
+                base(null)
+            {}
         }
 
         public class Integer : Term

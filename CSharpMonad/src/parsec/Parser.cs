@@ -72,5 +72,9 @@ namespace Monad.Parsec
                    select p;
         }
 
+        public static Parser<A> operator |(Parser<A> lhs, Parser<A> rhs) 
+        {
+            return lhs.Or(rhs);
+        }
 	}
 }
