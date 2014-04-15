@@ -134,23 +134,6 @@ namespace Monad
         }
 
         /// <summary>
-        /// Mconcat
-        /// </summary>
-        public static Option<T> Mconcat(IEnumerable<Option<T>> ms)
-        {
-            var value = ms.Head();
-
-            foreach (var m in ms.Tail())
-            {
-                if (!value.HasValue)
-                    return value;
-
-                value = value.Mappend(m);
-            }
-            return value;
-        }
-
-        /// <summary>
         /// Get the dual
         /// Swaps the arguments of Mappend
         /// </summary>
@@ -274,6 +257,23 @@ namespace Monad
             return self.HasValue
                 ? s(self.Value, k(self.Value).Value).ToOption()
                 : Option<V>.Nothing;
+        }
+
+        /// <summary>
+        /// Mconcat
+        /// </summary>
+        public static Option<T> Mconcat<T>(this IEnumerable<Option<T>> ms)
+        {
+            var value = ms.Head();
+
+            foreach (var m in ms.Tail())
+            {
+                if (!value.HasValue)
+                    return value;
+
+                value = value.Mappend(m);
+            }
+            return value;
         }
     }
 }

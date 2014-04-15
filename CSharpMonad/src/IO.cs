@@ -70,6 +70,75 @@ namespace Monad
         {
             return () => getValue( self.Invoke() );
         }
+
+        /// <summary>
+        /// Mappend
+        /// </summary>
+        public static IO<T> Mappend<T>(this IO<T> lhs, IO<T> rhs)
+        {
+            return () =>
+            {
+                var lhsValue = lhs();
+                var rhsValue = rhs();
+
+                bool IsAppendable = typeof(IAppendable<T>).IsAssignableFrom(typeof(T));
+
+                if (IsAppendable)
+                {
+                    var lhsAppendValue = lhsValue as IAppendable<T>;
+                    return lhsAppendValue.Append(rhsValue);
+                }
+                else
+                {
+                    string TypeOfT = typeof(T).ToString();
+
+                    // TODO: Consider replacing this with a static Reflection.Emit which does this job efficiently.
+                    switch (TypeOfT)
+                    {
+                        case "System.Int64":
+                            return (T)Convert.ChangeType((Convert.ToInt64(lhsValue) + Convert.ToInt64(rhsValue)), typeof(T));
+                        case "System.UInt64":
+                            return (T)Convert.ChangeType((Convert.ToUInt64(lhsValue) + Convert.ToUInt64(rhsValue)), typeof(T));
+                        case "System.Int32":
+                            return (T)Convert.ChangeType((Convert.ToInt32(lhsValue) + Convert.ToInt32(rhsValue)), typeof(T));
+                        case "System.UInt32":
+                            return (T)Convert.ChangeType((Convert.ToUInt32(lhsValue) + Convert.ToUInt32(rhsValue)), typeof(T));
+                        case "System.Int16":
+                            return (T)Convert.ChangeType((Convert.ToInt16(lhsValue) + Convert.ToInt16(rhsValue)), typeof(T));
+                        case "System.UInt16":
+                            return (T)Convert.ChangeType((Convert.ToUInt16(lhsValue) + Convert.ToUInt16(rhsValue)), typeof(T));
+                        case "System.Decimal":
+                            return (T)Convert.ChangeType((Convert.ToDecimal(lhsValue) + Convert.ToDecimal(rhsValue)), typeof(T));
+                        case "System.Double":
+                            return (T)Convert.ChangeType((Convert.ToDouble(lhsValue) + Convert.ToDouble(rhsValue)), typeof(T));
+                        case "System.Single":
+                            return (T)Convert.ChangeType((Convert.ToSingle(lhsValue) + Convert.ToSingle(rhsValue)), typeof(T));
+                        case "System.Char":
+                            return (T)Convert.ChangeType((Convert.ToChar(lhsValue) + Convert.ToChar(rhsValue)), typeof(T));
+                        case "System.Byte":
+                            return (T)Convert.ChangeType((Convert.ToByte(lhsValue) + Convert.ToByte(rhsValue)), typeof(T));
+                        case "System.String":
+                            return (T)Convert.ChangeType((Convert.ToString(lhsValue) + Convert.ToString(rhsValue)), typeof(T));
+                        default:
+                            throw new InvalidOperationException("Type " + typeof(T).Name + " is not appendable.  Consider implementing the IAppendable interface.");
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// Mconcat
+        /// </summary>
+        public static IO<T> Mconcat<T>(this IEnumerable<IO<T>> ms)
+        {
+            var value = ms.Head();
+
+            foreach (var m in ms.Tail())
+            {
+                value = value.Mappend(m);
+            }
+            return value;
+        }
     }
 
     /// <summary>

@@ -55,14 +55,6 @@ namespace Monad
         {
             return Either<R, L>.Mempty();
         }
-
-        /// <summary>
-        /// Mconcat
-        /// </summary>
-        public static Either<R, L> Mconcat<R, L>(IEnumerable<Either<R, L>> ms)
-        {
-            return Either<R, L>.Mconcat(ms);
-        }
     }
 
     /// <summary>
@@ -262,23 +254,6 @@ namespace Monad
         public static Either<R, L> operator +(Either<R, L> lhs, Either<R, L> rhs)
         {
             return lhs.Mappend(rhs);
-        }
-
-        /// <summary>
-        /// Mconcat
-        /// </summary>
-        public static Either<R, L> Mconcat(IEnumerable<Either<R, L>> ms)
-        {
-            var value = ms.Head();
-
-            foreach (var m in ms.Tail())
-            {
-                if (value.IsLeft) 
-                    return value;
-
-                value = value.Mappend(m);
-            }
-            return value;
         }
 
         /// <summary>
@@ -547,6 +522,23 @@ namespace Monad
                 return Either.Left<VR,L>(res.Left);
 
             return Either.Right<VR,L>(projector(self.Right, res.Right));
+        }
+
+        /// <summary>
+        /// Mconcat
+        /// </summary>
+        public static Either<R, L> Mconcat<R, L>(this IEnumerable<Either<R, L>> ms)
+        {
+            var value = ms.Head();
+
+            foreach (var m in ms.Tail())
+            {
+                if (value.IsLeft)
+                    return value;
+
+                value = value.Mappend(m);
+            }
+            return value;
         }
     }
 }
