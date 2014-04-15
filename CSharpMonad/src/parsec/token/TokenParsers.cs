@@ -49,9 +49,9 @@ namespace Monad.Parsec.Token
             :
             base(
                 inp =>
-                    (from    x in p
-                                 from    w in New.WhiteSpace()
-                                 select  x)
+                    (from x in p
+                     from w in New.WhiteSpace()
+                     select x)
                     .Parse(inp)
             )
         {
@@ -64,11 +64,11 @@ namespace Monad.Parsec.Token
             :
             base(
                 inp => (from c in
-                                        New.Try(
-                                            (from t in New.String(def.CommentLine)
-                                                            from d in New.Many(New.Satisfy(ch => ch != '\n', "anything but a newline"))
-                                                            select d))
-                                    select Unit.Return())
+                            New.Try(
+                                (from t in New.String(def.CommentLine)
+                                 from d in New.Many(New.Satisfy(ch => ch != '\n', "anything but a newline"))
+                                 select d))
+                        select Unit.Return())
                        .Parse(inp)
             )
         {
@@ -98,35 +98,35 @@ namespace Monad.Parsec.Token
             :
             base(
                 inp =>
-            {
-                int depth = 1;
-                while(depth > 0)
                 {
-                    var res = New.String(def.CommentEnd).Parse(inp);
-                    if( !res.IsFaulted )
+                    int depth = 1;
+                    while (depth > 0)
                     {
-                        depth --;
-                        inp = res.Value.Head().Item2;
-                        continue;
-                    }
+                        var res = New.String(def.CommentEnd).Parse(inp);
+                        if (!res.IsFaulted)
+                        {
+                            depth--;
+                            inp = res.Value.Head().Item2;
+                            continue;
+                        }
 
-                    res = New.String(def.CommentStart).Parse(inp);
-                    if( !res.IsFaulted )
-                    {
-                        depth ++;
-                        inp = res.Value.Head().Item2;
-                        continue;
-                    }
+                        res = New.String(def.CommentStart).Parse(inp);
+                        if (!res.IsFaulted)
+                        {
+                            depth++;
+                            inp = res.Value.Head().Item2;
+                            continue;
+                        }
 
-                    var resU = New.SkipMany(New.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
-                    if( resU.Value.Head().Item2.IsEmpty() )
-                    {
-                        return New.Failure<Unit>(ParserError.Create("end of comment",inp)).Parse(inp);
+                        var resU = New.SkipMany(New.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
+                        if (resU.Value.Head().Item2.IsEmpty())
+                        {
+                            return New.Failure<Unit>(ParserError.Create("end of comment", inp)).Parse(inp);
+                        }
+                        inp = resU.Value.Head().Item2;
                     }
-                    inp = resU.Value.Head().Item2;
-                }
-                return New.Return<Unit>(Unit.Return()).Parse(inp);
-            })
+                    return New.Return<Unit>(Unit.Return()).Parse(inp);
+                })
         {
         }
     }
@@ -138,18 +138,18 @@ namespace Monad.Parsec.Token
         base(
             inp =>
             {
-                while(true)
+                while (true)
                 {
                     var res = New.String(def.CommentEnd).Parse(inp);
-                    if( !res.IsFaulted )
+                    if (!res.IsFaulted)
                     {
                         return New.Return<Unit>(Unit.Return()).Parse(res.Value.Head().Item2);
                     }
 
                     var resU = New.SkipMany(New.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
-                    if( resU.Value.Head().Item2.IsEmpty() )
+                    if (resU.Value.Head().Item2.IsEmpty())
                     {
-                        return New.Failure<Unit>(ParserError.Create("end of comment",inp)).Parse(inp);
+                        return New.Failure<Unit>(ParserError.Create("end of comment", inp)).Parse(inp);
                     }
                     inp = resU.Value.Head().Item2;
                 }
@@ -164,38 +164,38 @@ namespace Monad.Parsec.Token
             :
             base(
                 inp =>
-                    def.CommentLine == null && def.CommentStart == null 
+                    def.CommentLine == null && def.CommentStart == null
                         ? New.SkipMany(New.SimpleSpace().Fail("")).Parse(inp)
                         : def.CommentLine == null
-                            ? New.SkipMany<IEnumerable<ParserChar>>(
-                    New.SimpleSpace()
-                                    .Or(
-                        Tok.MultiLineComment(def)
-                                           .Switch<Unit,IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                    ))
-                                     .Parse(inp)
+                            ? New.SkipMany<IEnumerable<ParserChar>>( 
+                                  New.SimpleSpace()
+                                 .Or( Tok.MultiLineComment(def)
+                                         .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
+                                 )
+                              )
+                             .Parse(inp)
+
                             : def.CommentStart == null
                                 ? New.SkipMany<IEnumerable<ParserChar>>(
-                    New.SimpleSpace()
-                                         .Or(
-                        Tok.OneLineComment(def)
-                                                .Switch<Unit,IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                    )).Parse(inp)
-                                : New.SkipMany<IEnumerable<ParserChar>>(
-                    New.SimpleSpace()
-                                         .Or(
-                        Tok.OneLineComment(def)
-                                                .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                    )
-                                         .Or(
-                        Tok.MultiLineComment(def)
-                                               .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                    )
-                                         .Fail("")
-                )
-                                      .Parse(inp)
+                                      New.SimpleSpace()
+                                     .Or( Tok.OneLineComment(def)
+                                             .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
+                                     )
+                                  )
+                                 .Parse(inp)
+
+                                : New.SkipMany<IEnumerable<ParserChar>>( 
+                                      New.SimpleSpace()
+                                     .Or( Tok.OneLineComment(def)
+                                             .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
+                                     )
+                                     .Or( Tok.MultiLineComment(def)
+                                             .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
+                                     )
+                                     .Fail("")
+                                  )
+                                 .Parse(inp)
             )
-        {
-        }
+        { }
     }
 }
