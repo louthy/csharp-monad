@@ -176,12 +176,12 @@ namespace Monad.UnitTests
             Assert.IsTrue(result == 0);
         }
 
-        public Either<string, int> Two()
+        public Either<int, string> Two()
         {
             return 2;
         }
 
-        public Either<string, int> Error()
+        public Either<int, string> Error()
         {
             return "Error!!";
         }

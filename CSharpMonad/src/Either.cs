@@ -34,25 +34,25 @@ namespace Monad
         /// <summary>
         /// Construct an Either Left monad
         /// </summary>
-        public static Either<L,R> Left<L,R>(L left)
+        public static Either<R, L> Left<R, L>(L left)
         {
-            return new Either<L,R>(left);
+            return new Either<R, L>(left);
         }
 
         /// <summary>
         /// Construct an Either Right monad
         /// </summary>
-        public static Either<L, R> Right<L, R>(R right)
+        public static Either<R, L> Right<R, L>(R right)
         {
-            return new Either<L,R>(right);
+            return new Either<R, L>(right);
         }
 
         /// <summary>
         /// Monadic zero
         /// </summary>
-        public static Either<L, R> Mempty<L, R>()
+        public static Either<R, L> Mempty<R, L>()
         {
-            return Either<L, R>.Mempty();
+            return Either<R, L>.Mempty();
         }
     }
 
@@ -69,7 +69,7 @@ namespace Monad
     /// </summary>
     /// <typeparam name="L"></typeparam>
     /// <typeparam name="R"></typeparam>
-    public class Either<L,R> : IEquatable<Either<L,R>>
+    public class Either<R, L> : IEquatable<Either<R, L>>
     {
         static readonly string TypeOfR = typeof(R).ToString();
         static readonly bool IsAppendable = typeof(IAppendable<R>).IsAssignableFrom(typeof(R));
@@ -250,7 +250,7 @@ namespace Monad
         /// Monadic append
         /// If the left-hand side or right-hand side are in a Left state, then Left propogates
         /// </summary>
-        public static Either<L, R> operator +(Either<L, R> lhs, Either<L, R> rhs)
+        public static Either<R, L> operator +(Either<R, L> lhs, Either<R, L> rhs)
         {
             return lhs.Mappend(rhs);
         }
@@ -259,7 +259,7 @@ namespace Monad
         /// Monadic append
         /// If the left-hand side or right-hand side are in a Left state, then Left propagates
         /// </summary>
-        public virtual Either<L, R> Mappend(Either<L, R> rhs)
+        public virtual Either<R, L> Mappend(Either<R, L> rhs)
         {
             if (IsLeft)
             {
@@ -276,7 +276,7 @@ namespace Monad
                     if (IsAppendable)
                     {
                         var lhs = this.Right as IAppendable<R>;
-                        return new Either<L, R>(lhs.Append(rhs.Right));
+                        return new Either<R, L>(lhs.Append(rhs.Right));
                     }
                     else
                     {
@@ -284,29 +284,29 @@ namespace Monad
                         switch (TypeOfR)
                         {
                             case "System.Int64":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToInt64(right) + Convert.ToInt64(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToInt64(right) + Convert.ToInt64(rhs.right)), typeof(R)));
                             case "System.UInt64":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToUInt64(right) + Convert.ToUInt64(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToUInt64(right) + Convert.ToUInt64(rhs.right)), typeof(R)));
                             case "System.Int32":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToInt32(right) + Convert.ToInt32(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToInt32(right) + Convert.ToInt32(rhs.right)), typeof(R)));
                             case "System.UInt32":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToUInt32(right) + Convert.ToUInt32(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToUInt32(right) + Convert.ToUInt32(rhs.right)), typeof(R)));
                             case "System.Int16":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToInt16(right) + Convert.ToInt16(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToInt16(right) + Convert.ToInt16(rhs.right)), typeof(R)));
                             case "System.UInt16":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToUInt16(right) + Convert.ToUInt16(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToUInt16(right) + Convert.ToUInt16(rhs.right)), typeof(R)));
                             case "System.Decimal":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToDecimal(right) + Convert.ToDecimal(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToDecimal(right) + Convert.ToDecimal(rhs.right)), typeof(R)));
                             case "System.Double":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToDouble(right) + Convert.ToDouble(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToDouble(right) + Convert.ToDouble(rhs.right)), typeof(R)));
                             case "System.Single":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToSingle(right) + Convert.ToSingle(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToSingle(right) + Convert.ToSingle(rhs.right)), typeof(R)));
                             case "System.Char":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToChar(right) + Convert.ToChar(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToChar(right) + Convert.ToChar(rhs.right)), typeof(R)));
                             case "System.Byte":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToByte(right) + Convert.ToByte(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToByte(right) + Convert.ToByte(rhs.right)), typeof(R)));
                             case "System.String":
-                                return new Either<L, R>((R)Convert.ChangeType((Convert.ToString(right) + Convert.ToString(rhs.right)), typeof(R)));
+                                return new Either<R, L>((R)Convert.ChangeType((Convert.ToString(right) + Convert.ToString(rhs.right)), typeof(R)));
                             default:
                                 throw new InvalidOperationException("Type " + typeof(R).Name + " is not appendable.  Consider implementing the IAppendable interface.");
                         }
@@ -318,15 +318,15 @@ namespace Monad
         /// <summary>
         /// Monadic zero
         /// </summary>
-        public static Either<L,R> Mempty()
+        public static Either<R, L> Mempty()
         {
-            return new Either<L, R>(default(R));
+            return new Either<R, L>(default(R));
         }
 
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator ==(Either<L, R> lhs, Either<L, R> rhs)
+        public static bool operator ==(Either<R, L> lhs, Either<R, L> rhs)
         {
             return lhs.Equals(rhs);
         }
@@ -334,7 +334,7 @@ namespace Monad
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator !=(Either<L, R> lhs, Either<L, R> rhs)
+        public static bool operator !=(Either<R, L> lhs, Either<R, L> rhs)
         {
             return !lhs.Equals(rhs);
         }
@@ -342,49 +342,49 @@ namespace Monad
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator ==(Either<L, R> lhs, L rhs)
+        public static bool operator ==(Either<R, L> lhs, L rhs)
         {
-            return lhs.Equals(new Either<L,R>(rhs));
+            return lhs.Equals(new Either<R, L>(rhs));
         }
 
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator !=(Either<L, R> lhs, L rhs)
+        public static bool operator !=(Either<R, L> lhs, L rhs)
         {
-            return !lhs.Equals(new Either<L, R>(rhs));
+            return !lhs.Equals(new Either<R, L>(rhs));
         }
 
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator ==(Either<L, R> lhs, R rhs)
+        public static bool operator ==(Either<R, L> lhs, R rhs)
         {
-            return lhs.Equals(new Either<L, R>(rhs));
+            return lhs.Equals(new Either<R, L>(rhs));
         }
 
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator !=(Either<L, R> lhs, R rhs)
+        public static bool operator !=(Either<R, L> lhs, R rhs)
         {
-            return !lhs.Equals(new Either<L, R>(rhs));
+            return !lhs.Equals(new Either<R, L>(rhs));
         }
 
         /// <summary>
         /// Implicit left operator conversion
         /// </summary>
-        public static implicit operator Either<L, R>(L left)
+        public static implicit operator Either<R, L>(L left)
         {
-            return new Either<L, R>(left);
+            return new Either<R, L>(left);
         }
 
         /// <summary>
         /// Implicit right operator conversion
         /// </summary>
-        public static implicit operator Either<L, R>(R right)
+        public static implicit operator Either<R, L>(R right)
         {
-            return new Either<L, R>(right);
+            return new Either<R, L>(right);
         }
 
         public override int GetHashCode()
@@ -402,9 +402,9 @@ namespace Monad
             }
             else
             {
-                if (obj is Either<L,R>)
+                if (obj is Either<R, L>)
                 {
-                    var rhs = (Either<L,R>)obj;
+                    var rhs = (Either<R, L>)obj;
                     return IsRight && rhs.IsRight
                         ? Right.Equals(rhs.Right)
                         : IsLeft && rhs.IsLeft
@@ -432,7 +432,7 @@ namespace Monad
             }
         }
 
-        public bool Equals(Either<L,R> rhs)
+        public bool Equals(Either<R, L> rhs)
         {
             return Equals((object)rhs);
         }
@@ -456,32 +456,32 @@ namespace Monad
         /// <summary>
         /// Select
         /// </summary>
-        public static Either<L, UR> Select<TR, UR, L>(
-            this Either<L, TR> self, 
+        public static Either<UR, L> Select<TR, UR, L>(
+            this Either<TR, L> self, 
             Func<TR, UR> selector)
         {
             if (self.IsLeft) 
-                return Either.Left<L,UR>( self.Left );
+                return Either.Left<UR,L>( self.Left );
 
-            return Either.Right<L,UR>( selector( self.Right ) );
+            return Either.Right<UR,L>( selector( self.Right ) );
         }
 
         /// <summary>
         /// SelectMany
         /// </summary>
-        public static Either<L, VR> SelectMany<TR, UR, VR, L>(
-            this Either<L, TR> self, 
-            Func<TR, Either<L, UR>> selector, 
+        public static Either<VR, L> SelectMany<TR, UR, VR, L>(
+            this Either<TR, L> self, 
+            Func<TR, Either<UR, L>> selector, 
             Func<TR,UR,VR> projector)
         {
             if (self.IsLeft) 
-                return Either.Left<L,VR>(self.Left);
+                return Either.Left<VR,L>(self.Left);
 
             var res = selector(self.Right);
             if (res.IsLeft) 
-                return Either.Left<L,VR>(res.Left);
+                return Either.Left<VR,L>(res.Left);
 
-            return Either.Right<L, VR>(projector(self.Right, res.Right));
+            return Either.Right<VR,L>(projector(self.Right, res.Right));
         }
     }
 }
