@@ -258,7 +258,8 @@ namespace Monad
 
         /// <summary>
         /// Left coalescing operator
-        /// It returns the left-hand operand if the operand is not Left; otherwise it returns the right hand operand.
+        /// Returns the left-hand operand if the operand is not Left; otherwise it returns the right hand operand.
+        /// In other words it returns the first valid option in the operand sequence.
         /// </summary>
         public static Either<R, L> operator |(Either<R, L> lhs, Either<R, L> rhs)
         {
@@ -268,7 +269,10 @@ namespace Monad
         }
 
         /// <summary>
-        /// Teturns the right-hand side if the left-hand and right-hand side is not null.
+        /// Returns the right-hand side if the left-hand and right-hand side are not Left.
+        /// In order words every operand must hold a value for the result to be Right.
+        /// In the case where all operands return Left, then the last operand will provide
+        /// its value.
         /// </summary>
         public static Either<R, L> operator &(Either<R, L> lhs, Either<R, L> rhs)
         {

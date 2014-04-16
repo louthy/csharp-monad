@@ -105,7 +105,8 @@ namespace Monad
 
         /// <summary>
         /// Nothing coalescing operator
-        /// It returns the left-hand operand if the operand is not Nothing; otherwise it returns the right hand operand.
+        /// Returns the left-hand operand if the operand is not Nothing; otherwise it returns the right hand operand.
+        /// In other words it returns the first valid option in the operand sequence.
         /// </summary>
         public static Option<T> operator |(Option<T> lhs, Option<T> rhs)
         {
@@ -115,7 +116,8 @@ namespace Monad
         }
 
         /// <summary>
-        /// Teturns the right-hand side if the left-hand and right-hand side is not null.
+        /// Returns the right-hand side if the left-hand and right-hand side are not Nothing.
+        /// In order words every operand must hold a value for the result to be Just.
         /// </summary>
         public static Option<T> operator &(Option<T> lhs, Option<T> rhs)
         {
