@@ -58,6 +58,7 @@
     <Compile Include="src\EitherTests.cs" />
     <Compile Include="src\lex\LexerTests.cs" />
     <Compile Include="src\lex\TokTests.cs" />
+    <Compile Include="src\Combined.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharpMonad\CSharpMonad.csproj">
