@@ -290,11 +290,20 @@ namespace Monad
                 : Option<U>.Nothing;
         }
 
-        public static Option<V> SelectMany<T, U, V>(this Option<T> self, Func<T, Option<U>> k, Func<T, U, V> s)
+        public static Option<V> SelectMany<T, U, V>(
+            this Option<T> self, 
+            Func<T, Option<U>> select, 
+            Func<T, U, V> project
+            )
         {
-            return self.HasValue
-                ? s(self.Value, k(self.Value).Value).ToOption()
-                : Option<V>.Nothing;
+            if (!self.HasValue)
+                return Option<V>.Nothing;
+
+            var res = select(self.Value);
+            if( !res.HasValue)
+                return Option<V>.Nothing;
+
+            return new Just<V>(project(self.Value, res.Value));
         }
 
         /// <summary>

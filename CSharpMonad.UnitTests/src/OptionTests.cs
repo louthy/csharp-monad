@@ -56,21 +56,11 @@ namespace Monad.UnitTests
             Assert.IsTrue(result.Match(Just: () => true, Nothing: () => false));
             Assert.IsTrue(result.Match(Just: () => true, Nothing: false));
 
-            bool passed = false;
-            try
-            {
-                result = from o in option
-                         from o2 in Option<int>.Nothing
-                         select o2;
-            }
-            catch (InvalidOperationException)
-            {
-                passed = true;
-            }
-            finally
-            {
-                Assert.IsTrue(passed);
-            }
+            result = from o in option
+                     from o2 in Option<int>.Nothing
+                     select o2;
+
+            Assert.IsTrue(result.HasValue == false);
         }
     }
 }
