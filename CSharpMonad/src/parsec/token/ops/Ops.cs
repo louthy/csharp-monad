@@ -87,8 +87,9 @@ namespace Monad.Parsec.Token.Ops
         public Oper(GeneralLanguageDef languageDef)
             :
             base(
-                inp => (from chs in languageDef.OpStart.Mconcat(Gen.Many(languageDef.OpLetter))
-                        select chs)
+                inp => (from c in languageDef.OpStart
+                        from cs in Gen.Many(languageDef.OpLetter)
+                        select c.Cons(cs))
                        .Fail("operator")
                        .Parse(inp)
             )

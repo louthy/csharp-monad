@@ -97,8 +97,9 @@ namespace Monad.Parsec.Token.Idents
         public Ident(GeneralLanguageDef languageDef)
             :
             base( 
-                inp =>(from chs in languageDef.IdentStart.Mconcat( Gen.Many(languageDef.IdentLetter) )
-                       select chs)
+                inp =>(from c in languageDef.IdentStart
+                       from cs in Gen.Many(languageDef.IdentLetter)
+                       select c.Cons(cs))
                       .Fail("identifier")
                       .Parse(inp)
             )

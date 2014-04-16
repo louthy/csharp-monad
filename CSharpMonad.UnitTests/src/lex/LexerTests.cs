@@ -49,7 +49,7 @@ namespace Monad.UnitTests.Lex
             Parser<Term> expr = null;
             Func<Parser<Term>, Parser<Term>> contents;
 
-            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = (Parser<Term> p) => Gen.Many(p).Mconcat();
+            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = (Parser<Term> p) => Gen.Many(p);
             Func<Parser<Term>,Parser<Term>> @try = (Parser<Term> p) => Gen.Try(p);
 
             var def = new Lang();
@@ -60,7 +60,7 @@ namespace Monad.UnitTests.Lex
             var intlex = lexer.Integer;
             var floatlex = lexer.Float;
             var parens = lexer.Parens;
-            Func<Parser<Term>, Parser<IEnumerable<Term>>> commaSep = p => lexer.CommaSep(p).Mconcat();
+            Func<Parser<Term>, Parser<IEnumerable<Term>>> commaSep = p => lexer.CommaSep(p);
             var semiSep = lexer.SemiSep;
             var identifier = lexer.Identifier;
             var reserved = lexer.Reserved;

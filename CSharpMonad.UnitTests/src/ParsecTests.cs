@@ -107,7 +107,7 @@ namespace Monad.UnitTests
                             from comma in Gen.Character(',')
                             from digit in Gen.Digit()
                             select digit
-                            ).Mconcat()
+                            )
                     from close in Gen.Character(']')
                     select d.Cons(ds);
 
@@ -146,7 +146,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestMany()
         {
-            var r = Gen.Many(Gen.Character('a')).Mconcat().Parse("aaabcde").Value.Single();
+            var r = Gen.Many(Gen.Character('a')).Parse("aaabcde").Value.Single();
             Assert.IsTrue(r.Item1.AsString() == "aaa");
             Assert.IsTrue(r.Item2.AsString() == "bcde");
         }
@@ -154,11 +154,11 @@ namespace Monad.UnitTests
         [Test]
         public void TestMany1()
         {
-            var r = Gen.Many1(Gen.Character('a')).Mconcat().Parse("aaabcde").Value.Single();
+            var r = Gen.Many1(Gen.Character('a')).Parse("aaabcde").Value.Single();
             Assert.IsTrue(r.Item1.AsString() == "aaa");
             Assert.IsTrue(r.Item2.AsString() == "bcde");
 
-            var r2 = Gen.Many1(Gen.Character('a')).Mconcat().Parse("bcde");
+            var r2 = Gen.Many1(Gen.Character('a')).Parse("bcde");
             Assert.IsTrue(r2.Value.IsEmpty());
         }
 

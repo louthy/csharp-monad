@@ -243,7 +243,7 @@ namespace Monad.Parsec
             :
             base(inp =>
                 (from minus in Gen.Try(Gen.Character('-') | Gen.Return( new ParserChar('+') ) )
-                 from digits in Gen.Many1(Gen.Digit()).Mconcat()
+                 from digits in Gen.Many1(Gen.Digit())
                  let v = DigitsToInt(digits)
                  select minus.Value == '+'
                     ? v
@@ -288,30 +288,24 @@ namespace Monad.Parsec
         }
     }
 
-    public class Many<A> : Parser<A>
+    public class Many<A> : Parser<IEnumerable<A>>
     {
         public Many(Parser<A> parser)
             :
-            base( inp => (Gen.Many1(parser) | Gen.Empty<A>()).Parse(inp) )
+            base(inp => (Gen.Many1(parser) | Gen.Return(new A[0].AsEnumerable())).Parse(inp))
         { }
     }
 
-    public class Many1<A> : Parser<A>
+    public class Many1<A> : Parser<IEnumerable<A>>
     {
         public Many1(Parser<A> parser)
             :
             base( inp =>
-            {
-                    var v = parser.Parse(inp);
-                    if (v.IsFaulted)
-                        return ParserResult.Fail<A>(v.Errors);
-
-                    var vs = Gen.Many(parser).Parse(v.Value.Last().Item2);
-                    if (vs.IsFaulted) 
-                        return v;
-
-                    return new ParserResult<A>(v.Value.Concat(vs.Value));
-            })
+                (from v in parser
+                 from vs in Gen.Many(parser)
+                 select v.Cons(vs))
+                .Parse(inp)
+            )
         { }
     }
 
@@ -352,7 +346,7 @@ namespace Monad.Parsec
         { }
     }
 
-    public class SimpleSpace : Parser<ParserChar>
+    public class SimpleSpace : Parser<IEnumerable<ParserChar>>
     {
         public SimpleSpace()
             :

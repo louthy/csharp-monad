@@ -75,10 +75,10 @@ namespace Monad.Parsec.Token
         public readonly Symbol Comma;
         public readonly Symbol Colon;
         public readonly Symbol Dot;
-        public readonly Func<Parser<A>, Parser<A>> SemiSep;
-        public readonly Func<Parser<A>, Parser<A>> SemiSep1;
-        public readonly Func<Parser<A>, Parser<A>> CommaSep;
-        public readonly Func<Parser<A>, Parser<A>> CommaSep1;
+        public readonly Func<Parser<A>, Parser<IEnumerable<A>>> SemiSep;
+        public readonly Func<Parser<A>, Parser<IEnumerable<A>>> SemiSep1;
+        public readonly Func<Parser<A>, Parser<IEnumerable<A>>> CommaSep;
+        public readonly Func<Parser<A>, Parser<IEnumerable<A>>> CommaSep1;
 
         private readonly IReadOnlyDictionary<string, Parser<ReservedToken>> reserved;
         private readonly IReadOnlyDictionary<string, Parser<ReservedOpToken>> reservedOp;

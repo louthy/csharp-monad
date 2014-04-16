@@ -96,24 +96,15 @@ namespace Monad.Parsec
         {
             return new NoneOf(chars);
         }
-        public static Parser<A> SepBy<A,B>(Parser<A> parser, Parser<B> sepParser)
+        public static Parser<IEnumerable<A>> SepBy<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
-            return SepBy1<A, B>(parser, sepParser) | Gen.Empty<A>();
+            return SepBy1<A, B>(parser, sepParser) | Gen.Return(new A[0].AsEnumerable());
         }
-        public static Parser<A> SepBy1<A, B>(Parser<A> parser, Parser<B> sepParser)
+        public static Parser<IEnumerable<A>> SepBy1<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
-            return new Parser<A>( inp =>
-            {
-                var x = parser.Parse(inp);
-                if (x.IsFaulted)
-                    return x;
-
-                var xs = Gen.Many<A>(sepParser.And(parser)).Parse(x.Value.Last().Item2);
-                if (x.IsFaulted)
-                    return xs;
-
-                return new ParserResult<A>(x.Value.Concat(xs.Value));
-            });
+            return (from x in parser
+                    from xs in Gen.Many<A>( sepParser.And(parser) )
+                    select x.Cons(xs));
         }
 
         public static Digit Digit()
@@ -144,11 +135,11 @@ namespace Monad.Parsec
         {
             return new Character(c);
         }
-        public static Many<T> Many<T>(Parser<T> parser)
+        public static Parser<IEnumerable<T>> Many<T>(Parser<T> parser)
         {
             return new Many<T>(parser);
         }
-        public static Many1<T> Many1<T>(Parser<T> parser)
+        public static Parser<IEnumerable<T>> Many1<T>(Parser<T> parser)
         {
             return new Many1<T>(parser);
         }

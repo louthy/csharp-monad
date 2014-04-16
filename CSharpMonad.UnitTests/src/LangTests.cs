@@ -57,12 +57,12 @@ namespace Monad.UnitTests.Lang
 
             Id = from w in Gen.WhiteSpace()
                  from c in Gen.Letter()
-                 from cs in Gen.Many(Gen.LetterOrDigit()).Mconcat()
+                 from cs in Gen.Many(Gen.LetterOrDigit())
                  select c.Cons(cs);
 
             Op = (from w in Gen.WhiteSpace()
                   from o in Gen.Satisfy(c => opChars.Contains(c), "an operator")
-                  from os in Gen.Many(Gen.Satisfy(c => opChars.Contains(c), "an operator")).Mconcat()
+                  from os in Gen.Many(Gen.Satisfy(c => opChars.Contains(c), "an operator"))
                   select o.Cons(os))
                  .Fail("an operator");
 
@@ -100,7 +100,7 @@ namespace Monad.UnitTests.Lang
 
             String = (from w in Gen.WhiteSpace()
                       from o in Gen.Character('"')
-                      from cs in Gen.Many(Gen.Satisfy(c => c != '"')).Mconcat()
+                      from cs in Gen.Many(Gen.Satisfy(c => c != '"'))
                       from c in Gen.Character('"')
                       select new StringTerm(cs) as Term)
                      .Fail("a string literal");
@@ -127,7 +127,7 @@ namespace Monad.UnitTests.Lang
                        from c in Term
                        select new LetTerm(x, t, c) as Term)
                     | (from t in Term1
-                       from ts in Gen.Many(Term1).Mconcat()
+                       from ts in Gen.Many(Term1)
                        select new AppTerm(t, ts) as Term)
                     .Fail("a term");
 
