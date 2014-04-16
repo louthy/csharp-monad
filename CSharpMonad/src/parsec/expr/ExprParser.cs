@@ -55,81 +55,81 @@ namespace Monad.Parsec.Expr
              * http://hackage.haskell.org/package/parsec-3.0.0/docs/src/Text-Parsec-Expr.html
              * 
              */
-            return ops.Foldr(
-                Tuple.Create(
-                    new Operator<A>[0].AsEnumerable(),
-                    new Operator<A>[0].AsEnumerable(),
-                    new Operator<A>[0].AsEnumerable(),
-                    new Operator<A>[0].AsEnumerable(),
-                    new Operator<A>[0].AsEnumerable()
-                    ),
-                    SplitOp).Apply((rassoc, lassoc, nassoc, prefix, postfix) =>
-                {
-                    var rassocOp = New.Choice(rassoc);
-                    var lassocOp = New.Choice(lassoc);
-                    var nassocOp = New.Choice(nassoc);
-                    var prefixOp = New.Choice(prefix).Fail("");
-                    var postfixOp = New.Choice(postfix).Fail("");
+         return ops.Foldr(
+             Tuple.Create(
+                 new Operator<A>[0].AsEnumerable(),
+                 new Operator<A>[0].AsEnumerable(),
+                 new Operator<A>[0].AsEnumerable(),
+                 new Operator<A>[0].AsEnumerable(),
+                 new Operator<A>[0].AsEnumerable()
+                 ),
+                 SplitOp).Apply((rassoc, lassoc, nassoc, prefix, postfix) =>
+             {
+                 var rassocOp = New.Choice(rassoc);
+                 var lassocOp = New.Choice(lassoc);
+                 var nassocOp = New.Choice(nassoc);
+                 var prefixOp = New.Choice(prefix).Fail("");
+                 var postfixOp = New.Choice(postfix).Fail("");
 
-                    Func<string, Choice<OperatorDef<A>>, Parser<IEnumerable<OperatorDef<A>>>> ambiguous = (string assoc, Choice<OperatorDef<A>> op) =>
-                        from p in
-                            New.Try<OperatorDef<A>>(
-                                (from o in op
-                                 select o)
-                                .Fail("ambiguous use of a " + assoc + " associative operator")
-                                )
-                        select p;
+                 Func<string, Choice<OperatorDef<A>>, Parser<OperatorDef<A>>> ambiguous = (string assoc, Choice<OperatorDef<A>> op) =>
+                     from p in
+                         New.Try<OperatorDef<A>>(
+                             (from o in op
+                              select o)
+                             .Fail("ambiguous use of a " + assoc + " associative operator")
+                             )
+                     select p;
 
 
-                    var ambiguousRight = from a in ambiguous("right", rassocOp) select default(A); // Not sure about what the result should be
-                    var ambiguousLeft = from a in ambiguous("left", lassocOp) select default(A); // Not sure about what the result should be
-                    var ambiguousNon = from a in ambiguous("non", nassocOp) select default(A); // Not sure about what the result should be
+                 var ambiguousRight = from a in ambiguous("right", rassocOp) select default(A); // Not sure about what the result should be
+                 var ambiguousLeft = from a in ambiguous("left", lassocOp) select default(A); // Not sure about what the result should be
+                 var ambiguousNon = from a in ambiguous("non", nassocOp) select default(A); // Not sure about what the result should be
 
-                    var postfixP = postfixOp.Or(New.Return(OperatorDef.Id<A>()));
-                    var prefixP = prefixOp.Or(New.Return(OperatorDef.Id<A>()));
+                 var postfixP = postfixOp.Or(New.Return(OperatorDef.Id<A>()));
+                 var prefixP = prefixOp.Or(New.Return(OperatorDef.Id<A>()));
 
-                    Parser<A> termP = from pre in prefixP
-                                      from x in term
-                                      from post in postfixP
-                                      select (post.UnaryFn(pre.UnaryFn(x)));
+                 Parser<A> termP = from pre in prefixP
+                                   from x in term
+                                   from post in postfixP
+                                   select (post.UnaryFn(pre.UnaryFn(x)));
 
-                    Func<A,Parser<A>> rassocP1 = null;
+                 Func<A,Parser<A>> rassocP1 = null;
 
-                    Func<A,Parser<A>> rassocP = x => (from f in rassocOp
-                                                      from y in (from z in termP
-                                                                 from rz in rassocP1(z)
-                                                                 select rz)
-                                                      select f.BinaryFn(x,y))   // f(x,y)
-                                                     .Or(ambiguousLeft)
-                                                     .Or(ambiguousNon);
+                 Func<A,Parser<A>> rassocP = x => (from f in rassocOp
+                                                   from y in (from z in termP
+                                                              from rz in rassocP1(z)
+                                                              select rz)
+                                                   select f.BinaryFn(x,y))   // f(x,y)
+                                                  .Or(ambiguousLeft)
+                                                  .Or(ambiguousNon);
 
-                    rassocP1 = x => rassocP(x).Or(New.Return(x));
+                 rassocP1 = x => rassocP(x).Or(New.Return(x));
 
-                    Func<A, Parser<A>> lassocP1 = null;
+                 Func<A, Parser<A>> lassocP1 = null;
 
-                    Func<A, Parser<A>> lassocP = x => (from f in lassocOp
-                                                       from y in termP
-                                                       from l in lassocP1(f.BinaryFn(x, y))
-                                                       select l)
-                                                      .Or(ambiguousRight);  // Not sure about this
+                 Func<A, Parser<A>> lassocP = x => (from f in lassocOp
+                                                    from y in termP
+                                                    from l in lassocP1(f.BinaryFn(x, y))
+                                                    select l)
+                                                   .Or(ambiguousRight);  // Not sure about this
 
-                    lassocP1 = x => (from l in lassocP(x)
-                                     select l)
-                                    .Or(New.Return(x));
+                 lassocP1 = x => (from l in lassocP(x)
+                                  select l)
+                                 .Or(New.Return(x));
 
-                    Func<A, Parser<A>> nassocP = x => (from f in nassocOp
-                                                       from y in termP
-                                                       from r in ambiguousRight
-                                                                .Or(ambiguousLeft)
-                                                                .Or(ambiguousNon)
-                                                                .Or(New.Return(f.BinaryFn(x, y)))
-                                                       select r);
+                 Func<A, Parser<A>> nassocP = x => (from f in nassocOp
+                                                    from y in termP
+                                                    from r in ambiguousRight
+                                                             .Or(ambiguousLeft)
+                                                             .Or(ambiguousNon)
+                                                             .Or(New.Return(f.BinaryFn(x, y)))
+                                                    select r);
 
-                    return from x in termP
-                           from r in rassocP(x).Or(lassocP(x).Or(nassocP(x).Or(New.Return(x)))).Fail("operator")
-                           select r;
-                }
-            );
+                 return from x in termP
+                        from r in rassocP(x).Or(lassocP(x).Or(nassocP(x).Or(New.Return(x)))).Fail("operator")
+                        select r;
+             }
+         );
         }
 
         /// <summary>

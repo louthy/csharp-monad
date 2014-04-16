@@ -39,7 +39,7 @@ namespace Monad.Parsec.Token.Strings
                             from str in New.Between(
                                 New.Character('"'),
                                 New.Character('"').Fail("end of string"),
-                                New.Many( new StringChar() )
+                                New.Many( new StringChar() ).Mconcat()
                                 )
                             select str
                         )

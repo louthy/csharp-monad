@@ -81,5 +81,35 @@ namespace Monad.Parsec
         {
             return lhs.Or(rhs);
         }
+
+        public Parser<IEnumerable<A>> Mconcat( IEnumerable<Parser<A>> parsers )
+        {
+            return new Parser<IEnumerable<A>>(
+                inp =>
+                {
+                    parsers = this.Cons(parsers);
+
+                    var final = new A[0].AsEnumerable();
+                    var last = inp;
+
+                    foreach (var parser in parsers)
+                    {
+                        var res = parser.Parse(inp);
+                        if (res.IsFaulted)
+                            return new ParserResult<IEnumerable<A>>(res.Errors);
+
+                        final = final.Concat(res.Value.Select(r => r.Item1));
+                        if (!res.Value.IsEmpty())
+                            last = res.Value.Last().Item2;
+                    }
+
+                    return new ParserResult<IEnumerable<A>>(Tuple.Create(final, last).Cons());
+                });
+        }
+
+        public Parser<IEnumerable<A>> Mconcat(params Parser<A>[] parsers)
+        {
+            return Mconcat(parsers.AsEnumerable());
+        }
     }
 }

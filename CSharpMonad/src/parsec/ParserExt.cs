@@ -41,10 +41,11 @@ namespace Monad.Parsec
                     if (res.IsFaulted) 
                         return res;
 
-                    var fst = res.Value.First();
-                    if (!predicate(fst.Item1))
-                        return ParserResult.Fail<T>(new ParserError[0]);
-
+                    foreach (var fst in res.Value)
+                    {
+                        if (!predicate(fst.Item1))
+                            return ParserResult.Fail<T>(new ParserError[0]);
+                    }
                     return res;
                 });
         }
@@ -58,11 +59,15 @@ namespace Monad.Parsec
                     if (res.IsFaulted)
                         return ParserResult.Fail<U>(res.Errors);
 
-                    var fst = res.Value.First();
+                    var resT = res.Value;
+                    var left = resT.IsEmpty()
+                        ? input
+                        : resT.Last().Item2;
+
                     return ParserResult.Success(
-                        Tuple.Create<U, IEnumerable<ParserChar>>(
-                            select(fst.Item1), fst.Item2).Cons()
-                        );
+                        resT.Select(resU =>
+                            Tuple.Create<U, IEnumerable<ParserChar>>(select(resU.Item1), resU.Item2)
+                        ));
                 });
         }
 
@@ -79,15 +84,28 @@ namespace Monad.Parsec
                     if (res.IsFaulted) 
                         return ParserResult.Fail<V>(res.Errors);
 
-                    var fst = res.Value.First();
-                    var res2 = bind(fst.Item1).Parse(fst.Item2);
-                    if (res2.IsFaulted)
-                        return ParserResult.Fail<V>(res2.Errors);
+                    var left = res.Value.IsEmpty()
+                        ? input
+                        : res.Value.Last().Item2;
 
-                    var snd = res2.Value.First();
-                    return ParserResult.Success<V>(
-                        Tuple.Create<V, IEnumerable<ParserChar>>(select(fst.Item1, snd.Item1), snd.Item2).Cons()
-                        );
+                    var resV = new List<Tuple<V, IEnumerable<ParserChar>>>();
+                    foreach (var resT in res.Value)
+                    {
+                        var resUTmp = bind(resT.Item1).Parse(left);
+
+                        if (resUTmp.IsFaulted)
+                            return ParserResult.Fail<V>(resUTmp.Errors);
+
+                        left = resUTmp.Value.IsEmpty()
+                            ? input
+                            : resUTmp.Value.Last().Item2;
+
+                        foreach (var resU in resUTmp.Value)
+                        {
+                            resV.Add(Tuple.Create<V, IEnumerable<ParserChar>>(select(resT.Item1, resU.Item1), left));
+                        }
+                    }
+                    return ParserResult.Success<V>(resV);
                 }
             );
         }
@@ -98,7 +116,7 @@ namespace Monad.Parsec
                 input =>
                 {
                     var res = self.Parse(input);
-                    if (res.IsFaulted)
+                    if (res.IsFaulted || res.Value.IsEmpty())
                         return alternative.Parse(input);
                     else
                         return res;
@@ -111,10 +129,12 @@ namespace Monad.Parsec
                 input =>
                 {
                     var res = self.Parse(input);
-                    if (res.IsFaulted)
+                    if (res.IsFaulted || res.Value.IsEmpty())
                         return ParserResult.Fail<U>(res.Errors);
                     else
-                        return also.Parse(res.Value.First().Item2);
+                    {
+                        return also.Parse(res.Value.Last().Item2);
+                    }
                 });
         }
 
@@ -139,7 +159,7 @@ namespace Monad.Parsec
                         var res = self.Parse(input);
                         return res.IsFaulted
                             ? ParserResult.Fail<R>(ParserError.Create(expected, input, message).Cons(res.Errors))
-                            : new ParserResult<R>(Tuple.Create(result(res.Value.First().Item1),res.Value.First().Item2).Cons() );
+                            : new ParserResult<R>(res.Value.Select( fst => Tuple.Create(result(fst.Item1),fst.Item2)));
                     }
                 );
         }

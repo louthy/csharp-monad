@@ -49,19 +49,18 @@ namespace Monad.UnitTests.Lex
             Parser<Term> expr = null;
             Func<Parser<Term>, Parser<Term>> contents;
 
-            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = (Parser<Term> p) => New.Many(p);
-            Func<Parser<Term>,Parser<IEnumerable<Term>>> @try = (Parser<Term> p) => New.Try(p);
-            Func<IEnumerable<Term>,Term> fail = ts => ts.IsEmpty() ? new FailTerm() : ts.Head();
+            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = (Parser<Term> p) => New.Many(p).Mconcat();
+            Func<Parser<Term>,Parser<Term>> @try = (Parser<Term> p) => New.Try(p);
 
             var def = new Lang();
-            var lexer = Tok.MakeTokenParser(def);
+            var lexer = Tok.MakeTokenParser<Term>(def);
             var binops = BuildOperatorsTable<Term>();
 
             // Lexer
             var intlex = lexer.Integer;
             var floatlex = lexer.Float;
-            var parens = lexer.ParensM;
-            var commaSep = lexer.CommaSep;
+            var parens = lexer.Parens;
+            Func<Parser<Term>, Parser<IEnumerable<Term>>> commaSep = p => lexer.CommaSep(p).Mconcat();
             var semiSep = lexer.SemiSep;
             var identifier = lexer.Identifier;
             var reserved = lexer.Reserved;
@@ -76,11 +75,11 @@ namespace Monad.UnitTests.Lex
             var variable = from v in identifier
                            select new Var(v) as Term;
 
-            var manyargs = parens(from ts in many(variable) 
-                                  select ts as IEnumerable<Token>);
+            var manyargs = parens(from ts in many(variable)
+                                  select new Arguments(ts) as Term);
 
-            var commaSepExpr = parens(from cs in commaSep(from t in expr select t as Token)
-                                      select cs as IEnumerable<Token>);
+            var commaSepExpr = parens(from cs in commaSep(expr)
+                                      select new CommaSepExpr(cs) as Term).Mconcat();
 
             var function = from d in reserved("def")
                            from name in identifier
@@ -97,8 +96,8 @@ namespace Monad.UnitTests.Lex
                        from args in commaSepExpr
                        select new Call(name, args) as Term;
 
-            var subexpr = (from ps in parens(from es in expr select es as IEnumerable<Token>)
-                           select (from t in ps select new Expression(t) as Term));
+            var subexpr = (from p in parens(expr)
+                           select new Expression(p) as Term);
 
             var factor = from f in @try(integer)
                          | @try(externFn)
@@ -106,12 +105,12 @@ namespace Monad.UnitTests.Lex
                          | @try(call)
                          | @try(variable)
                          | subexpr
-                         select fail(f);
+                         select f;
 
             var defn = from f in @try(externFn)
                        | @try(function)
                        | @try(expr)
-                       select f.Head();
+                       select f;
 
             contents = p =>
                 from ws in whiteSpace
@@ -123,7 +122,7 @@ namespace Monad.UnitTests.Lex
                                from semi in reservedOp(";")
                                select fn
                            )
-                           select ts.Head();
+                           select ts;
 
             expr = Ex.BuildExpressionParser<Term>(binops, factor);
 
@@ -215,27 +214,29 @@ namespace Monad.UnitTests.Lex
         public class Function : Term
         {
             public IdentifierToken Id;
-            public IEnumerable<Token> Args;
+            public Arguments Args;
             public Token Body;
 
-            public Function(IdentifierToken id, IEnumerable<Token> args, Token body, SrcLoc location = null)
+            public Function(IdentifierToken id, Term args, Token body, SrcLoc location = null)
                 :
                 base(location)
             {
                 Id = id;
+                Args = args as Arguments;
             }
         }
 
         public class Extern : Term
         {
             public IdentifierToken Id;
-            public IEnumerable<Token> Args;
+            public Arguments Args;
 
-            public Extern(IdentifierToken id, IEnumerable<Token> args, SrcLoc location = null)
+            public Extern(IdentifierToken id, Term args, SrcLoc location = null)
                 :
                 base(location)
             {
                 Id = id;
+                Args = args as Arguments;
             }
         }
 
@@ -261,6 +262,28 @@ namespace Monad.UnitTests.Lex
                 base(location)
             {
                 Expr = expr;
+            }
+        }
+
+        public class Arguments : Term
+        {
+            public IEnumerable<Token> Args;
+            public Arguments(IEnumerable<Token> args, SrcLoc location = null)
+                :
+                base(location)
+            {
+                Args = args;
+            }
+        }
+
+        public class CommaSepExpr : Term
+        {
+            public IEnumerable<Token> Exprs;
+            public CommaSepExpr(IEnumerable<Token> exprs, SrcLoc location = null)
+                :
+                base(location)
+            {
+                Exprs = exprs;
             }
         }
 

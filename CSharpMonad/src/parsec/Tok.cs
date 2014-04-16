@@ -37,9 +37,10 @@ namespace Monad.Parsec
     /// </summary>
     public static class Tok
     {
-        public static TokenParser MakeTokenParser(LanguageDef def)
+        public static TokenParser<T> MakeTokenParser<T>(LanguageDef def)
+            where T : Token.Token
         {
-            return new TokenParser(def);
+            return new TokenParser<T>(def);
         }
 
         /// <summary>

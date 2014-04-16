@@ -125,7 +125,7 @@ namespace Monad.Parsec.Token.Numbers
             :
             base( 
                 inp =>{
-                    var r = New.Many1(New.Digit()).Parse(inp);
+                    var r = New.Many1(New.Digit()).Mconcat().Parse(inp);
                     if( r.IsFaulted )
                     {
                         return ParserResult.Fail<IntegerToken>(r.Errors);
@@ -153,7 +153,7 @@ namespace Monad.Parsec.Token.Numbers
                 inp =>
                 {
                     var r = (from x in New.Character('x').Or(New.Character('X'))
-                             from d in New.Many1(New.HexDigit())
+                             from d in New.Many1(New.HexDigit()).Mconcat()
                              select d)
                              .Parse(inp);
 
@@ -184,7 +184,7 @@ namespace Monad.Parsec.Token.Numbers
                 inp =>
                 {
                     var r = (from x in New.Character('o').Or(New.Character('O'))
-                             from d in New.Many1(New.OctalDigit())
+                             from d in New.Many1(New.OctalDigit()).Mconcat()
                              select d)
                              .Parse(inp);
 

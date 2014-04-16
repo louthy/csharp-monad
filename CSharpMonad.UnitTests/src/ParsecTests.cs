@@ -107,7 +107,7 @@ namespace Monad.UnitTests
                             from comma in New.Character(',')
                             from digit in New.Digit()
                             select digit
-                            )
+                            ).Mconcat()
                     from close in New.Character(']')
                     select d.Cons(ds);
 
@@ -146,7 +146,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestMany()
         {
-            var r = New.Many(New.Character('a')).Parse("aaabcde").Value.Single();
+            var r = New.Many(New.Character('a')).Mconcat().Parse("aaabcde").Value.Single();
             Assert.IsTrue(r.Item1.AsString() == "aaa");
             Assert.IsTrue(r.Item2.AsString() == "bcde");
         }
@@ -154,11 +154,11 @@ namespace Monad.UnitTests
         [Test]
         public void TestMany1()
         {
-            var r = New.Many1(New.Character('a')).Parse("aaabcde").Value.Single();
+            var r = New.Many1(New.Character('a')).Mconcat().Parse("aaabcde").Value.Single();
             Assert.IsTrue(r.Item1.AsString() == "aaa");
             Assert.IsTrue(r.Item2.AsString() == "bcde");
 
-            var r2 = New.Many1(New.Character('a')).Parse("bcde");
+            var r2 = New.Many1(New.Character('a')).Mconcat().Parse("bcde");
             Assert.IsTrue(r2.Value.IsEmpty());
         }
 
@@ -315,7 +315,6 @@ namespace Monad.UnitTests
             var r = New.WhiteSpace().Parse(" ");
             Assert.IsFalse(r.IsFaulted);
             Assert.IsTrue(r.Value.Count() == 1);
-            Assert.IsTrue(r.Value.Single().Item1.AsString() == " ");
 
         }
 
@@ -326,8 +325,8 @@ namespace Monad.UnitTests
             Assert.IsFalse(r.IsFaulted);
             Assert.IsTrue(r.Value.Count() == 1);
 
-            var empty = r.Value.Single().Item1.AsString();
-            Assert.IsTrue(empty == "");
+            var empty = r.Value.Count() == 1;
+            Assert.IsTrue(empty);
             Assert.IsTrue(r.Value.Single().Item2.AsString() == "a");
         }
     }

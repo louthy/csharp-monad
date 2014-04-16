@@ -36,6 +36,10 @@ namespace Monad.Parsec
         {
             return new Item();
         }
+        public static Empty<T> Empty<T>()
+        {
+            return new Empty<T>();
+        }
         public static Failure<T> Failure<T>(ParserError error)
         {
             return new Failure<T>(error);
@@ -88,16 +92,24 @@ namespace Monad.Parsec
         {
             return new NoneOf(chars);
         }
-        public static Parser<IEnumerable<A>> SepBy<A,B>(Parser<A> parser, Parser<B> sepParser)
+        public static Parser<A> SepBy<A,B>(Parser<A> parser, Parser<B> sepParser)
         {
-            return SepBy1<A, B>(parser, sepParser)
-                        .Or(New.Return<IEnumerable<A>>(new A[0]));
+            return SepBy1<A, B>(parser, sepParser) | New.Empty<A>();
         }
-        public static Parser<IEnumerable<A>> SepBy1<A, B>(Parser<A> parser, Parser<B> sepParser)
+        public static Parser<A> SepBy1<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
-            return (from x in parser
-                    from xs in New.Many<A>( sepParser.And(parser) )
-                    select x.Cons(xs));
+            return new Parser<A>( inp =>
+            {
+                var x = parser.Parse(inp);
+                if (x.IsFaulted)
+                    return x;
+
+                var xs = New.Many<A>(sepParser.And(parser)).Parse(x.Value.Last().Item2);
+                if (x.IsFaulted)
+                    return xs;      // TODO: Consider that it may have consumed X
+
+                return new ParserResult<A>(x.Value.Concat(xs.Value));
+            });
         }
 
         public static Digit Digit()
@@ -188,25 +200,22 @@ namespace Monad.Parsec
             return new Parser<Unit>(
                 inp =>
                 {
-                    bool consumed = false;
-
                     if( inp.IsEmpty() ) 
-                        return new ParserResult<Unit>(Tuple.Create(Unit.Return(), inp).Cons());
+                        return New.Return<Unit>(Unit.Return()).Parse(inp);
 
                     do
                     {
                         var head = inp.Head();
 
                         var resA = skipParser.Parse(inp);
-                        if (resA.IsFaulted)
-                            return new ParserResult<Unit>(Tuple.Create(Unit.Return(), inp).Cons());
+                        if (resA.IsFaulted || resA.Value.IsEmpty())
+                            return New.Return<Unit>(Unit.Return()).Parse(inp);
 
-                        inp = resA.Value.First().Item2;
-
-                        consumed = inp.IsEmpty() || (inp.Head().Location.GetHashCode() != head.Location.GetHashCode());
+                        inp = resA.Value.Last().Item2;
                     }
-                    while (consumed && !inp.IsEmpty());
-                    return new ParserResult<Unit>(Tuple.Create(Unit.Return(), inp).Cons());
+                    while (!inp.IsEmpty());
+
+                    return New.Return<Unit>(Unit.Return()).Parse(inp);
                 }
             );
         }

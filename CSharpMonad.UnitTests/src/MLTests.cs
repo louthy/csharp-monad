@@ -52,9 +52,11 @@ namespace Monad.UnitTests.ML
         [Test]
         public void BuildMLParser()
         {
-            Id = from w in New.WhiteSpace()
+            var ws = New.WhiteSpace();// | New.Return(new ParserChar(' '));
+
+            Id = from w in ws
                  from c in New.Letter()
-                 from cs in New.Many(New.LetterOrDigit())
+                 from cs in New.Many(New.LetterOrDigit()).Mconcat()
                  select c.Cons(cs);
 
             Ident = from s in Id 
@@ -71,25 +73,25 @@ namespace Monad.UnitTests.ML
 
             Term1 = (from x in Ident
                      select new VarTerm(x) as Term)
-                    .Or(from u1 in Lang.WsChr('(')
-                        from t in Term
-                        from u2 in Lang.WsChr(')')
-                        select t);
+                    | (from u1 in Lang.WsChr('(')
+                       from t in Term
+                       from u2 in Lang.WsChr(')')
+                       select t);
 
             Term = (from u1 in Lang.WsChr('\\')
                     from x in Ident
                     from u2 in Lang.WsChr('.')
                     from t in Term
                     select new LambdaTerm(x, t) as Term)
-                   .Or(from lid in LetId
+                    | (from lid in LetId
                        from x in Ident
                        from u1 in Lang.WsChr('=')
                        from t in Term
                        from inid in InId
                        from c in Term
                        select new LetTerm(x, t, c) as Term)
-                   .Or(from t in Term1
-                       from ts in New.Many(Term1)
+                    | (from t in Term1
+                       from ts in New.Many(Term1).Mconcat()
                        select new AppTerm(t, ts) as Term);
 
             Parser = from t in Term
@@ -106,7 +108,7 @@ namespace Monad.UnitTests.ML
             Assert.IsTrue(!r.IsFaulted);
             Assert.IsTrue(r.Value.First().Item1.AsString() == "Testing123");
 
-            r = Id.Parse("   Testing123   ");
+            r = Id.Parse("    Testing123   ");
             Assert.IsTrue(!r.IsFaulted);
             Assert.IsTrue(r.Value.First().Item1.AsString() == "Testing123");
 

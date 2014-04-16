@@ -44,6 +44,16 @@ namespace Monad.Parsec
         { }
     }
 
+    public class Empty<A> : Parser<A>
+    {
+        public Empty()
+            :
+            base(
+                inp => new ParserResult<A>(new Tuple<A, IEnumerable<ParserChar>>[0])
+            )
+        { }
+    }
+
     public class Failure<A> : Parser<A>
     {
         readonly IEnumerable<ParserError> errors;
@@ -139,7 +149,7 @@ namespace Monad.Parsec
             :
             base(
                 inp =>
-                    inp.Count() == 0
+                    inp.IsEmpty()
                         ? New.Failure<ParserChar>(ParserError.Create(expecting, inp)).Parse(inp)
                         : (from res in New.Item().Parse(inp).Value
                            select pred(res.Item1.Value)
@@ -232,10 +242,10 @@ namespace Monad.Parsec
         public Integer()
             :
             base(inp =>
-                (from minus in New.Try(New.Character('-'))
-                 from digits in New.Many1(New.Digit())
+                (from minus in New.Try(New.Character('-') | New.Return( new ParserChar('+') ) )
+                 from digits in New.Many1(New.Digit()).Mconcat()
                  let v = DigitsToInt(digits)
-                 select minus.IsEmpty()
+                 select minus.Value == '+'
                     ? v
                     : -v)
                 .Parse(inp)
@@ -257,16 +267,17 @@ namespace Monad.Parsec
         { }
     }
 
-    public class Try<A> : Parser<IEnumerable<A>>
+    public class Try<A> : Parser<A>
     {
         public Try(Parser<A> parser)
             : base(
                 inp =>
-                New.Choice(
-                    new ValueToListParser<A>(parser),
-                    New.Return<IEnumerable<A>>(new A[0])
-                )
-                .Parse(inp)
+                {
+                    var res = parser.Parse(inp);
+                    return res.IsFaulted
+                        ? new ParserResult<A>(new Tuple<A,IEnumerable<ParserChar>>[0])
+                        : res;
+                }
             )
         {
         }
@@ -277,64 +288,30 @@ namespace Monad.Parsec
         }
     }
 
-    class ValueToListParser<A> : Parser<IEnumerable<A>>
-    {
-        public ValueToListParser(Parser<A> parser)
-            :
-            base(inp =>
-            {
-                var res = parser.Parse(inp);
-                if (res.IsFaulted)
-                {
-                    return ParserResult.Fail<IEnumerable<A>>(res.Errors);
-                }
-                else
-                {
-                    var a = res.Value.First();
-                    return new ParserResult<IEnumerable<A>>(
-                        Tuple.Create(a.Item1.Cons(), a.Item2).Cons()
-                    );
-                }
-            })
-        {
-        }
-    }
-
-    public class Many<A> : Parser<IEnumerable<A>>
+    public class Many<A> : Parser<A>
     {
         public Many(Parser<A> parser)
             :
-            base(
-                inp =>
-                    New.Choice(
-                        New.Many1(parser),
-                        New.Return<IEnumerable<A>>(new A[0])
-                    )
-                    .Parse(inp)
-            )
+            base( inp => (New.Many1(parser) | New.Empty<A>()).Parse(inp) )
         { }
     }
 
-    public class Many1<A> : Parser<IEnumerable<A>>
+    public class Many1<A> : Parser<A>
     {
         public Many1(Parser<A> parser)
             :
-            base(
-                inp =>
-                {
+            base( inp =>
+            {
                     var v = parser.Parse(inp);
                     if (v.IsFaulted)
-                        return ParserResult.Fail<IEnumerable<A>>(v.Errors);
+                        return ParserResult.Fail<A>(v.Errors);
 
-                    var fst = v.Value.First();
-                    var vs = New.Many(parser).Parse(fst.Item2);
-                    if (vs.IsFaulted)
-                        return New.Return(fst.Item1.Cons()).Parse(fst.Item2);
+                    var vs = New.Many(parser).Parse(v.Value.Last().Item2);
+                    if (vs.IsFaulted) 
+                        return v;
 
-                    var snd = vs.Value.First();
-                    return New.Return(fst.Item1.Cons(snd.Item1)).Parse(snd.Item2);
-                }
-            )
+                    return new ParserResult<A>(v.Value.Concat(vs.Value));
+            })
         { }
     }
 
@@ -359,12 +336,12 @@ namespace Monad.Parsec
         { }
     }
 
-    public class WhiteSpace : Parser<IEnumerable<ParserChar>>
+    public class WhiteSpace : Parser<Unit>
     {
         public WhiteSpace()
             :
             base(
-                inp => New.Many(
+                inp => New.SkipMany(
                             New.Character(' ')
                             | New.Character('\t')
                             | New.Character('\n')
@@ -375,7 +352,7 @@ namespace Monad.Parsec
         { }
     }
 
-    public class SimpleSpace : Parser<IEnumerable<ParserChar>>
+    public class SimpleSpace : Parser<ParserChar>
     {
         public SimpleSpace()
             :

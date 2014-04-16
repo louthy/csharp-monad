@@ -35,7 +35,8 @@ namespace Monad.Parsec.Token
     /// Token parser
     /// </summary>
     /// <typeparam name="A"></typeparam>
-    public class TokenParser : GenTokenParser<Token>
+    public class TokenParser<T> : GenTokenParser<T>
+        where T : Token
     {
         public TokenParser(LanguageDef def)
             :
@@ -69,20 +70,15 @@ namespace Monad.Parsec.Token
         public readonly Func<Parser<A>, Monad.Parsec.Token.Bracketing.Braces<A>> Braces;
         public readonly Func<Parser<A>, Monad.Parsec.Token.Bracketing.Angles<A>> Angles;
         public readonly Func<Parser<A>, Monad.Parsec.Token.Bracketing.Brackets<A>> Brackets;
-
-        public readonly Func<Parser<IEnumerable<A>>, Monad.Parsec.Token.Bracketing.Parens<IEnumerable<A>>> ParensM;
-        public readonly Func<Parser<IEnumerable<A>>, Monad.Parsec.Token.Bracketing.Braces<IEnumerable<A>>> BracesM;
-        public readonly Func<Parser<IEnumerable<A>>, Monad.Parsec.Token.Bracketing.Angles<IEnumerable<A>>> AnglesM;
-        public readonly Func<Parser<IEnumerable<A>>, Monad.Parsec.Token.Bracketing.Brackets<IEnumerable<A>>> BracketsM;
         
         public readonly Symbol Semi;
         public readonly Symbol Comma;
         public readonly Symbol Colon;
         public readonly Symbol Dot;
-        public readonly Func<Parser<A>, Parser<IEnumerable<A>>> SemiSep;
-        public readonly Func<Parser<A>, Parser<IEnumerable<A>>> SemiSep1;
-        public readonly Func<Parser<A>, Parser<IEnumerable<A>>> CommaSep;
-        public readonly Func<Parser<A>, Parser<IEnumerable<A>>> CommaSep1;
+        public readonly Func<Parser<A>, Parser<A>> SemiSep;
+        public readonly Func<Parser<A>, Parser<A>> SemiSep1;
+        public readonly Func<Parser<A>, Parser<A>> CommaSep;
+        public readonly Func<Parser<A>, Parser<A>> CommaSep1;
 
         private readonly IReadOnlyDictionary<string, Parser<ReservedToken>> reserved;
         private readonly IReadOnlyDictionary<string, Parser<ReservedOpToken>> reservedOp;
@@ -115,11 +111,6 @@ namespace Monad.Parsec.Token
             Braces = (Parser<A> p) => Tok.Bracketing.Braces(p);
             Angles = (Parser<A> p) => Tok.Bracketing.Angles(p);
             Brackets = (Parser<A> p) => Tok.Bracketing.Brackets(p);
-
-            ParensM = (Parser<IEnumerable<A>> p) => Tok.Bracketing.Parens(p);
-            BracesM = (Parser<IEnumerable<A>> p) => Tok.Bracketing.Braces(p);
-            AnglesM = (Parser<IEnumerable<A>> p) => Tok.Bracketing.Angles(p);
-            BracketsM = (Parser<IEnumerable<A>> p) => Tok.Bracketing.Brackets(p);
 
             Semi = Tok.Symbol(";");
             Comma = Tok.Symbol(",");

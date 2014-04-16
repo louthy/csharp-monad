@@ -57,12 +57,12 @@ namespace Monad.UnitTests.Lang
 
             Id = from w in New.WhiteSpace()
                  from c in New.Letter()
-                 from cs in New.Many(New.LetterOrDigit())
+                 from cs in New.Many(New.LetterOrDigit()).Mconcat()
                  select c.Cons(cs);
 
             Op = (from w in New.WhiteSpace()
                   from o in New.Satisfy(c => opChars.Contains(c), "an operator")
-                  from os in New.Many(New.Satisfy(c => opChars.Contains(c), "an operator"))
+                  from os in New.Many(New.Satisfy(c => opChars.Contains(c), "an operator")).Mconcat()
                   select o.Cons(os))
                  .Fail("an operator");
 
@@ -100,35 +100,35 @@ namespace Monad.UnitTests.Lang
 
             String = (from w in New.WhiteSpace()
                       from o in New.Character('"')
-                      from cs in New.Many(New.Satisfy(c => c != '"'))
+                      from cs in New.Many(New.Satisfy(c => c != '"')).Mconcat()
                       from c in New.Character('"')
                       select new StringTerm(cs) as Term)
                      .Fail("a string literal");
 
             Term1 = Integer
-                    .Or(String)
-                    .Or(from x in Ident
-                        select new VarTerm(x) as Term)
-                    .Or(from u1 in Lang.WsChr('(')
-                        from t in Term
-                        from u2 in Lang.WsChr(')')
-                        select t)
+                    | String
+                    | (from x in Ident
+                       select new VarTerm(x) as Term)
+                    | (from u1 in Lang.WsChr('(')
+                       from t in Term
+                       from u2 in Lang.WsChr(')')
+                       select t)
                     .Fail("a term");
 
             Term = (from x in Ident
                     from arrow in LambdaArrow
                     from t in Term
                     select new LambdaTerm(x, t) as Term)
-                    .Or(from lid in LetId
-                        from x in Ident
-                        from u1 in Lang.WsChr('=')
-                        from t in Term
-                        from s in Semi
-                        from c in Term
-                        select new LetTerm(x, t, c) as Term)
-                    .Or(from t in Term1
-                        from ts in New.Many(Term1)
-                        select new AppTerm(t, ts) as Term)
+                    | (from lid in LetId
+                       from x in Ident
+                       from u1 in Lang.WsChr('=')
+                       from t in Term
+                       from s in Semi
+                       from c in Term
+                       select new LetTerm(x, t, c) as Term)
+                    | (from t in Term1
+                       from ts in New.Many(Term1).Mconcat()
+                       select new AppTerm(t, ts) as Term)
                     .Fail("a term");
 
             Parser = from t in Term

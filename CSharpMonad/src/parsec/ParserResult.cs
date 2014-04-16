@@ -50,7 +50,7 @@ namespace Monad.Parsec
         {
             get
             {
-                return Value.IsEmpty();
+                return Errors != null;
             }
         }
     }
