@@ -238,10 +238,10 @@ This is all work in progress, but very stable and functional.  It's probably eas
 
         public int Eval(string expr)
         {
-            var r = NewT.Expr().Parse(expr);
+            var r = New.Expr().Parse(expr);
             if (r.Count() == 0)
             {
-                return 999;
+                throw new Exception("Invalid expression");
             }
             else
             {
