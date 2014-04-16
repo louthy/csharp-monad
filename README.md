@@ -26,7 +26,7 @@ Once the `Either` monad is in the `Left` state it cancels the monad bind functio
 
 __Example__
 
-First we set up some methods that return either a `Left` or a `Right`.  In this case `Two()` returns a `Left`, and `Error()` returns a `Right`.
+First we set up some methods that return either a `Left` or a `Right`.  In this case `Two()` returns a `Right`, and `Error()` returns a `Left`.
 
 ```C#    
         public Either<int, string> Two()
