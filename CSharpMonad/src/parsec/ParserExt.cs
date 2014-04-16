@@ -82,7 +82,7 @@ namespace Monad.Parsec
                 {
                     if (parser == null)
                     {
-                        parser = parser;
+                        return ParserResult.Fail<V>("parser is null",input);
                     }
 
                     var res = parser.Parse(input);
