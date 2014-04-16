@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 namespace Monad.Utility
 {
     /// <summary>
-    /// Create a memoised value
+    /// Create a memoized value
     /// </summary>
     public static class Memo
     {
         /// <summary>
-        /// Create a memoised (cached) value, doesn't calculate the provided expression until the
+        /// Create a memoized (cached) value, doesn't calculate the provided expression until the
         /// value is required, and once it has been calculated it will cache the value for future
         /// access.
         /// </summary>
@@ -23,7 +23,7 @@ namespace Monad.Utility
     }
 
     /// <summary>
-    /// Create a memoised (cached) value, doesn't calculate the provided expression until the
+    /// Create a memoized (cached) value, doesn't calculate the provided expression until the
     /// value is required, and once it has been calculated it will cache the value for future
     /// access.
     /// </summary>
@@ -44,7 +44,7 @@ namespace Monad.Utility
 
         /// <summary>
         /// Access the value (this will cause the calculation if the value hasn't yet
-        /// been memoised).
+        /// been memoized).
         /// </summary>
         public T Value
         {
@@ -71,7 +71,7 @@ namespace Monad.Utility
         }
 
         /// <summary>
-        /// Forget the memoised value
+        /// Forget the memoized value
         /// </summary>
         public void Forget()
         {
@@ -93,7 +93,7 @@ namespace Monad.Utility
     public static class MemoExt
     {
         /// <summary>
-        /// Memoise the function
+        /// Memoize the function
         /// </summary>
         public static Func<T, R> Memo<T, R>(this Func<T, R> f)
         {
@@ -104,7 +104,7 @@ namespace Monad.Utility
         }
 
         /// <summary>
-        /// Memoise the function
+        /// Memoize the function
         /// </summary>
         public static Func<T1, T2, R> Memo<T1, T2, R>(this Func<T1, T2, R> f)
         {
@@ -114,7 +114,7 @@ namespace Monad.Utility
         }
 
         /// <summary>
-        /// Memoise the function
+        /// Memoize the function
         /// </summary>
         public static Func<T1, T2, T3, R> Memo<T1, T2, T3, R>(this Func<T1, T2, T3, R> f)
         {

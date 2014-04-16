@@ -49,7 +49,7 @@
     <Compile Include="src\IO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\utility\Lam.da.cs" />
-    <Compile Include="src\utility\Memoise.cs" />
+    <Compile Include="src\utility\Memoize.cs" />
     <Compile Include="src\option\Just.cs" />
     <Compile Include="src\option\Nothing.cs" />
     <Compile Include="src\option\Option.cs" />
