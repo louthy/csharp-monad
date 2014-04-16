@@ -366,9 +366,9 @@ namespace Monad.Parsec
             base(
                 inp => New.Many(
                             New.Character(' ')
-                                .Or(New.Character('\t'))
-                                .Or(New.Character('\n'))
-                                .Or(New.Character('\r'))
+                            | New.Character('\t')
+                            | New.Character('\n')
+                            | New.Character('\r')
                         )
                         .Parse(inp)
             )

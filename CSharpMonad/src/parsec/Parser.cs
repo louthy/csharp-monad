@@ -76,5 +76,10 @@ namespace Monad.Parsec
         {
             return lhs.Or(rhs);
         }
-	}
+
+        public static Parser<A> operator &(Parser<A> lhs, Parser<A> rhs)
+        {
+            return lhs.Or(rhs);
+        }
+    }
 }

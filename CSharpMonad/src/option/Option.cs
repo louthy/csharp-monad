@@ -95,7 +95,7 @@ namespace Monad
         public abstract R Match<R>(Func<T, R> Just, R Nothing);
 
         /// <summary>
-        /// Monadic append
+        /// Mappend
         /// If the left-hand side or right-hand side are in a Left state, then Left propogates
         /// </summary>
         public static Option<T> operator +(Option<T> lhs, Option<T> rhs)
@@ -104,7 +104,31 @@ namespace Monad
         }
 
         /// <summary>
-        /// Monadic equality
+        /// Nothing coalescing operator
+        /// It returns the left-hand operand if the operand is not Nothing; otherwise it returns the right hand operand.
+        /// </summary>
+        public static Option<T> operator |(Option<T> lhs, Option<T> rhs)
+        {
+            return lhs.HasValue
+                ? lhs
+                : rhs;
+        }
+
+        /// <summary>
+        /// Teturns the right-hand side if the left-hand and right-hand side is not null.
+        /// </summary>
+        public static Option<T> operator &(Option<T> lhs, Option<T> rhs)
+        {
+            return lhs.HasValue && rhs.HasValue
+                ? rhs
+                : lhs.HasValue
+                    ? rhs
+                    : lhs;
+        }
+
+        /// <summary>
+        /// Equals override
+        /// Compares the underlying values
         /// </summary>
         public static bool operator ==(Option<T> lhs, Option<T> rhs)
         {
@@ -112,7 +136,8 @@ namespace Monad
         }
 
         /// <summary>
-        /// Monadic equality
+        /// Not equals override
+        /// Compares the underlying values
         /// </summary>
         public static bool operator !=(Option<T> lhs, Option<T> rhs)
         {
@@ -155,6 +180,10 @@ namespace Monad
                 yield break;
         }
 
+        /// <summary>
+        /// GetHashCode
+        /// </summary>
+        /// <returns>Just.GetHashCode() or Nothing.GetHashCode()</returns>
         public override int GetHashCode()
         {
             return HasValue
@@ -162,6 +191,10 @@ namespace Monad
                 : Nothing.GetHashCode();
         }
 
+        /// <summary>
+        /// Equals override
+        /// Compares the underlying values
+        /// </summary>
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -193,11 +226,19 @@ namespace Monad
             }
         }
 
+        /// <summary>
+        /// Equals override
+        /// Compares the underlying values
+        /// </summary>
         public bool Equals(Option<T> rhs)
         {
             return Equals((object)rhs);
         }
 
+        /// <summary>
+        /// Equals override
+        /// Compares the underlying values
+        /// </summary>
         public bool Equals(T rhs)
         {
             return Equals((object)rhs);

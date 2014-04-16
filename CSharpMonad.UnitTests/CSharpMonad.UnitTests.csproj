@@ -51,6 +51,7 @@
     <Compile Include="src\MconcatTests.cs" />
     <Compile Include="src\MappendTests.cs" />
     <Compile Include="src\MLTests.cs" />
+    <Compile Include="src\OperatorTests.cs" />
     <Compile Include="src\OptionTests.cs" />
     <Compile Include="src\ParsecTests.cs" />
     <Compile Include="src\LangTests.cs" />

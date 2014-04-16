@@ -257,6 +257,29 @@ namespace Monad
         }
 
         /// <summary>
+        /// Left coalescing operator
+        /// It returns the left-hand operand if the operand is not Left; otherwise it returns the right hand operand.
+        /// </summary>
+        public static Either<R, L> operator |(Either<R, L> lhs, Either<R, L> rhs)
+        {
+            return lhs.IsRight
+                ? lhs
+                : rhs;
+        }
+
+        /// <summary>
+        /// Teturns the right-hand side if the left-hand and right-hand side is not null.
+        /// </summary>
+        public static Either<R, L> operator &(Either<R, L> lhs, Either<R, L> rhs)
+        {
+            return lhs.IsRight && rhs.IsRight
+                ? rhs
+                : lhs.IsRight
+                    ? rhs
+                    : lhs;
+        }
+
+        /// <summary>
         /// Monadic append
         /// If the left-hand side or right-hand side are in a Left state, then Left propagates
         /// </summary>
