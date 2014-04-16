@@ -169,19 +169,21 @@ namespace Monad.UnitTests.Lex
                 return fn(lhs, rhs, op);
             });
 
-            var equals = new Infix<T>("=", from op in lexer.ReservedOp("=") select binop(op), Assoc.Left);
-            var mult = new Infix<T>("*", from op in lexer.ReservedOp("*") select binop(op), Assoc.Left);
-            var divide = new Infix<T>("/", from op in lexer.ReservedOp("/") select binop(op), Assoc.Left);
-            var plus = new Infix<T>("+", from op in lexer.ReservedOp("+") select binop(op), Assoc.Left);
-            var minus = new Infix<T>("-", from op in lexer.ReservedOp("-") select binop(op), Assoc.Left);
-            var lessThan = new Infix<T>("<", from op in lexer.ReservedOp("<") select binop(op), Assoc.Left);
+            Func<string, Parser<Func<T, T, T>>> resOp = name => from op in lexer.ReservedOp(name) select binop(op);
 
+            var equals =    new Infix<T>("=", resOp("="), Assoc.Left);
+            var mult =      new Infix<T>("*", resOp("*"), Assoc.Left);
+            var divide =    new Infix<T>("/", resOp("/"), Assoc.Left);
+            var plus =      new Infix<T>("+", resOp("+"), Assoc.Left);
+            var minus =     new Infix<T>("-", resOp("-"), Assoc.Left);
+            var lessThan =  new Infix<T>("<", resOp("<"), Assoc.Left);
 
-            var prec0 = equals.Cons();
-            var prec1 = mult.Cons(); prec1 = divide.Cons(prec1);
-            var prec2 = plus.Cons(); prec2 = minus.Cons(prec2);
-            var prec3 = lessThan.Cons();
-            var binops = new OperatorTable<T>(new IEnumerable<Operator<T>>[] { prec0, prec1, prec2, prec3 });
+            var binops = new OperatorTable<T>();
+            binops.AddRow().Add(equals)
+                  .AddRow().Add(mult).Add(divide)
+                  .AddRow().Add(plus).Add(minus)
+                  .AddRow().Add(lessThan);
+
             return binops;
         }
 

@@ -32,15 +32,23 @@ namespace Monad.Parsec.Expr
     public class OperatorTable<A> : IEnumerable<IEnumerable<Operator<A>>>
     {
         List<IEnumerable<Operator<A>>> ops = new List<IEnumerable<Operator<A>>>();
+        int current = -1;
 
-        public OperatorTable(IEnumerable<IEnumerable<Operator<A>>> range)
+        public OperatorTable()
         {
-            AddRange(range);
         }
 
-        public void AddRange(IEnumerable<IEnumerable<Operator<A>>> range)
+        public OperatorTable<A> AddRow()
         {
-            ops.AddRange(range);
+            current++;
+            ops.Add(new Operator<A>[0]);
+            return this;
+        }
+
+        public OperatorTable<A> Add(Operator<A> op)
+        {
+            ops[current].Concat(op.Cons());
+            return this;
         }
 
         public IEnumerable<IEnumerable<Operator<A>>> AsEnumerable()
