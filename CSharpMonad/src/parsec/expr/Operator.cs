@@ -91,7 +91,7 @@ namespace Monad.Parsec.Expr
         public Operator(OperatorDef<A> operatorDef)
             :
             base(
-                inp => (from o in New.String(operatorDef.Op)    // TODO: New.String probably isn't good enough
+                inp => (from o in Gen.String(operatorDef.Op)    // TODO: New.String probably isn't good enough
                         select operatorDef)
                        .Parse(inp)
             )

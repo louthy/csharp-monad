@@ -65,15 +65,15 @@ namespace Monad.Parsec.Expr
                  ),
                  SplitOp).Apply((rassoc, lassoc, nassoc, prefix, postfix) =>
              {
-                 var rassocOp = New.Choice(rassoc);
-                 var lassocOp = New.Choice(lassoc);
-                 var nassocOp = New.Choice(nassoc);
-                 var prefixOp = New.Choice(prefix).Fail("");
-                 var postfixOp = New.Choice(postfix).Fail("");
+                 var rassocOp = Gen.Choice(rassoc);
+                 var lassocOp = Gen.Choice(lassoc);
+                 var nassocOp = Gen.Choice(nassoc);
+                 var prefixOp = Gen.Choice(prefix).Fail("");
+                 var postfixOp = Gen.Choice(postfix).Fail("");
 
                  Func<string, Choice<OperatorDef<A>>, Parser<OperatorDef<A>>> ambiguous = (string assoc, Choice<OperatorDef<A>> op) =>
                      from p in
-                         New.Try<OperatorDef<A>>(
+                         Gen.Try<OperatorDef<A>>(
                              (from o in op
                               select o)
                              .Fail("ambiguous use of a " + assoc + " associative operator")
@@ -85,8 +85,8 @@ namespace Monad.Parsec.Expr
                  var ambiguousLeft = from a in ambiguous("left", lassocOp) select default(A); // Not sure about what the result should be
                  var ambiguousNon = from a in ambiguous("non", nassocOp) select default(A); // Not sure about what the result should be
 
-                 var postfixP = postfixOp.Or(New.Return(OperatorDef.Id<A>()));
-                 var prefixP = prefixOp.Or(New.Return(OperatorDef.Id<A>()));
+                 var postfixP = postfixOp.Or(Gen.Return(OperatorDef.Id<A>()));
+                 var prefixP = prefixOp.Or(Gen.Return(OperatorDef.Id<A>()));
 
                  Parser<A> termP = from pre in prefixP
                                    from x in term
@@ -103,7 +103,7 @@ namespace Monad.Parsec.Expr
                                                   .Or(ambiguousLeft)
                                                   .Or(ambiguousNon);
 
-                 rassocP1 = x => rassocP(x).Or(New.Return(x));
+                 rassocP1 = x => rassocP(x).Or(Gen.Return(x));
 
                  Func<A, Parser<A>> lassocP1 = null;
 
@@ -115,18 +115,18 @@ namespace Monad.Parsec.Expr
 
                  lassocP1 = x => (from l in lassocP(x)
                                   select l)
-                                 .Or(New.Return(x));
+                                 .Or(Gen.Return(x));
 
                  Func<A, Parser<A>> nassocP = x => (from f in nassocOp
                                                     from y in termP
                                                     from r in ambiguousRight
                                                              .Or(ambiguousLeft)
                                                              .Or(ambiguousNon)
-                                                             .Or(New.Return(f.BinaryFn(x, y)))
+                                                             .Or(Gen.Return(f.BinaryFn(x, y)))
                                                     select r);
 
                  return from x in termP
-                        from r in rassocP(x).Or(lassocP(x).Or(nassocP(x).Or(New.Return(x)))).Fail("operator")
+                        from r in rassocP(x).Or(lassocP(x).Or(nassocP(x).Or(Gen.Return(x)))).Fail("operator")
                         select r;
              }
          );

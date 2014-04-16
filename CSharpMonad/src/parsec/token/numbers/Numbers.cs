@@ -80,8 +80,8 @@ namespace Monad.Parsec.Token.Numbers
             base(
                 inp =>
                 {
-                    var r = New.Character('-')
-                               .Or(New.Character('+'))
+                    var r = Gen.Character('-')
+                               .Or(Gen.Character('+'))
                                .Parse(inp);
 
                     return r.IsFaulted
@@ -105,12 +105,12 @@ namespace Monad.Parsec.Token.Numbers
         public ZeroNumber()
             :
             base(
-                inp => (from z in New.Character('0')
-                        from y in New.Choice(
+                inp => (from z in Gen.Character('0')
+                        from y in Gen.Choice(
                             Tok.Numbers.Hexadecimal() as Parser<IntegerToken>,
                             Tok.Numbers.Octal() as Parser<IntegerToken>,
                             Tok.Numbers.Decimal() as Parser<IntegerToken>,
-                            New.Return(new IntegerToken(0, SrcLoc.Null)) as Parser<IntegerToken>
+                            Gen.Return(new IntegerToken(0, SrcLoc.Null)) as Parser<IntegerToken>
                             )
                         select new IntegerToken(0, !inp.IsEmpty() ? inp.Head().Location : SrcLoc.EndOfSource))
                         .Fail("")
@@ -125,7 +125,7 @@ namespace Monad.Parsec.Token.Numbers
             :
             base( 
                 inp =>{
-                    var r = New.Many1(New.Digit()).Mconcat().Parse(inp);
+                    var r = Gen.Many1(Gen.Digit()).Mconcat().Parse(inp);
                     if( r.IsFaulted )
                     {
                         return ParserResult.Fail<IntegerToken>(r.Errors);
@@ -152,8 +152,8 @@ namespace Monad.Parsec.Token.Numbers
             base(
                 inp =>
                 {
-                    var r = (from x in New.Character('x').Or(New.Character('X'))
-                             from d in New.Many1(New.HexDigit()).Mconcat()
+                    var r = (from x in Gen.Character('x').Or(Gen.Character('X'))
+                             from d in Gen.Many1(Gen.HexDigit()).Mconcat()
                              select d)
                              .Parse(inp);
 
@@ -183,8 +183,8 @@ namespace Monad.Parsec.Token.Numbers
             base(
                 inp =>
                 {
-                    var r = (from x in New.Character('o').Or(New.Character('O'))
-                             from d in New.Many1(New.OctalDigit()).Mconcat()
+                    var r = (from x in Gen.Character('o').Or(Gen.Character('O'))
+                             from d in Gen.Many1(Gen.OctalDigit()).Mconcat()
                              select d)
                              .Parse(inp);
 

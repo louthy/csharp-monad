@@ -116,10 +116,10 @@ namespace Monad.Parsec.Token
             Comma = Tok.Symbol(",");
             Colon = Tok.Symbol(":");
             Dot = Tok.Symbol(".");
-            CommaSep = (Parser<A> p) => New.SepBy(p, Comma);
-            SemiSep = (Parser<A> p) => New.SepBy(p, Semi);
-            CommaSep1 = (Parser<A> p) => New.SepBy1(p, Comma);
-            SemiSep1 = (Parser<A> p) => New.SepBy1(p, Semi);
+            CommaSep = (Parser<A> p) => Gen.SepBy(p, Comma);
+            SemiSep = (Parser<A> p) => Gen.SepBy(p, Semi);
+            CommaSep1 = (Parser<A> p) => Gen.SepBy1(p, Comma);
+            SemiSep1 = (Parser<A> p) => Gen.SepBy1(p, Semi);
 
             Reserved = name => reserved[name];
             ReservedOp = name => reservedOp[name];

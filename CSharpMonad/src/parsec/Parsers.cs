@@ -150,10 +150,10 @@ namespace Monad.Parsec
             base(
                 inp =>
                     inp.IsEmpty()
-                        ? New.Failure<ParserChar>(ParserError.Create(expecting, inp)).Parse(inp)
-                        : (from res in New.Item().Parse(inp).Value
+                        ? Gen.Failure<ParserChar>(ParserError.Create(expecting, inp)).Parse(inp)
+                        : (from res in Gen.Item().Parse(inp).Value
                            select pred(res.Item1.Value)
-                              ? New.Return(res.Item1).Parse(inp.Tail())
+                              ? Gen.Return(res.Item1).Parse(inp.Tail())
                               : ParserResult.Fail<ParserChar>(expecting, inp))
                           .First()
             )
@@ -242,8 +242,8 @@ namespace Monad.Parsec
         public Integer()
             :
             base(inp =>
-                (from minus in New.Try(New.Character('-') | New.Return( new ParserChar('+') ) )
-                 from digits in New.Many1(New.Digit()).Mconcat()
+                (from minus in Gen.Try(Gen.Character('-') | Gen.Return( new ParserChar('+') ) )
+                 from digits in Gen.Many1(Gen.Digit()).Mconcat()
                  let v = DigitsToInt(digits)
                  select minus.Value == '+'
                     ? v
@@ -284,7 +284,7 @@ namespace Monad.Parsec
 
         public Try<A> OrTry(Parser<A> p)
         {
-            return New.Try<A>(p);
+            return Gen.Try<A>(p);
         }
     }
 
@@ -292,7 +292,7 @@ namespace Monad.Parsec
     {
         public Many(Parser<A> parser)
             :
-            base( inp => (New.Many1(parser) | New.Empty<A>()).Parse(inp) )
+            base( inp => (Gen.Many1(parser) | Gen.Empty<A>()).Parse(inp) )
         { }
     }
 
@@ -306,7 +306,7 @@ namespace Monad.Parsec
                     if (v.IsFaulted)
                         return ParserResult.Fail<A>(v.Errors);
 
-                    var vs = New.Many(parser).Parse(v.Value.Last().Item2);
+                    var vs = Gen.Many(parser).Parse(v.Value.Last().Item2);
                     if (vs.IsFaulted) 
                         return v;
 
@@ -327,9 +327,9 @@ namespace Monad.Parsec
             :
             base(
                 inp => str.IsEmpty()
-                          ? New.Return(new ParserChar[0] as IEnumerable<ParserChar>).Parse(inp)
-                          : (from x in New.Character(str.Head())
-                             from xs in New.String(str.Tail())
+                          ? Gen.Return(new ParserChar[0] as IEnumerable<ParserChar>).Parse(inp)
+                          : (from x in Gen.Character(str.Head())
+                             from xs in Gen.String(str.Tail())
                              select x.Cons(xs))
                             .Parse(inp)
             )
@@ -341,11 +341,11 @@ namespace Monad.Parsec
         public WhiteSpace()
             :
             base(
-                inp => New.SkipMany(
-                            New.Character(' ')
-                            | New.Character('\t')
-                            | New.Character('\n')
-                            | New.Character('\r')
+                inp => Gen.SkipMany(
+                            Gen.Character(' ')
+                            | Gen.Character('\t')
+                            | Gen.Character('\n')
+                            | Gen.Character('\r')
                         )
                         .Parse(inp)
             )
@@ -357,7 +357,7 @@ namespace Monad.Parsec
         public SimpleSpace()
             :
             base(
-                inp => New.Many( New.Character(' ') )
+                inp => Gen.Many( Gen.Character(' ') )
                           .Parse(inp)
             )
         { }

@@ -52,11 +52,11 @@ namespace Monad.UnitTests.ML
         [Test]
         public void BuildMLParser()
         {
-            var ws = New.WhiteSpace();// | New.Return(new ParserChar(' '));
+            var ws = Gen.WhiteSpace();// | New.Return(new ParserChar(' '));
 
             Id = from w in ws
-                 from c in New.Letter()
-                 from cs in New.Many(New.LetterOrDigit()).Mconcat()
+                 from c in Gen.Letter()
+                 from cs in Gen.Many(Gen.LetterOrDigit()).Mconcat()
                  select c.Cons(cs);
 
             Ident = from s in Id 
@@ -91,7 +91,7 @@ namespace Monad.UnitTests.ML
                        from c in Term
                        select new LetTerm(x, t, c) as Term)
                     | (from t in Term1
-                       from ts in New.Many(Term1).Mconcat()
+                       from ts in Gen.Many(Term1).Mconcat()
                        select new AppTerm(t, ts) as Term);
 
             Parser = from t in Term
@@ -235,8 +235,8 @@ namespace Monad.UnitTests.ML
         public WsChrParser(char c)
             :
             base(
-                inp => New.WhiteSpace()
-                          .And(New.Character(c))
+                inp => Gen.WhiteSpace()
+                          .And(Gen.Character(c))
                           .Parse(inp)
             )
         {

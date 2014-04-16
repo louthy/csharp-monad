@@ -40,13 +40,13 @@ namespace Monad.UnitTests
 		public void TestOR()
 		{
 			var p = 
-				(from fst in New.String("robert")
+				(from fst in Gen.String("robert")
 				 select fst)
-					.Or(from snd in New.String("jimmy")
+					.Or(from snd in Gen.String("jimmy")
 				        select snd)
-					.Or(from thrd in New.String("john paul")
+					.Or(from thrd in Gen.String("john paul")
 				        select thrd)
-					.Or(from fth in New.String("john")
+					.Or(from fth in Gen.String("john")
 				        select fth);
 
 			var r = p.Parse("robert");
@@ -62,9 +62,9 @@ namespace Monad.UnitTests
         [Test]
         public void TestBinding()
         {
-            var p = from x in New.Item()
-                    from _ in New.Item()
-                    from y in New.Item()
+            var p = from x in Gen.Item()
+                    from _ in Gen.Item()
+                    from y in Gen.Item()
                     select new ParserChar[] { x, y };
 
             var res = p.Parse("abcdef").Value.Single();
@@ -87,7 +87,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestInteger()
         {
-            var p = New.Integer();
+            var p = Gen.Integer();
 
             Assert.IsTrue(!p.Parse("123").IsFaulted && p.Parse("123").Value.Single().Item1 == 123);
             Assert.IsTrue(!p.Parse("-123").IsFaulted && p.Parse("-123").Value.Single().Item1 == -123);
@@ -100,15 +100,15 @@ namespace Monad.UnitTests
         [Test]
         public void TestDigitList()
         {
-            var p = from open in New.Character('[')
-                    from d in New.Digit()
+            var p = from open in Gen.Character('[')
+                    from d in Gen.Digit()
                     from ds in
-                        New.Many(
-                            from comma in New.Character(',')
-                            from digit in New.Digit()
+                        Gen.Many(
+                            from comma in Gen.Character(',')
+                            from digit in Gen.Digit()
                             select digit
                             ).Mconcat()
-                    from close in New.Character(']')
+                    from close in Gen.Character(']')
                     select d.Cons(ds);
 
             var r = p.Parse("[1,2,3,4]").Value.Single();
@@ -134,11 +134,11 @@ namespace Monad.UnitTests
         [Test]
         public void TestString()
         {
-            var r = New.String("he").Parse("hell").Value.Single();
+            var r = Gen.String("he").Parse("hell").Value.Single();
             Assert.IsTrue(r.Item1.AsString() == "he");
             Assert.IsTrue(r.Item2.AsString() == "ll");
 
-            r = New.String("hello").Parse("hello, world").Value.Single();
+            r = Gen.String("hello").Parse("hello, world").Value.Single();
             Assert.IsTrue(r.Item1.AsString() == "hello");
             Assert.IsTrue(r.Item2.AsString() == ", world");
         }
@@ -146,7 +146,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestMany()
         {
-            var r = New.Many(New.Character('a')).Mconcat().Parse("aaabcde").Value.Single();
+            var r = Gen.Many(Gen.Character('a')).Mconcat().Parse("aaabcde").Value.Single();
             Assert.IsTrue(r.Item1.AsString() == "aaa");
             Assert.IsTrue(r.Item2.AsString() == "bcde");
         }
@@ -154,18 +154,18 @@ namespace Monad.UnitTests
         [Test]
         public void TestMany1()
         {
-            var r = New.Many1(New.Character('a')).Mconcat().Parse("aaabcde").Value.Single();
+            var r = Gen.Many1(Gen.Character('a')).Mconcat().Parse("aaabcde").Value.Single();
             Assert.IsTrue(r.Item1.AsString() == "aaa");
             Assert.IsTrue(r.Item2.AsString() == "bcde");
 
-            var r2 = New.Many1(New.Character('a')).Mconcat().Parse("bcde");
+            var r2 = Gen.Many1(Gen.Character('a')).Mconcat().Parse("bcde");
             Assert.IsTrue(r2.Value.IsEmpty());
         }
 
         [Test]
         public void TestSkipMany1()
         {
-            var p = New.SkipMany1(New.Character('*'));
+            var p = Gen.SkipMany1(Gen.Character('*'));
 
             var r = p.Parse("****hello, world");
             Assert.IsTrue(!r.IsFaulted);
@@ -184,7 +184,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestSkipMany()
         {
-            var p = New.SkipMany(New.Character('*'));
+            var p = Gen.SkipMany(Gen.Character('*'));
 
             var r = p.Parse("****hello, world");
             Assert.IsTrue(!r.IsFaulted);
@@ -205,7 +205,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestOneOf()
         {
-            var p = New.OneOf("xyz");
+            var p = Gen.OneOf("xyz");
             var r = p.Parse("zzz");
             Assert.IsTrue(!r.IsFaulted && r.Value.Head().Item1.Value == 'z');
             r = p.Parse("xxx");
@@ -217,7 +217,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestNoneOf()
         {
-            var p = New.NoneOf("xyz");
+            var p = Gen.NoneOf("xyz");
             var r = p.Parse("zzz");
             Assert.IsTrue(r.IsFaulted);
             r = p.Parse("xxx");
@@ -229,21 +229,21 @@ namespace Monad.UnitTests
         [Test]
         public void TestDigit()
         {
-            var r = New.Digit().Parse("1").Value.Single();
+            var r = Gen.Digit().Parse("1").Value.Single();
             Assert.IsTrue(r.Item1.Value == '1');
         }
 
         [Test]
         public void TestChar()
         {
-            var r = New.Character('X').Parse("X").Value.Single();
+            var r = Gen.Character('X').Parse("X").Value.Single();
             Assert.IsTrue(r.Item1.Value == 'X');
         }
 
         [Test]
         public void TestSatisfy()
         {
-            var r = New.Satisfy(c => c == 'x', "'x'").Parse("xbxcxdxe").Value.Single();
+            var r = Gen.Satisfy(c => c == 'x', "'x'").Parse("xbxcxdxe").Value.Single();
             Assert.IsTrue(r.Item1.Value == 'x');
             Assert.IsTrue(r.Item2.AsString() == "bxcxdxe");
         }
@@ -252,10 +252,10 @@ namespace Monad.UnitTests
         public void TestItem()
         {
             Assert.IsTrue(
-                New.Item().Parse("").Value.IsEmpty()
+                Gen.Item().Parse("").Value.IsEmpty()
                 );
 
-            var r = New.Item().Parse("abc").Value.Single();
+            var r = Gen.Item().Parse("abc").Value.Single();
             Assert.IsTrue(
                 r.Item1.Value == 'a' &&
                 r.Item2.AsString() == "bc"
@@ -267,7 +267,7 @@ namespace Monad.UnitTests
         {
             var inp = "abc".ToParserChar();
 
-            var parser = New.Failure<bool>(ParserError.Create("failed because...", inp));
+            var parser = Gen.Failure<bool>(ParserError.Create("failed because...", inp));
 
             var result = parser.Parse(inp);
 
@@ -277,7 +277,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestReturn()
         {
-            var r = New.Return(1).Parse("abc").Value.Single();
+            var r = Gen.Return(1).Parse("abc").Value.Single();
             Assert.IsTrue(
                 r.Item1 == 1 &&
                 r.Item2.AsString() == "abc"
@@ -287,7 +287,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestChoice()
         {
-            var r = New.Choice(New.Item(), New.Return(New.ParserChar('d'))).Parse("abc").Value.Single();
+            var r = Gen.Choice(Gen.Item(), Gen.Return(Gen.ParserChar('d'))).Parse("abc").Value.Single();
             Assert.IsTrue(
                 r.Item1.Value == 'a' &&
                 r.Item2.AsString() == "bc"
@@ -295,9 +295,9 @@ namespace Monad.UnitTests
 
             var inp = "abc".ToParserChar();
 
-            var parser = New.Choice(
-                    New.Failure<ParserChar>( ParserError.Create("failed because...",inp) ), 
-                    New.Return(New.ParserChar('d'))
+            var parser = Gen.Choice(
+                    Gen.Failure<ParserChar>( ParserError.Create("failed because...",inp) ), 
+                    Gen.Return(Gen.ParserChar('d'))
                 )
                 .Parse(inp);
 
@@ -312,7 +312,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestWhiteSpace()
         {
-            var r = New.WhiteSpace().Parse(" ");
+            var r = Gen.WhiteSpace().Parse(" ");
             Assert.IsFalse(r.IsFaulted);
             Assert.IsTrue(r.Value.Count() == 1);
 
@@ -321,7 +321,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestWhiteSpace2()
         {
-            var r = New.WhiteSpace().Parse("a");
+            var r = Gen.WhiteSpace().Parse("a");
             Assert.IsFalse(r.IsFaulted);
             Assert.IsTrue(r.Value.Count() == 1);
 

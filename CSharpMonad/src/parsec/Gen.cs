@@ -30,7 +30,11 @@ using System.Threading.Tasks;
 
 namespace Monad.Parsec
 {
-    public static partial class New
+    /// <summary>
+    /// General parsers
+    /// TODO: Comments
+    /// </summary>
+    public static partial class Gen
     {
         public static Item Item()
         {
@@ -94,7 +98,7 @@ namespace Monad.Parsec
         }
         public static Parser<A> SepBy<A,B>(Parser<A> parser, Parser<B> sepParser)
         {
-            return SepBy1<A, B>(parser, sepParser) | New.Empty<A>();
+            return SepBy1<A, B>(parser, sepParser) | Gen.Empty<A>();
         }
         public static Parser<A> SepBy1<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
@@ -104,9 +108,9 @@ namespace Monad.Parsec
                 if (x.IsFaulted)
                     return x;
 
-                var xs = New.Many<A>(sepParser.And(parser)).Parse(x.Value.Last().Item2);
+                var xs = Gen.Many<A>(sepParser.And(parser)).Parse(x.Value.Last().Item2);
                 if (x.IsFaulted)
-                    return xs;      // TODO: Consider that it may have consumed X
+                    return xs;
 
                 return new ParserResult<A>(x.Value.Concat(xs.Value));
             });
@@ -201,7 +205,7 @@ namespace Monad.Parsec
                 inp =>
                 {
                     if( inp.IsEmpty() ) 
-                        return New.Return<Unit>(Unit.Return()).Parse(inp);
+                        return Gen.Return<Unit>(Unit.Return()).Parse(inp);
 
                     do
                     {
@@ -209,13 +213,13 @@ namespace Monad.Parsec
 
                         var resA = skipParser.Parse(inp);
                         if (resA.IsFaulted || resA.Value.IsEmpty())
-                            return New.Return<Unit>(Unit.Return()).Parse(inp);
+                            return Gen.Return<Unit>(Unit.Return()).Parse(inp);
 
                         inp = resA.Value.Last().Item2;
                     }
                     while (!inp.IsEmpty());
 
-                    return New.Return<Unit>(Unit.Return()).Parse(inp);
+                    return Gen.Return<Unit>(Unit.Return()).Parse(inp);
                 }
             );
         }

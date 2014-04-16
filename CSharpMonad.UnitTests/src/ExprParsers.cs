@@ -50,7 +50,7 @@ namespace Monad.UnitTests
 
         public int Eval(string expr)
         {
-            var r = NewT.Expr().Parse(expr);
+            var r = New.Expr().Parse(expr);
             if (r.Value.Count() == 0)
             {
                 return 999;
@@ -63,7 +63,7 @@ namespace Monad.UnitTests
     }
 
 
-    public class NewT
+    public class New
     {
         public static Expr Expr()
         {
@@ -84,14 +84,12 @@ namespace Monad.UnitTests
         public Expr()
             :
             base(
-                inp => (from t in NewT.Term()
+                inp => (from t in New.Term()
                         from e in
-                            New.Choice<int>(
-                                from plus in New.Character('+')
-                                from expr in NewT.Expr()
-                                select expr,
-                                New.Return<int>(0)
-                                )
+                            (from plus in Gen.Character('+')
+                             from expr in New.Expr()
+                             select expr)
+                             | Gen.Return<int>(0)
                         select t + e)
                        .Parse(inp)
             )
@@ -103,14 +101,12 @@ namespace Monad.UnitTests
         public Term()
             :
             base(
-                inp => (from f in NewT.Factor()
+                inp => (from f in New.Factor()
                         from t in
-                            New.Choice<int>(
-                                from mult in New.Character('*')
-                                from term in NewT.Term()
-                                select term,
-                                New.Return<int>(1)
-                                )
+                            (from mult in Gen.Character('*')
+                             from term in New.Term()
+                             select term)
+                             | Gen.Return<int>(1)
                         select f * t)
                        .Parse(inp)
             )
@@ -123,14 +119,12 @@ namespace Monad.UnitTests
             :
             base(
                 inp => (from choice in
-                            New.Choice<int>(
-                                from d in New.Digit()
-                                select Int32.Parse(d.Value.ToString()),
-                                from open in New.Character('(')
-                                from expr in NewT.Expr()
-                                from close in New.Character(')')
-                                select expr
-                                )
+                            (from d in Gen.Digit()
+                             select Int32.Parse(d.Value.ToString()))
+                             | from open in Gen.Character('(')
+                               from expr in New.Expr()
+                               from close in Gen.Character(')')
+                               select expr
                         select choice)
                         .Parse(inp)
 

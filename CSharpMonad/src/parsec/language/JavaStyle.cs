@@ -45,8 +45,8 @@ namespace Monad.Parsec.Language
             CommentEnd = "*/";
             CommentLine = "//";
             NestedComments = true;
-            IdentStart = New.Letter();
-            IdentLetter = New.LetterOrDigit().Or(New.Character('_').Or(New.Character('\'')));
+            IdentStart = Gen.Letter();
+            IdentLetter = Gen.LetterOrDigit().Or(Gen.Character('_').Or(Gen.Character('\'')));
             ReservedOpNames = new string[0];
             ReservedNames = new string[0];
             CaseSensitive = true;

@@ -49,8 +49,8 @@ namespace Monad.UnitTests.Lex
             Parser<Term> expr = null;
             Func<Parser<Term>, Parser<Term>> contents;
 
-            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = (Parser<Term> p) => New.Many(p).Mconcat();
-            Func<Parser<Term>,Parser<Term>> @try = (Parser<Term> p) => New.Try(p);
+            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = (Parser<Term> p) => Gen.Many(p).Mconcat();
+            Func<Parser<Term>,Parser<Term>> @try = (Parser<Term> p) => Gen.Try(p);
 
             var def = new Lang();
             var lexer = Tok.MakeTokenParser<Term>(def);

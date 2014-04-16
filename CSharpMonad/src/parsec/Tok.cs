@@ -89,7 +89,7 @@ namespace Monad.Parsec
         /// </summary>
         public static Parser<Unit> SimpleSpace()
         {
-            return New.SkipMany1( New.OneOf(" \t\n\r") );
+            return Gen.SkipMany1( Gen.OneOf(" \t\n\r") );
         }
 
         /// <summary>
