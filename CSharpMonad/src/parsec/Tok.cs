@@ -83,6 +83,15 @@ namespace Monad.Parsec
         }
 
         /// <summary>
+        /// Skip spaces - Different to the general-case SkipSpace which will return
+        /// the space it consumes.
+        /// </summary>
+        public static Parser<Unit> SimpleSpace()
+        {
+            return New.SkipMany1( New.OneOf(" \t\n\r") );
+        }
+
+        /// <summary>
         /// Chars
         /// </summary>
         public static class Chars

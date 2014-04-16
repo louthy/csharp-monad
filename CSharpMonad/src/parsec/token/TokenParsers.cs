@@ -63,11 +63,8 @@ namespace Monad.Parsec.Token
         public OneLineComment(LanguageDef def)
             :
             base(
-                inp => (from c in
-                            New.Try(
-                                (from t in New.String(def.CommentLine)
-                                 from d in New.Many(New.Satisfy(ch => ch != '\n', "anything but a newline"))
-                                 select d))
+                inp => (from t in New.String(def.CommentLine)
+                        from d in New.Many(New.Satisfy(ch => ch != '\n', "anything but a newline"))
                         select Unit.Return())
                        .Parse(inp)
             )
@@ -164,37 +161,36 @@ namespace Monad.Parsec.Token
             :
             base(
                 inp =>
-                    def.CommentLine == null && def.CommentStart == null
-                        ? New.SkipMany(New.SimpleSpace().Fail("")).Parse(inp)
-                        : def.CommentLine == null
-                            ? New.SkipMany<IEnumerable<ParserChar>>( 
-                                  New.SimpleSpace()
-                                 .Or( Tok.MultiLineComment(def)
-                                         .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                                 )
-                              )
-                             .Parse(inp)
+                {
+                    var simpleSpace = Tok.SimpleSpace();
 
-                            : def.CommentStart == null
-                                ? New.SkipMany<IEnumerable<ParserChar>>(
-                                      New.SimpleSpace()
-                                     .Or( Tok.OneLineComment(def)
-                                             .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                                     )
-                                  )
-                                 .Parse(inp)
-
-                                : New.SkipMany<IEnumerable<ParserChar>>( 
-                                      New.SimpleSpace()
-                                     .Or( Tok.OneLineComment(def)
-                                             .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                                     )
-                                     .Or( Tok.MultiLineComment(def)
-                                             .Switch<Unit, IEnumerable<ParserChar>>(_ => new ParserChar[0], "")
-                                     )
-                                     .Fail("")
-                                  )
-                                 .Parse(inp)
+                    if( String.IsNullOrEmpty(def.CommentLine) && String.IsNullOrEmpty(def.CommentStart) )
+                    {
+                        return New.SkipMany(
+                                simpleSpace.Fail("")
+                            ).Parse(inp);
+                    }
+                    else if( String.IsNullOrEmpty(def.CommentLine) )
+                    {
+                        return New.SkipMany<Unit>( 
+                                simpleSpace | Tok.MultiLineComment(def).Fail("") 
+                            ).Parse(inp);
+                    }
+                    else if( String.IsNullOrEmpty(def.CommentStart) )
+                    {
+                        return New.SkipMany<Unit>(
+                                  simpleSpace | Tok.OneLineComment(def).Fail("")
+                               )
+                              .Parse(inp);
+                    }
+                    else
+                    {
+                        return New.SkipMany<Unit>(
+                                  simpleSpace | Tok.OneLineComment(def) | Tok.MultiLineComment(def).Fail("")
+                               )
+                              .Parse(inp);
+                    }
+                }
             )
         { }
     }
