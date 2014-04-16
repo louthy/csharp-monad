@@ -37,9 +37,9 @@ namespace Monad.Parsec.Token.Chars
             :
             base(
                 inp => Tok.Lexeme(
-                    Gen.Between(
-                        Gen.Character('\''),
-                        Gen.Character('\'').Fail("end of character"),
+                    Prim.Between(
+                        Prim.Character('\''),
+                        Prim.Character('\'').Fail("end of character"),
                         new CharacterChar()
                     ))
                     .Select(ch => new CharLiteralToken(ch, inp.First().Location))
@@ -85,7 +85,7 @@ namespace Monad.Parsec.Token.Chars
         public CharEscape()
             :
             base(
-                inp => (from c in Gen.Character('\\')
+                inp => (from c in Prim.Character('\\')
                         from ec in Tok.Chars.EscapeCode()
                         select ec)
                        .Parse(inp)
@@ -132,7 +132,7 @@ namespace Monad.Parsec.Token.Chars
             :
             base(
                 inp =>
-                    Gen.Choice<ParserChar>(
+                    Prim.Choice<ParserChar>(
                         EscapeMap.Select(pair => new ParseEsc(pair.Item1, pair.Item2))
                     )
                     .Parse(inp)
@@ -147,7 +147,7 @@ namespace Monad.Parsec.Token.Chars
                 base(
                     inp =>
                     {
-                        var r = Gen.Character(c).Parse(inp);
+                        var r = Prim.Character(c).Parse(inp);
                         if (r.IsFaulted)
                         {
                             return r;

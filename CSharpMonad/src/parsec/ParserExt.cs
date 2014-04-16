@@ -80,6 +80,11 @@ namespace Monad.Parsec
             return new Parser<V>(
                 input =>
                 {
+                    if (parser == null)
+                    {
+                        parser = parser;
+                    }
+
                     var res = parser.Parse(input);
                     if (res.IsFaulted) 
                         return ParserResult.Fail<V>(res.Errors);

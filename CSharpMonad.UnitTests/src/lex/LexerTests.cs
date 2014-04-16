@@ -50,12 +50,12 @@ namespace Monad.UnitTests.Lex
             Parser<Term> expr = null;
             Func<Parser<Term>, Parser<Term>> contents;
 
-            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = Gen.Many;
-            Func<Parser<Term>,Parser<Term>> @try = Gen.Try;
+            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = Prim.Many;
+            Func<Parser<Term>,Parser<Term>> @try = Prim.Try;
 
             var def = new Lang();
             var lexer = Tok.MakeTokenParser<Term>(def);
-            var binops = BuildOperatorsTable<Term>();
+            var binops = BuildOperatorsTable<Term>(lexer);
 
             // Lexer
             var intlex = lexer.Integer;
@@ -129,7 +129,7 @@ namespace Monad.UnitTests.Lex
 
             var parseExpr = Lam.da( (string src) => contents(expr).Parse(src) );
 
-            var result = parseExpr(TestData1);
+            var result = parseExpr(TestData2);
 
             if (result.IsFaulted)
             {
@@ -149,20 +149,33 @@ namespace Monad.UnitTests.Lex
         {
             public Lang()
             {
-                ReservedOpNames = new string[] { "+", "*", "-", ";" };
+                ReservedOpNames = new string[] { "+", "*", "-", ";", "/", "<", "=" };
                 ReservedNames = new string[] { "def", "extern" };
                 CommentLine = "#";
             }
         }
 
-        private static OperatorTable<T> BuildOperatorsTable<T>()
+        private static OperatorTable<T> BuildOperatorsTable<T>(TokenParser<T> lexer)
+            where T : Token
         {
-            var equals = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "=", a => a, Assoc.Left));
-            var mult = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "*", a => a, Assoc.Left));
-            var divide = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "/", a => a, Assoc.Left));
-            var plus = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "+", a => a, Assoc.Left));
-            var minus = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "-", a => a, Assoc.Left));
-            var lessThan = new Operator<T>(new OperatorDef<T>(OperatorType.Infix, "<", a => a, Assoc.Left));
+            Func<T, T, ReservedOpToken, T> fn = (lhs, rhs, op) =>
+            {
+                Console.WriteLine(op.ToString());
+                return new BinaryOp(lhs,rhs,op) as T;
+            };
+
+            Func<ReservedOpToken,Func<T,T,T>> binop = op => new Func<T,T,T>( (T lhs, T rhs) =>
+            {
+                return fn(lhs, rhs, op);
+            });
+
+            var equals = new Infix<T>("=", from op in lexer.ReservedOp("=") select binop(op), Assoc.Left);
+            var mult = new Infix<T>("*", from op in lexer.ReservedOp("*") select binop(op), Assoc.Left);
+            var divide = new Infix<T>("/", from op in lexer.ReservedOp("/") select binop(op), Assoc.Left);
+            var plus = new Infix<T>("+", from op in lexer.ReservedOp("+") select binop(op), Assoc.Left);
+            var minus = new Infix<T>("-", from op in lexer.ReservedOp("-") select binop(op), Assoc.Left);
+            var lessThan = new Infix<T>("<", from op in lexer.ReservedOp("<") select binop(op), Assoc.Left);
+
 
             var prec0 = equals.Cons();
             var prec1 = mult.Cons(); prec1 = divide.Cons(prec1);
@@ -172,6 +185,22 @@ namespace Monad.UnitTests.Lex
             return binops;
         }
 
+        public class BinaryOp : Term
+        {
+            Token lhs;
+            Token rhs;
+            Token op;
+
+            public BinaryOp(Token lhs, Token rhs, Token op, SrcLoc loc = null)
+                :
+                base(loc)
+            {
+                this.lhs = lhs;
+                this.rhs = rhs;
+                this.op = op;
+            }
+        }
+
         public class Term : Token
         {
             public Term(SrcLoc location)
@@ -179,15 +208,6 @@ namespace Monad.UnitTests.Lex
                 base(location)
             {
             }
-        }
-
-        public class FailTerm : Term
-        {
-            // TODO: This class existing means there's bugs in the code somewhere
-            public FailTerm()
-                :
-                base(null)
-            {}
         }
 
         public class Integer : Term
@@ -288,11 +308,14 @@ namespace Monad.UnitTests.Lex
             }
         }
 
-        private static string TestData1 = @"def foo(x y) x+foo(y, 4.0);
+        private static string TestData2 = 
+          @"def foo(x y) x+foo(y, 4);
             def foo(x y) x+y y;
             def foo(x y) x+y );
-            extern sin(a);
-            }";
+            extern sin(a);";
+
+        private static string TestData1 =
+          @"def foo(x y) 1=2;";
 
     }
 }

@@ -150,10 +150,10 @@ namespace Monad.Parsec
             base(
                 inp =>
                     inp.IsEmpty()
-                        ? Gen.Failure<ParserChar>(ParserError.Create(expecting, inp)).Parse(inp)
-                        : (from res in Gen.Item().Parse(inp).Value
+                        ? Prim.Failure<ParserChar>(ParserError.Create(expecting, inp)).Parse(inp)
+                        : (from res in Prim.Item().Parse(inp).Value
                            select pred(res.Item1.Value)
-                              ? Gen.Return(res.Item1).Parse(inp.Tail())
+                              ? Prim.Return(res.Item1).Parse(inp.Tail())
                               : ParserResult.Fail<ParserChar>(expecting, inp))
                           .First()
             )
@@ -242,8 +242,8 @@ namespace Monad.Parsec
         public Integer()
             :
             base(inp =>
-                (from minus in Gen.Try(Gen.Character('-') | Gen.Return( new ParserChar('+') ) )
-                 from digits in Gen.Many1(Gen.Digit())
+                (from minus in Prim.Try(Prim.Character('-') | Prim.Return( new ParserChar('+') ) )
+                 from digits in Prim.Many1(Prim.Digit())
                  let v = DigitsToInt(digits)
                  select minus.Value == '+'
                     ? v
@@ -284,7 +284,7 @@ namespace Monad.Parsec
 
         public Try<A> OrTry(Parser<A> p)
         {
-            return Gen.Try<A>(p);
+            return Prim.Try<A>(p);
         }
     }
 
@@ -292,7 +292,7 @@ namespace Monad.Parsec
     {
         public Many(Parser<A> parser)
             :
-            base(inp => (Gen.Many1(parser) | Gen.Return(new A[0].AsEnumerable())).Parse(inp))
+            base(inp => (Prim.Many1(parser) | Prim.Return(new A[0].AsEnumerable())).Parse(inp))
         { }
     }
 
@@ -302,7 +302,7 @@ namespace Monad.Parsec
             :
             base( inp =>
                 (from v in parser
-                 from vs in Gen.Many(parser)
+                 from vs in Prim.Many(parser)
                  select v.Cons(vs))
                 .Parse(inp)
             )
@@ -321,9 +321,9 @@ namespace Monad.Parsec
             :
             base(
                 inp => str.IsEmpty()
-                          ? Gen.Return(new ParserChar[0] as IEnumerable<ParserChar>).Parse(inp)
-                          : (from x in Gen.Character(str.Head())
-                             from xs in Gen.String(str.Tail())
+                          ? Prim.Return(new ParserChar[0] as IEnumerable<ParserChar>).Parse(inp)
+                          : (from x in Prim.Character(str.Head())
+                             from xs in Prim.String(str.Tail())
                              select x.Cons(xs))
                             .Parse(inp)
             )
@@ -335,11 +335,11 @@ namespace Monad.Parsec
         public WhiteSpace()
             :
             base(
-                inp => Gen.SkipMany(
-                            Gen.Character(' ')
-                            | Gen.Character('\t')
-                            | Gen.Character('\n')
-                            | Gen.Character('\r')
+                inp => Prim.SkipMany(
+                            Prim.Character(' ')
+                            | Prim.Character('\t')
+                            | Prim.Character('\n')
+                            | Prim.Character('\r')
                         )
                         .Parse(inp)
             )
@@ -351,7 +351,7 @@ namespace Monad.Parsec
         public SimpleSpace()
             :
             base(
-                inp => Gen.Many( Gen.Character(' ') )
+                inp => Prim.Many( Prim.Character(' ') )
                           .Parse(inp)
             )
         { }

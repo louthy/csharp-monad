@@ -31,10 +31,10 @@ using System.Threading.Tasks;
 namespace Monad.Parsec
 {
     /// <summary>
-    /// General parsers
+    /// Primitive level parsers
     /// TODO: Comments
     /// </summary>
-    public static partial class Gen
+    public static partial class Prim
     {
         public static Item Item()
         {
@@ -98,12 +98,12 @@ namespace Monad.Parsec
         }
         public static Parser<IEnumerable<A>> SepBy<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
-            return SepBy1<A, B>(parser, sepParser) | Gen.Return(new A[0].AsEnumerable());
+            return SepBy1<A, B>(parser, sepParser) | Prim.Return(new A[0].AsEnumerable());
         }
         public static Parser<IEnumerable<A>> SepBy1<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
             return (from x in parser
-                    from xs in Gen.Many<A>( sepParser.And(parser) )
+                    from xs in Prim.Many<A>( sepParser.And(parser) )
                     select x.Cons(xs));
         }
 
@@ -196,7 +196,7 @@ namespace Monad.Parsec
                 inp =>
                 {
                     if( inp.IsEmpty() ) 
-                        return Gen.Return<Unit>(Unit.Return()).Parse(inp);
+                        return Prim.Return<Unit>(Unit.Return()).Parse(inp);
 
                     do
                     {
@@ -204,13 +204,13 @@ namespace Monad.Parsec
 
                         var resA = skipParser.Parse(inp);
                         if (resA.IsFaulted || resA.Value.IsEmpty())
-                            return Gen.Return<Unit>(Unit.Return()).Parse(inp);
+                            return Prim.Return<Unit>(Unit.Return()).Parse(inp);
 
                         inp = resA.Value.Last().Item2;
                     }
                     while (!inp.IsEmpty());
 
-                    return Gen.Return<Unit>(Unit.Return()).Parse(inp);
+                    return Prim.Return<Unit>(Unit.Return()).Parse(inp);
                 }
             );
         }

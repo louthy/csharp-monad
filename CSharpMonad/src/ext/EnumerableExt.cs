@@ -99,7 +99,7 @@ namespace Monad
         /// <summary>
         /// Foldr
         /// </summary>
-        public static U Foldr<T, U>(this IEnumerable<T> self, U state, Func<T, U, U> func)
+        public static U Foldr<T, U>(this IEnumerable<T> self, Func<T, U, U> func, U state)
         {
             foreach (var item in self)
             {
@@ -111,7 +111,7 @@ namespace Monad
         /// <summary>
         /// Foldr
         /// </summary>
-        public static U Foldr<T, U>(this IEnumerable<T> self, U state, Func<U, U> func)
+        public static U Foldr<T, U>(this IEnumerable<T> self, Func<U, U> func, U state)
         {
             foreach (var item in self)
             {
@@ -123,9 +123,9 @@ namespace Monad
         /// <summary>
         /// Foldl
         /// </summary>
-        public static U Foldl<T, U>(this IEnumerable<T> self, U state, Func<T, U, U> func)
+        public static U Foldl<T, U>(this IEnumerable<T> self, Func<T, U, U> func, U state)
         {
-            return self.Reverse().Foldr(state, func);
+            return self.Reverse().Foldr(func, state);
         }
     }
 }

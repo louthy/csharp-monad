@@ -34,7 +34,7 @@ namespace Monad.Parsec.Token.Bracketing
     {
         public Parens(Parser<A> betweenParser)
             :
-            base( inp => Gen.Between( Tok.Symbol("("), Tok.Symbol(")"), betweenParser  )
+            base( inp => Prim.Between( Tok.Symbol("("), Tok.Symbol(")"), betweenParser  )
                             .Parse(inp)  )
         { }
     }
@@ -42,7 +42,7 @@ namespace Monad.Parsec.Token.Bracketing
     {
         public Braces(Parser<A> betweenParser)
             :
-            base(inp => Gen.Between(Tok.Symbol("{"), Tok.Symbol("}"), betweenParser)
+            base(inp => Prim.Between(Tok.Symbol("{"), Tok.Symbol("}"), betweenParser)
                             .Parse(inp))
         { }
     }
@@ -50,7 +50,7 @@ namespace Monad.Parsec.Token.Bracketing
     {
         public Angles(Parser<A> betweenParser)
             :
-            base(inp => Gen.Between(Tok.Symbol("<"), Tok.Symbol(">"), betweenParser)
+            base(inp => Prim.Between(Tok.Symbol("<"), Tok.Symbol(">"), betweenParser)
                             .Parse(inp))
         { }
     }
@@ -58,7 +58,7 @@ namespace Monad.Parsec.Token.Bracketing
     {
         public Brackets(Parser<A> betweenParser)
             :
-            base(inp => Gen.Between(Tok.Symbol("["), Tok.Symbol("]"), betweenParser)
+            base(inp => Prim.Between(Tok.Symbol("["), Tok.Symbol("]"), betweenParser)
                             .Parse(inp))
         { }
     }

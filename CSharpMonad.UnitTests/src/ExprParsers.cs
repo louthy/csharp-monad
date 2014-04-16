@@ -86,10 +86,10 @@ namespace Monad.UnitTests
             base(
                 inp => (from t in New.Term()
                         from e in
-                            (from plus in Gen.Character('+')
+                            (from plus in Prim.Character('+')
                              from expr in New.Expr()
                              select expr)
-                             | Gen.Return<int>(0)
+                             | Prim.Return<int>(0)
                         select t + e)
                        .Parse(inp)
             )
@@ -103,10 +103,10 @@ namespace Monad.UnitTests
             base(
                 inp => (from f in New.Factor()
                         from t in
-                            (from mult in Gen.Character('*')
+                            (from mult in Prim.Character('*')
                              from term in New.Term()
                              select term)
-                             | Gen.Return<int>(1)
+                             | Prim.Return<int>(1)
                         select f * t)
                        .Parse(inp)
             )
@@ -119,11 +119,11 @@ namespace Monad.UnitTests
             :
             base(
                 inp => (from choice in
-                            (from d in Gen.Digit()
+                            (from d in Prim.Digit()
                              select Int32.Parse(d.Value.ToString()))
-                             | from open in Gen.Character('(')
+                             | from open in Prim.Character('(')
                                from expr in New.Expr()
-                               from close in Gen.Character(')')
+                               from close in Prim.Character(')')
                                select expr
                         select choice)
                         .Parse(inp)

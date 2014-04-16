@@ -55,14 +55,14 @@ namespace Monad.UnitTests.Lang
         {
             var opChars = ";.,<>?/\\|\"':=+-_*&^%$£@!".AsEnumerable();
 
-            Id = from w in Gen.WhiteSpace()
-                 from c in Gen.Letter()
-                 from cs in Gen.Many(Gen.LetterOrDigit())
+            Id = from w in Prim.WhiteSpace()
+                 from c in Prim.Letter()
+                 from cs in Prim.Many(Prim.LetterOrDigit())
                  select c.Cons(cs);
 
-            Op = (from w in Gen.WhiteSpace()
-                  from o in Gen.Satisfy(c => opChars.Contains(c), "an operator")
-                  from os in Gen.Many(Gen.Satisfy(c => opChars.Contains(c), "an operator"))
+            Op = (from w in Prim.WhiteSpace()
+                  from o in Prim.Satisfy(c => opChars.Contains(c), "an operator")
+                  from os in Prim.Many(Prim.Satisfy(c => opChars.Contains(c), "an operator"))
                   select o.Cons(os))
                  .Fail("an operator");
 
@@ -93,15 +93,15 @@ namespace Monad.UnitTests.Lang
                            select s)
                           .Fail("a lambda arrow '=>'");
 
-            Integer = (from w in Gen.WhiteSpace()
-                       from d in Gen.Integer()
+            Integer = (from w in Prim.WhiteSpace()
+                       from d in Prim.Integer()
                        select new IntegerTerm(d) as Term)
                       .Fail("an integer");
 
-            String = (from w in Gen.WhiteSpace()
-                      from o in Gen.Character('"')
-                      from cs in Gen.Many(Gen.Satisfy(c => c != '"'))
-                      from c in Gen.Character('"')
+            String = (from w in Prim.WhiteSpace()
+                      from o in Prim.Character('"')
+                      from cs in Prim.Many(Prim.Satisfy(c => c != '"'))
+                      from c in Prim.Character('"')
                       select new StringTerm(cs) as Term)
                      .Fail("a string literal");
 
@@ -127,13 +127,13 @@ namespace Monad.UnitTests.Lang
                        from c in Term
                        select new LetTerm(x, t, c) as Term)
                     | (from t in Term1
-                       from ts in Gen.Many(Term1)
+                       from ts in Prim.Many(Term1)
                        select new AppTerm(t, ts) as Term)
                     .Fail("a term");
 
             Parser = from t in Term
                      from u in Lang.WsChr(';')
-                     from w in Gen.WhiteSpace()
+                     from w in Prim.WhiteSpace()
                      select t;
         }
 
@@ -241,8 +241,8 @@ namespace Monad.UnitTests.Lang
         public WsChrParser(char c)
             :
             base(
-                inp => Gen.WhiteSpace()
-                .And(Gen.Character(c))
+                inp => Prim.WhiteSpace()
+                .And(Prim.Character(c))
                 .Parse(inp)
             )
         {

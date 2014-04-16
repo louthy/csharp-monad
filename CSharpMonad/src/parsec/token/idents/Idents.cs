@@ -38,7 +38,7 @@ namespace Monad.Parsec.Token.Idents
         /// </summary>
         internal static Parser<IEnumerable<ParserChar>> CaseString(string str, GeneralLanguageDef languageDef)
         {
-            return Gen.String(str);
+            return Prim.String(str);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Monad.Parsec.Token.Idents
             base(
                 inp => Tok.Lexeme(
                         from cs in IdentHelper.CaseString(name, languageDef)
-                        from nf in Gen.NotFollowedBy( languageDef.IdentLetter )
+                        from nf in Prim.NotFollowedBy( languageDef.IdentLetter )
                                       .Fail("end of " + cs.AsString())
                         select new ReservedToken(cs,inp.First().Location)
                     )
@@ -98,7 +98,7 @@ namespace Monad.Parsec.Token.Idents
             :
             base( 
                 inp =>(from c in languageDef.IdentStart
-                       from cs in Gen.Many(languageDef.IdentLetter)
+                       from cs in Prim.Many(languageDef.IdentLetter)
                        select c.Cons(cs))
                       .Fail("identifier")
                       .Parse(inp)

@@ -36,7 +36,7 @@ namespace Monad.Parsec.Language
     {
         public HaskellDef()
         {
-            IdentLetter = IdentLetter.Or(Gen.Character('#'));
+            IdentLetter = IdentLetter.Or(Prim.Character('#'));
             ReservedNames = Enumerable.Concat(
                 ReservedNames,
                 new string[] { "foreign","import","export","primitive"

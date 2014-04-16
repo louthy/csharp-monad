@@ -35,7 +35,7 @@ namespace Monad.UnitTests
         [Test]
         public void LexemeTest()
         {
-            var lex = from l in Tok.Lexeme<ParserChar>(Gen.Character('A'))
+            var lex = from l in Tok.Lexeme<ParserChar>(Prim.Character('A'))
                                select l;
 
             var res = lex.Parse("A");

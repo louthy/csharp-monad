@@ -35,7 +35,7 @@ namespace Monad.Parsec.Token
         public Symbol(string name)
             :
             base(
-                inp => Tok.Lexeme<IEnumerable<ParserChar>>(Gen.String(name))
+                inp => Tok.Lexeme<IEnumerable<ParserChar>>(Prim.String(name))
                           .Select(str => new SymbolToken(str, inp.First().Location))
                           .Parse(inp)
             )
@@ -50,7 +50,7 @@ namespace Monad.Parsec.Token
             base(
                 inp =>
                     (from x in p
-                     from w in Gen.WhiteSpace()
+                     from w in Prim.WhiteSpace()
                      select x)
                     .Parse(inp)
             )
@@ -63,8 +63,8 @@ namespace Monad.Parsec.Token
         public OneLineComment(LanguageDef def)
             :
             base(
-                inp => (from t in Gen.String(def.CommentLine)
-                        from d in Gen.Many(Gen.Satisfy(ch => ch != '\n', "anything but a newline"))
+                inp => (from t in Prim.String(def.CommentLine)
+                        from d in Prim.Many(Prim.Satisfy(ch => ch != '\n', "anything but a newline"))
                         select Unit.Return())
                        .Parse(inp)
             )
@@ -77,7 +77,7 @@ namespace Monad.Parsec.Token
         public MultiLineComment(LanguageDef def)
             :
             base(
-                inp => (from open in Gen.Try(Gen.String(def.CommentStart))
+                inp => (from open in Prim.Try(Prim.String(def.CommentStart))
                         from incom in
                             def.NestedComments
                                 ? new InCommentMulti(def) as Parser<Unit>
@@ -99,7 +99,7 @@ namespace Monad.Parsec.Token
                     int depth = 1;
                     while (depth > 0)
                     {
-                        var res = Gen.String(def.CommentEnd).Parse(inp);
+                        var res = Prim.String(def.CommentEnd).Parse(inp);
                         if (!res.IsFaulted)
                         {
                             depth--;
@@ -107,7 +107,7 @@ namespace Monad.Parsec.Token
                             continue;
                         }
 
-                        res = Gen.String(def.CommentStart).Parse(inp);
+                        res = Prim.String(def.CommentStart).Parse(inp);
                         if (!res.IsFaulted)
                         {
                             depth++;
@@ -115,14 +115,14 @@ namespace Monad.Parsec.Token
                             continue;
                         }
 
-                        var resU = Gen.SkipMany(Gen.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
+                        var resU = Prim.SkipMany(Prim.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
                         if (resU.Value.Head().Item2.IsEmpty())
                         {
-                            return Gen.Failure<Unit>(ParserError.Create("end of comment", inp)).Parse(inp);
+                            return Prim.Failure<Unit>(ParserError.Create("end of comment", inp)).Parse(inp);
                         }
                         inp = resU.Value.Head().Item2;
                     }
-                    return Gen.Return<Unit>(Unit.Return()).Parse(inp);
+                    return Prim.Return<Unit>(Unit.Return()).Parse(inp);
                 })
         {
         }
@@ -137,16 +137,16 @@ namespace Monad.Parsec.Token
             {
                 while (true)
                 {
-                    var res = Gen.String(def.CommentEnd).Parse(inp);
+                    var res = Prim.String(def.CommentEnd).Parse(inp);
                     if (!res.IsFaulted)
                     {
-                        return Gen.Return<Unit>(Unit.Return()).Parse(res.Value.Head().Item2);
+                        return Prim.Return<Unit>(Unit.Return()).Parse(res.Value.Head().Item2);
                     }
 
-                    var resU = Gen.SkipMany(Gen.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
+                    var resU = Prim.SkipMany(Prim.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
                     if (resU.Value.Head().Item2.IsEmpty())
                     {
-                        return Gen.Failure<Unit>(ParserError.Create("end of comment", inp)).Parse(inp);
+                        return Prim.Failure<Unit>(ParserError.Create("end of comment", inp)).Parse(inp);
                     }
                     inp = resU.Value.Head().Item2;
                 }
@@ -166,26 +166,26 @@ namespace Monad.Parsec.Token
 
                     if( String.IsNullOrEmpty(def.CommentLine) && String.IsNullOrEmpty(def.CommentStart) )
                     {
-                        return Gen.SkipMany(
+                        return Prim.SkipMany(
                                 simpleSpace.Fail("")
                             ).Parse(inp);
                     }
                     else if( String.IsNullOrEmpty(def.CommentLine) )
                     {
-                        return Gen.SkipMany<Unit>( 
+                        return Prim.SkipMany<Unit>( 
                                 simpleSpace | Tok.MultiLineComment(def).Fail("") 
                             ).Parse(inp);
                     }
                     else if( String.IsNullOrEmpty(def.CommentStart) )
                     {
-                        return Gen.SkipMany<Unit>(
+                        return Prim.SkipMany<Unit>(
                                   simpleSpace | Tok.OneLineComment(def).Fail("")
                                )
                               .Parse(inp);
                     }
                     else
                     {
-                        return Gen.SkipMany<Unit>(
+                        return Prim.SkipMany<Unit>(
                                   simpleSpace | Tok.OneLineComment(def) | Tok.MultiLineComment(def).Fail("")
                                )
                               .Parse(inp);

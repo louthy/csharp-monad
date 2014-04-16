@@ -36,10 +36,10 @@ namespace Monad.Parsec.Token.Strings
             :
             base(
                 inp => (from l in Tok.Lexeme(
-                            from str in Gen.Between(
-                                Gen.Character('"'),
-                                Gen.Character('"').Fail("end of string"),
-                                Gen.Many( new StringChar() )
+                            from str in Prim.Between(
+                                Prim.Character('"'),
+                                Prim.Character('"').Fail("end of string"),
+                                Prim.Many( new StringChar() )
                                 )
                             select str
                         )
@@ -79,10 +79,10 @@ namespace Monad.Parsec.Token.Strings
             :
             base(
                 inp =>
-                    Gen.Character('\\')
+                    Prim.Character('\\')
                        .And(
-                            new EscapeGap().And(Gen.Failure<ParserChar>(ParserError.Create("", inp)))
-                           .Or(new EscapeEmpty().And(Gen.Failure<ParserChar>(ParserError.Create("", inp))))
+                            new EscapeGap().And(Prim.Failure<ParserChar>(ParserError.Create("", inp)))
+                           .Or(new EscapeEmpty().And(Prim.Failure<ParserChar>(ParserError.Create("", inp))))
                            .Or(Tok.Chars.EscapeCode())
                        )
                        .Parse(inp)
@@ -95,8 +95,8 @@ namespace Monad.Parsec.Token.Strings
         public EscapeGap()
             :
             base(
-                inp => (from sp in Gen.Many1(Gen.Character(' '))
-                        from ch in Gen.Character('\\')
+                inp => (from sp in Prim.Many1(Prim.Character(' '))
+                        from ch in Prim.Character('\\')
                         select ch)
                        .Fail("end of string gap")
                        .Parse(inp)

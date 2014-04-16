@@ -41,62 +41,52 @@ namespace Monad.Parsec.Expr
         Prefix
     }
 
-    public class OperatorDef<A>
+    public abstract class Operator<A>
     {
         public readonly OperatorType Type;
-        public readonly string Op;
-        public readonly Func<A, A, A> BinaryFn;
-        public readonly Func<A, A> UnaryFn;
+        public readonly string Name;
+
+        public Operator(OperatorType type, string name)
+        {
+            Type = type;
+        }
+    }
+
+    public class Infix<A> : Operator<A>
+    {
         public readonly Assoc Assoc;
+        public readonly Parser<Func<A, A, A>> Parser;
 
-        public OperatorDef(
-            OperatorType type,
-            string op,
-            Func<A, A, A> fn,
-            Assoc assoc
-            )
-        {
-            Type = type;
-            Op = op;
-            BinaryFn = fn;
-            Assoc = assoc;
-        }
-
-        public OperatorDef(
-            OperatorType type,
-            string op,
-            Func<A, A> fn,
-            Assoc assoc
-            )
-        {
-            Type = type;
-            Op = op;
-            UnaryFn = fn;
-            Assoc = assoc;
-        }
-    }
-
-    public static class OperatorDef
-    {
-        public static OperatorDef<A> Id<A>()
-        {
-            return new OperatorDef<A>(OperatorType.None, "<id>", a => a, Assoc.None);
-        }
-    }
-
-    public class Operator<A> : Parser<OperatorDef<A>>
-    {
-        public readonly OperatorDef<A> Def;
-
-        public Operator(OperatorDef<A> operatorDef)
+        public Infix(string name, Parser<Func<A, A, A>> parser, Assoc assoc)
             :
-            base(
-                inp => (from o in Gen.String(operatorDef.Op)    // TODO: New.String probably isn't good enough
-                        select operatorDef)
-                       .Parse(inp)
-            )
+            base(OperatorType.Infix, name)
         {
-            Def = operatorDef;
+            Parser = parser;
+            Assoc = assoc;
+        }
+    }
+
+    public class Prefix<A> : Operator<A>
+    {
+        public readonly Parser<Func<A, A>> Parser;
+
+        public Prefix(string name, Parser<Func<A, A>> parser)
+            :
+            base(OperatorType.Prefix, name)
+        {
+            Parser = parser;
+        }
+    }
+
+    public class Postfix<A> : Operator<A>
+    {
+        public readonly Parser<Func<A, A>> Parser;
+
+        public Postfix(string name, Parser<Func<A, A>> parser)
+            :
+            base(OperatorType.Postfix, name)
+        {
+            Parser = parser;
         }
     }
 }

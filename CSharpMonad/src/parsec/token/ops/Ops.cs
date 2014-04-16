@@ -47,8 +47,8 @@ namespace Monad.Parsec.Token.Ops
             :
             base(
                 inp => Tok.Lexeme(
-                        from op in Gen.String(name)
-                        from nf in Gen.NotFollowedBy( languageDef.OpLetter )
+                        from op in Prim.String(name)
+                        from nf in Prim.NotFollowedBy( languageDef.OpLetter )
                                       .Fail("end of " + op.AsString())
                         select new ReservedOpToken(op, inp.First().Location)
                     )
@@ -88,7 +88,7 @@ namespace Monad.Parsec.Token.Ops
             :
             base(
                 inp => (from c in languageDef.OpStart
-                        from cs in Gen.Many(languageDef.OpLetter)
+                        from cs in Prim.Many(languageDef.OpLetter)
                         select c.Cons(cs))
                        .Fail("operator")
                        .Parse(inp)

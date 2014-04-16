@@ -68,7 +68,7 @@
     <Compile Include="src\parsec\token\strings\Strings.cs" />
     <Compile Include="src\parsec\token\TokenParser.cs" />
     <Compile Include="src\parsec\token\LanguageDef.cs" />
-    <Compile Include="src\parsec\Gen.cs" />
+    <Compile Include="src\parsec\Prim.cs" />
     <Compile Include="src\parsec\Parser.cs" />
     <Compile Include="src\parsec\ParserChar.cs" />
     <Compile Include="src\parsec\ParserError.cs" />
