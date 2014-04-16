@@ -157,6 +157,8 @@ namespace Monad
                     try
                     {
                         resT = self();
+                        if (resT.IsFaulted)
+                            return new ErrorResult<U>(resT.Exception);
                     }
                     catch(Exception e)
                     {
@@ -193,6 +195,8 @@ namespace Monad
                     try
                     {
                         resT = self();
+                        if( resT.IsFaulted )
+                            return new ErrorResult<V>(resT.Exception);
                     }
                     catch (Exception e)
                     {
@@ -203,6 +207,8 @@ namespace Monad
                     try
                     {
                         resU = select(resT.Value)();
+                        if (resU.IsFaulted)
+                            return new ErrorResult<V>(resU.Exception);
                     }
                     catch (Exception e)
                     {
@@ -279,7 +285,6 @@ namespace Monad
                 while (true) yield return res.Value;
         }
 
-
         /// <summary>
         /// Mappend
         /// </summary>
@@ -350,6 +355,54 @@ namespace Monad
                 value = value.Mappend(m);
             }
             return value;
+        }
+
+        /// <summary>
+        /// Pattern matching
+        /// </summary>
+        public static R Match<T,R>(this Error<T> self, Func<T,R> Success, Func<Exception,R> Fail )
+        {
+            var res = self.Return();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : Success(res.Value);
+        }
+
+        /// <summary>
+        /// Pattern matching
+        /// </summary>
+        public static R Match<T, R>(this Error<T> self, Func<T, R> Success)
+        {
+            var res = self.Return();
+            return res.IsFaulted
+                ? default(R)
+                : Success(res.Value);
+        }
+
+        /// <summary>
+        /// Pattern matching
+        /// </summary>
+        public static Unit Match<T>(this Error<T> self, Action<T> Success, Action<Exception> Fail)
+        {
+            var res = self.Return();
+
+            if (res.IsFaulted)
+                Fail(res.Exception);
+            else
+                Success(res.Value);
+
+            return Unit.Return();
+        }
+
+        /// <summary>
+        /// Pattern matching
+        /// </summary>
+        public static Unit Match<T>(this Error<T> self, Action<T> Success)
+        {
+            var res = self.Return();
+            if( !res.IsFaulted )
+                Success(res.Value);
+            return Unit.Return();
         }
     }
 

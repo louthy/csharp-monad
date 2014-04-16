@@ -147,5 +147,76 @@ namespace Monad.UnitTests
             Assert.IsTrue(result.IsFaulted == true, "Should throw an error");
 
         }
+
+        public Error<int> One()
+        {
+            return () => 1;
+        }
+
+        public Error<int> Two()
+        {
+            return () => 2;
+        }
+
+        public Error<int> Error()
+        {
+            return () => { throw new Exception("Error!!"); };
+        }
+
+        [Test]
+        public void TestErrorMatch1()
+        {
+           (from one in One()
+            from err in Error()
+            from two in Two()
+            select one + two + err)
+            .Match(
+               Success: v => Assert.IsTrue(false),
+               Fail:    e => Assert.IsTrue(e.Message == "Error!!")
+            );
+        }
+
+        [Test]
+        public void TestErrorMatch2()
+        {
+            var unit =
+                (from one in One()
+                 from err in Error()
+                 from two in Two()
+                 select one + two + err)
+                .Match(
+                    val => Assert.IsFalse(false),
+                    err => Assert.IsTrue(err.Message == "Error!!")
+                );
+
+            Console.WriteLine(unit.ToString());
+        }
+
+        [Test]
+        public void TestErrorMatch3()
+        {
+            (from one in One()
+             from two in Two()
+             select one + two)
+             .Match(
+                Success: v => Assert.IsTrue(v == 3),
+                Fail: e => Assert.IsTrue(false)
+             );
+        }
+
+        [Test]
+        public void TestErrorMatch4()
+        {
+            var unit =
+                (from one in One()
+                 from two in Two()
+                 select one + two)
+                .Match(
+                    val => Assert.IsTrue(val == 3),
+                    err => Assert.IsTrue(false)
+                );
+
+            Console.WriteLine(unit.ToString());
+        }
     }
 }
