@@ -22,6 +22,7 @@
 // SOFTWARE.
 // 
 
+using Monad.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,7 +106,7 @@ namespace Monad.Parsec.Token
         {
             get
             {
-                return Memo.ise(() => 
+                return Memo.ize(() => 
                     Enumerable.Concat(
                         CommentStart.AsEnumerable(), 
                         CommentEnd.AsEnumerable()

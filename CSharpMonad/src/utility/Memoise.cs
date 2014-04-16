@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Monad
+namespace Monad.Utility
 {
     /// <summary>
     /// Create a memoised value
@@ -16,7 +16,7 @@ namespace Monad
         /// value is required, and once it has been calculated it will cache the value for future
         /// access.
         /// </summary>
-        public static Memo<T> ise<T>(Func<T> func)
+        public static Memo<T> ize<T>(Func<T> func)
         {
             return new Memo<T>(func);
         }

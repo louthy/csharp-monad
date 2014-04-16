@@ -28,6 +28,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Monad.Utility;
+
 namespace Monad.Parsec
 {
     public interface IParser<out A>

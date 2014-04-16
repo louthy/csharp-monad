@@ -34,6 +34,7 @@ using Monad.Parsec;
 using Monad.Parsec.Language;
 using Monad.Parsec.Token;
 using Monad.Parsec.Expr;
+using Monad.Utility;
 
 namespace Monad.UnitTests.Lex
 {
@@ -49,8 +50,8 @@ namespace Monad.UnitTests.Lex
             Parser<Term> expr = null;
             Func<Parser<Term>, Parser<Term>> contents;
 
-            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = (Parser<Term> p) => Gen.Many(p);
-            Func<Parser<Term>,Parser<Term>> @try = (Parser<Term> p) => Gen.Try(p);
+            Func<Parser<Term>,Parser<IEnumerable<Term>>> many = Gen.Many;
+            Func<Parser<Term>,Parser<Term>> @try = Gen.Try;
 
             var def = new Lang();
             var lexer = Tok.MakeTokenParser<Term>(def);
@@ -60,7 +61,7 @@ namespace Monad.UnitTests.Lex
             var intlex = lexer.Integer;
             var floatlex = lexer.Float;
             var parens = lexer.Parens;
-            Func<Parser<Term>, Parser<IEnumerable<Term>>> commaSep = p => lexer.CommaSep(p);
+            var commaSep = lexer.CommaSep;
             var semiSep = lexer.SemiSep;
             var identifier = lexer.Identifier;
             var reserved = lexer.Reserved;
@@ -126,7 +127,7 @@ namespace Monad.UnitTests.Lex
 
             expr = Ex.BuildExpressionParser<Term>(binops, factor);
 
-            Func<string,ParserResult<Term>> parseExpr = src => contents(expr).Parse(src);
+            var parseExpr = Lam.da( (string src) => contents(expr).Parse(src) );
 
             var result = parseExpr(TestData1);
 
