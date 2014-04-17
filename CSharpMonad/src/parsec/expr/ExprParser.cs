@@ -35,6 +35,11 @@ using Monad.Parsec.Expr;
 
 namespace Monad.Parsec.Expr
 {
+    /// <summary>
+    /// Builds a parser given a table of operators and associativities.
+    /// Based on the expression builder from Haskell's Parsec library.
+    /// http://hackage.haskell.org/package/parsec-3.0.0/docs/src/Text-Parsec-Expr.html
+    /// </summary>
     public static class Ex
     {
         public static Parser<A> BuildExpressionParser<A>(
@@ -48,13 +53,6 @@ namespace Monad.Parsec.Expr
 
         private static Parser<A> MakeParser<A>(IEnumerable<Operator<A>> ops, Parser<A> term)
         {
-            /*
-             * Currently struggling to parse the haskell equivalent.  I'll make it work once I 
-             * stop my head exploding.
-             * 
-             * http://hackage.haskell.org/package/parsec-3.0.0/docs/src/Text-Parsec-Expr.html
-             * 
-             */
             var empty2 = new Parser<Func<A, A>>[0].AsEnumerable();
             var empty3 = new Parser<Func<A, A, A>>[0].AsEnumerable();
 

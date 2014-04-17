@@ -35,7 +35,7 @@ namespace Monad.Parsec.Token.Bracketing
         public Parens(Parser<A> betweenParser)
             :
             base( inp => Prim.Between( Tok.Symbol("("), Tok.Symbol(")"), betweenParser  )
-                            .Parse(inp)  )
+                             .Parse(inp)  )
         { }
     }
     public class Braces<A> : Parser<A>

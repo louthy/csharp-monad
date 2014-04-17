@@ -179,7 +179,7 @@ namespace Monad.Parsec.Token
     {
         public SymbolToken(IEnumerable<ParserChar> value, SrcLoc location = null)
             :
-            base(value, location)
+            base(value, location == null ? location = value.First().Location : location)
         {
         }
     }

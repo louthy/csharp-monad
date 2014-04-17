@@ -35,9 +35,9 @@ namespace Monad.Parsec.Token
         public Symbol(string name)
             :
             base(
-                inp => Tok.Lexeme<IEnumerable<ParserChar>>(Prim.String(name))
-                          .Select(str => new SymbolToken(str, inp.First().Location))
-                          .Parse(inp)
+                inp => (from sym in Tok.Lexeme<IEnumerable<ParserChar>>(Prim.String(name))
+                        select new SymbolToken(sym))
+                       .Parse(inp)
             )
         {
         }
@@ -164,31 +164,31 @@ namespace Monad.Parsec.Token
                 {
                     var simpleSpace = Tok.SimpleSpace();
 
-                    if( String.IsNullOrEmpty(def.CommentLine) && String.IsNullOrEmpty(def.CommentStart) )
+                    if (String.IsNullOrEmpty(def.CommentLine) && String.IsNullOrEmpty(def.CommentStart))
                     {
                         return Prim.SkipMany(
                                 simpleSpace.Fail("")
                             ).Parse(inp);
                     }
-                    else if( String.IsNullOrEmpty(def.CommentLine) )
-                    {
-                        return Prim.SkipMany<Unit>( 
-                                simpleSpace | Tok.MultiLineComment(def).Fail("") 
-                            ).Parse(inp);
-                    }
-                    else if( String.IsNullOrEmpty(def.CommentStart) )
+                    else if (String.IsNullOrEmpty(def.CommentLine))
                     {
                         return Prim.SkipMany<Unit>(
-                                  simpleSpace | Tok.OneLineComment(def).Fail("")
-                               )
-                              .Parse(inp);
+                                simpleSpace | Tok.MultiLineComment(def).Fail("")
+                            ).Parse(inp);
+                    }
+                    else if (String.IsNullOrEmpty(def.CommentStart))
+                    {
+                        return Prim.SkipMany<Unit>(
+                                simpleSpace | Tok.OneLineComment(def).Fail("")
+                            )
+                            .Parse(inp);
                     }
                     else
                     {
                         return Prim.SkipMany<Unit>(
-                                  simpleSpace | Tok.OneLineComment(def) | Tok.MultiLineComment(def).Fail("")
-                               )
-                              .Parse(inp);
+                                simpleSpace | Tok.OneLineComment(def) | Tok.MultiLineComment(def).Fail("")
+                            )
+                            .Parse(inp);
                     }
                 }
             )

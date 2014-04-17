@@ -316,8 +316,8 @@ namespace Monad.UnitTests.Lex
             def foo(x y) x+y );
             extern sin(a);";
 
-        private static string TestData1 =
-          @"def foo(x y) 1=2;";
+    //    private static string TestData1 =
+    //      @"def foo(x y) 1=2;";
 
     }
 }
