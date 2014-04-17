@@ -31,41 +31,52 @@ using System.Threading.Tasks;
 namespace Monad
 {
     /// <summary>
-    /// A type with only one value, itself.
-    /// This is the functional world's equivalent of Void.
+    /// The reader monad
+    /// Allows for an 'environment' value to be carried through bind functions
     /// </summary>
-    public class Unit
+    /// <typeparam name="E">Environment</typeparam>
+    /// <typeparam name="A">The underlying monadic type</typeparam>
+    public delegate A Reader<E, A>(E environment);
+
+    /// <summary>
+    /// Reader monad extensions
+    /// </summary>
+    public static class ReaderExt
     {
         /// <summary>
-        /// Use a singleton so that ref equality works and to reduce any unnecessary
-        /// thrashing of the GC from creating an object which is always the same.
+        /// Select
         /// </summary>
-        private static Unit singleton = new Unit();
-
-        /// <summary>
-        /// Private ctor
-        /// </summary>
-        private Unit()
+        public static Reader<E, U> Select<E, T, U>(this Reader<E, T> self, Func<T, U> select)
         {
+            return (E env) => select(self(env));
         }
 
         /// <summary>
-        /// Return
+        /// Select Many
         /// </summary>
-        public static Unit Return()
+        public static Reader<E, V> SelectMany<E, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, Reader<E, U>> select,
+            Func<T, U, V> bind
+            )
         {
-            return singleton;
+            return (E env) =>
+                {
+                    var resT = self(env);
+                    var resU = select(resT);
+                    var resV = bind(resT, resU(env));
+                    return resV;
+                };
         }
 
         /// <summary>
-        /// Performs an action which instead of returning void will return Unit
+        /// Runs the reader and returns the result
         /// </summary>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public static Unit Return(Action action)
+        /// <param name="environment">Environment to pass in</param>
+        /// <returns>The reader result</returns>
+        public static A Run<E,A>(this Reader<E,A> self, E environment)
         {
-            action();
-            return Return();
+            return self(environment);
         }
     }
 }

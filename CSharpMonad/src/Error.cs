@@ -22,6 +22,7 @@
 // SOFTWARE.
 // 
 
+using Monad.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -147,7 +148,7 @@ namespace Monad
         }
 
         /// <summary>
-        /// LINQ select override
+        /// Select
         /// </summary>
         public static Error<U> Select<T, U>(this Error<T> self, Func<T, U> select)
         {
@@ -180,7 +181,7 @@ namespace Monad
         }
 
         /// <summary>
-        /// LINQ select-many override
+        /// SelectMany
         /// </summary>
         public static Error<V> SelectMany<T, U, V>(
             this Error<T> self,

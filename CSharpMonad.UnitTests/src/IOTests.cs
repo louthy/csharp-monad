@@ -31,6 +31,7 @@ using Monad;
 using NUnit.Framework;
 using System.Reflection;
 using System.IO;
+using Monad.Utility;
 
 namespace Monad.UnitTests
 {

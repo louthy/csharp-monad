@@ -48,6 +48,7 @@
     <Compile Include="src\IAppendable.cs" />
     <Compile Include="src\IO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Reader.cs" />
     <Compile Include="src\utility\Lam.da.cs" />
     <Compile Include="src\utility\Memoize.cs" />
     <Compile Include="src\option\Just.cs" />
@@ -82,7 +83,7 @@
     <Compile Include="src\parsec\token\TokenParsers.cs" />
     <Compile Include="src\parsec\token\TokenTypes.cs" />
     <Compile Include="src\parsec\SrcLoc.cs" />
-    <Compile Include="src\Unit.cs" />
+    <Compile Include="src\utility\Unit.cs" />
     <Compile Include="src\Either.cs" />
   </ItemGroup>
   <ItemGroup />
