@@ -121,11 +121,11 @@ namespace Monad.UnitTests
                 inp => (from choice in
                             (from d in Prim.Digit()
                              select Int32.Parse(d.Value.ToString()))
-                             | from open in Prim.Character('(')
-                               from expr in New.Expr()
-                               from close in Prim.Character(')')
-                               select expr
-                        select choice)
+                             | (from open in Prim.Character('(')
+                                from expr in New.Expr()
+                                from close in Prim.Character(')')
+                                select expr)
+                         select choice)
                         .Parse(inp)
 
             )

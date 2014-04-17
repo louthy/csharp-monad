@@ -49,7 +49,6 @@ namespace Monad.UnitTests.Lex
         {
             Parser<Term> expr = null;
             Func<Parser<Term>, Parser<Term>> contents;
-
             Func<Parser<Term>,Parser<IEnumerable<Term>>> many = Prim.Many;
             Func<Parser<Term>,Parser<Term>> @try = Prim.Try;
 
@@ -69,7 +68,6 @@ namespace Monad.UnitTests.Lex
             var whiteSpace = lexer.WhiteSpace;
 
             // Parser
-
             var integer = from n in intlex
                           select new Integer(n) as Term;
 
@@ -80,9 +78,9 @@ namespace Monad.UnitTests.Lex
                                   select new Arguments(ts) as Term);
 
             var commaSepExpr = parens(from cs in commaSep(expr)
-                                      select new CommaSepExpr(cs) as Term).Mconcat();
+                                      select new Exprs(cs) as Term);
 
-            var function = from d in reserved("def")
+            var function = from _ in reserved("def")
                            from name in identifier
                            from args in manyargs
                            from body in expr
@@ -95,7 +93,7 @@ namespace Monad.UnitTests.Lex
 
             var call = from name in identifier
                        from args in commaSepExpr
-                       select new Call(name, args) as Term;
+                       select new Call(name, args as Exprs) as Term;
 
             var subexpr = (from p in parens(expr)
                            select new Expression(p) as Term);
@@ -127,10 +125,7 @@ namespace Monad.UnitTests.Lex
 
             expr = Ex.BuildExpressionParser<Term>(binops, factor);
 
-            var parseExpr = Lam.da( (string src) => contents(expr).Parse(src) );
-
-            var result = parseExpr(TestData2);
-
+            var result = contents(expr).Parse(TestData2);
             if (result.IsFaulted)
             {
                 string errs = System.String.Join("\n",
@@ -142,6 +137,10 @@ namespace Monad.UnitTests.Lex
                 Console.WriteLine(errs);
             }
 
+            var resu = result.Value.First().Item1;
+            var left = result.Value.First().Item2.AsString();
+
+            Assert.IsTrue(left.Length == 0);
             Assert.IsTrue(!result.IsFaulted);
         }
 
@@ -189,17 +188,17 @@ namespace Monad.UnitTests.Lex
 
         public class BinaryOp : Term
         {
-            Token lhs;
-            Token rhs;
-            Token op;
+            public readonly Token Lhs;
+            public readonly Token Rhs;
+            public readonly Token Op;
 
             public BinaryOp(Token lhs, Token rhs, Token op, SrcLoc loc = null)
                 :
                 base(loc)
             {
-                this.lhs = lhs;
-                this.rhs = rhs;
-                this.op = op;
+                Lhs = lhs;
+                Rhs = rhs;
+                Op = op;
             }
         }
 
@@ -246,6 +245,7 @@ namespace Monad.UnitTests.Lex
             {
                 Id = id;
                 Args = args as Arguments;
+                Body = body;
             }
         }
 
@@ -266,9 +266,9 @@ namespace Monad.UnitTests.Lex
         public class Call : Term
         {
             public IdentifierToken Name;
-            public IEnumerable<Token> Args;
+            public Exprs Args;
 
-            public Call(IdentifierToken name, IEnumerable<Token> args, SrcLoc location = null)
+            public Call(IdentifierToken name, Exprs args, SrcLoc location = null)
                 :
                 base(location)
             {
@@ -299,14 +299,14 @@ namespace Monad.UnitTests.Lex
             }
         }
 
-        public class CommaSepExpr : Term
+        public class Exprs : Term
         {
-            public IEnumerable<Token> Exprs;
-            public CommaSepExpr(IEnumerable<Token> exprs, SrcLoc location = null)
+            public IEnumerable<Token> List;
+            public Exprs(IEnumerable<Token> exprs, SrcLoc location = null)
                 :
                 base(location)
             {
-                Exprs = exprs;
+                List = exprs;
             }
         }
 
