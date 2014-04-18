@@ -121,7 +121,7 @@ __Example__
 
 Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure. Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
 
-Use `.RunTry()()` at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from `RunTry()` (or by using the `Match` methods), the Exception property will hold the thrown exception.
+Use `()` or '.Invoke()' at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from the invocation (or by using the `Match` methods), the Exception property will hold the thrown exception.
 
 __Example__
 
@@ -145,11 +145,12 @@ __Example__
         }
         
         
-        var result = (from val1 in DoSomething(10)
-                      from val2 in DoSomethingError(val1)
-                      from val3 in DoNotEverEnterThisFunction(val2)
-                      select val3)
-                     .RunTry();
+        var monad = (from val1 in DoSomething(10)
+                     from val2 in DoSomethingError(val1)
+                     from val3 in DoNotEverEnterThisFunction(val2)
+                     select val3);
+                  
+        var result = monad();
 
         Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
 ```
