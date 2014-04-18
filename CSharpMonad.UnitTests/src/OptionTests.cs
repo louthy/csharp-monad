@@ -45,16 +45,16 @@ namespace Monad.UnitTests
                          select o;
 
             Assert.IsTrue(result.HasValue() && result.Value() == 1000);
-            Assert.IsTrue(result.Match(Just: () => true, Nothing: () => false));
-            Assert.IsTrue(result.Match(Just: () => true, Nothing: false));
+            Assert.IsTrue(result.Match(Just: () => true, Nothing: () => false)());
+            Assert.IsTrue(result.Match(Just: () => true, Nothing: false)());
 
             result = from o in option
                      from o2 in option2
                      select o2;
 
             Assert.IsTrue(result.HasValue() && result.Value() == 2000);
-            Assert.IsTrue(result.Match(Just: () => true, Nothing: () => false));
-            Assert.IsTrue(result.Match(Just: () => true, Nothing: false));
+            Assert.IsTrue(result.Match(Just: () => true, Nothing: () => false)());
+            Assert.IsTrue(result.Match(Just: () => true, Nothing: false)());
 
             result = from o in option
                      from o2 in Option.Nothing<int>()

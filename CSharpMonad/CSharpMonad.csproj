@@ -85,7 +85,7 @@
     <Compile Include="src\parsec\token\TokenTypes.cs" />
     <Compile Include="src\parsec\SrcLoc.cs" />
     <Compile Include="src\utility\Unit.cs" />
-    <Compile Include="src\Either.cs" />
+    <Compile Include="src\EitherStrict.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

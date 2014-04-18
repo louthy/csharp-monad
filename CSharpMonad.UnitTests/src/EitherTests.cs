@@ -156,7 +156,7 @@ namespace Monad.UnitTests
                     Left: l => 0
                 );
 
-            Assert.IsTrue(result == 8);
+            Assert.IsTrue(result() == 8);
         }
 
         [Test]
@@ -172,7 +172,7 @@ namespace Monad.UnitTests
                     Left: l => 0
                 );
 
-            Assert.IsTrue(result == 0);
+            Assert.IsTrue(result() == 0);
         }
 
         public Either<int, string> Two()

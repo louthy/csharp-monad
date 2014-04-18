@@ -114,7 +114,7 @@ namespace Monad
         /// </summary>
         public static T GetValueOrDefault<T>(this Try<T> self)
         {
-            var res = self();
+            var res = self.Try();
             if (res.IsFaulted)
                 return default(T);
             else
@@ -127,7 +127,7 @@ namespace Monad
         /// </summary>
         public static T GetValue<T>(this Try<T> self)
         {
-            var res = self();
+            var res = self.Try();
             if (res.IsFaulted)
                 throw new InvalidOperationException("The try monad has no value.  It holds an exception of type: "+res.GetType().Name+".");
             else
@@ -223,7 +223,7 @@ namespace Monad
         /// </summary>
         public static Try<U> Then<T, U>(this Try<T> self, Func<T, U> getValue)
         {
-            var resT = self();
+            var resT = self.Try();
 
             return resT.IsFaulted
                 ? new Try<U>( () => new TryResult<U>(resT.Exception) )
@@ -336,61 +336,76 @@ namespace Monad
         /// </summary>
         public static Try<T> Mconcat<T>(this IEnumerable<Try<T>> ms)
         {
-            var value = ms.Head();
-
-            foreach (var m in ms.Tail())
+            return () =>
             {
-                value = value.Mappend(m);
-            }
-            return value;
+                var value = ms.Head();
+
+                foreach (var m in ms.Tail())
+                {
+                    value = value.Mappend(m);
+                }
+                return value();
+            };
         }
 
         /// <summary>
         /// Pattern matching
         /// </summary>
-        public static R Match<T,R>(this Try<T> self, Func<T,R> Success, Func<Exception,R> Fail )
+        public static Func<R> Match<T,R>(this Try<T> self, Func<T,R> Success, Func<Exception,R> Fail )
         {
-            var res = self();
-            return res.IsFaulted
-                ? Fail(res.Exception)
-                : Success(res.Value);
+            return () =>
+            {
+                var res = self();
+                return res.IsFaulted
+                    ? Fail(res.Exception)
+                    : Success(res.Value);
+            };
         }
 
         /// <summary>
         /// Pattern matching
         /// </summary>
-        public static R Match<T, R>(this Try<T> self, Func<T, R> Success)
+        public static Func<R> Match<T, R>(this Try<T> self, Func<T, R> Success)
         {
-            var res = self();
-            return res.IsFaulted
-                ? default(R)
-                : Success(res.Value);
+            return () =>
+            {
+                var res = self();
+                return res.IsFaulted
+                    ? default(R)
+                    : Success(res.Value);
+            };
         }
 
         /// <summary>
         /// Pattern matching
         /// </summary>
-        public static Unit Match<T>(this Try<T> self, Action<T> Success, Action<Exception> Fail)
+        public static Func<Unit> Match<T>(this Try<T> self, Action<T> Success, Action<Exception> Fail)
         {
-            var res = self();
+            return () =>
+            {
+                var res = self();
 
-            if (res.IsFaulted)
-                Fail(res.Exception);
-            else
-                Success(res.Value);
+                if (res.IsFaulted)
+                    Fail(res.Exception);
+                else
+                    Success(res.Value);
 
-            return Unit.Return();
+                return Unit.Return();
+            };
         }
 
         /// <summary>
         /// Pattern matching
         /// </summary>
-        public static Unit Match<T>(this Try<T> self, Action<T> Success)
+        public static Func<Unit> Match<T>(this Try<T> self, Action<T> Success)
         {
-            var res = self();
-            if( !res.IsFaulted )
-                Success(res.Value);
-            return Unit.Return();
+            return () =>
+            {
+                var res = self();
+                if (!res.IsFaulted)
+                    Success(res.Value);
+                return Unit.Return();
+            };
         }
 
         /// <summary>

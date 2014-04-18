@@ -181,49 +181,61 @@ namespace Monad
         /// <summary>
         /// Executes the delegate related to the derived Option type.
         /// </summary>
-        public static R Match<T,R>(this Option<T> self, Func<R> Just, Func<R> Nothing)
+        public static Func<R> Match<T,R>(this Option<T> self, Func<R> Just, Func<R> Nothing)
         {
-            var res = self();
-            if (res.HasValue)
-                return Just();
-            else
-                return Nothing();
+            return () =>
+            {
+                var res = self();
+                if (res.HasValue)
+                    return Just();
+                else
+                    return Nothing();
+            };
         }
 
         /// <summary>
         /// Executes the delegate related to the derived Option type.
         /// </summary>
-        public static R Match<T, R>(this Option<T> self, Func<T, R> Just, Func<R> Nothing)
+        public static Func<R> Match<T, R>(this Option<T> self, Func<T, R> Just, Func<R> Nothing)
         {
-            var res = self();
-            if (res.HasValue)
-                return Just(res.Value);
-            else
-                return Nothing();
+            return () =>
+            {
+                var res = self();
+                if (res.HasValue)
+                    return Just(res.Value);
+                else
+                    return Nothing();
+            };
         }
 
         /// <summary>
         /// Executes the delegate related to the derived Option type.
         /// </summary>
-        public static R Match<T, R>(this Option<T> self, Func<R> Just, R Nothing)
+        public static Func<R> Match<T, R>(this Option<T> self, Func<R> Just, R Nothing)
         {
-            var res = self();
-            if (res.HasValue)
-                return Just();
-            else
-                return Nothing;
+            return () =>
+            {
+                var res = self();
+                if (res.HasValue)
+                    return Just();
+                else
+                    return Nothing;
+            };
         }
 
         /// <summary>
         /// Executes the delegate related to the derived Option type.
         /// </summary>
-        public static R Match<T, R>(this Option<T> self, Func<T, R> Just, R Nothing)
+        public static Func<R> Match<T, R>(this Option<T> self, Func<T, R> Just, R Nothing)
         {
-            var res = self();
-            if (res.HasValue)
-                return Just(res.Value);
-            else
-                return Nothing;
+            return () =>
+            {
+                var res = self();
+                if (res.HasValue)
+                    return Just(res.Value);
+                else
+                    return Nothing;
+            };
         }
 
         /// <summary>
