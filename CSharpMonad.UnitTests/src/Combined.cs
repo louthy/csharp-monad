@@ -48,6 +48,39 @@ namespace Monad.UnitTests
         {
             return new Error<T>( () => fn() );
         }
+
+        private Error<IO<T>> Trans<T>( IO<T> inner )
+        {
+            return () => inner;
+        }
+
+        private Reader<E,Error<T>> Trans<E,T>( Error<T> inner )
+        {
+            return (env) => inner;
+        }
+
+        public IO<string> Hello()
+        {
+            return () => "Hello,";
+        }
+
+        public IO<string> World()
+        {
+            return () => " World";
+        }
+
+        // Messing
+        [Test]
+        public void TransTest()
+        {
+            var errT = Trans<string>( from h in Hello()
+                                      from w in World()
+                                      select h + w );
+
+            var rdrT = Trans<string,IO<string>>(errT);
+
+            Assert.IsTrue(rdrT.Run("environ").Return().Value() == "Hello, World");
+        }
     }
 }
 

@@ -49,18 +49,23 @@ namespace Monad
         }
 
         /// <summary>
-        /// Extension *bind* method for the IO delegate
+        /// Select
+        /// </summary>
+        public static IO<U> Select<T,U>(this IO<T> self, Func<T,U> select)
+        {
+            return () => select(self());
+        }
+
+        /// <summary>
+        /// SelectMany
         /// </summary>
         public static IO<V> SelectMany<T, U, V>(
             this IO<T> self,
-            Func<T, IO<U>> k,
-            Func<T, U, V> m)
+            Func<T, IO<U>> select,
+            Func<T, U, V> bind)
         {
-            return self.SelectMany(
-                t => k(t).SelectMany(
-                    u => new IO<V>(() => m(t, u))
-                    )
-                );
+            var resT = self();
+            return () => bind(resT, select(resT)());
         }
 
         /// <summary>
