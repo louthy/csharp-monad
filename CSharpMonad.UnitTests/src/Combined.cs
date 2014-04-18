@@ -79,7 +79,7 @@ namespace Monad.UnitTests
 
             var rdrT = Trans<string,IO<string>>(errT);
 
-            Assert.IsTrue(rdrT.Run("environ").Return().Value() == "Hello, World");
+            Assert.IsTrue(rdrT("environ").Return().Value() == "Hello, World");
         }
     }
 }
