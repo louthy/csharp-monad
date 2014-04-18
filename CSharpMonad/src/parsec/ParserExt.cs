@@ -66,7 +66,7 @@ namespace Monad.Parsec
 
                     return ParserResult.Success(
                         resT.Select(resU =>
-                            Tuple.Create<U, IEnumerable<ParserChar>>(select(resU.Item1), resU.Item2)
+                            Tuple.Create<U, IEnumerable<ParserChar>>(select(resU.Item1), left)
                         ));
                 });
         }

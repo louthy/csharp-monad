@@ -201,8 +201,6 @@ namespace Monad.Parsec
 
                     do
                     {
-                        var head = inp.Head();
-
                         var resA = skipParser.Parse(inp);
                         if (resA.IsFaulted || resA.Value.IsEmpty())
                             return Prim.Return<Unit>(Unit.Return()).Parse(inp);

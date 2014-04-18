@@ -8,6 +8,7 @@ Library of monads for C#:
 * `IO<T>`
 * `Option<T>`
 * `Parser<T>`
+* `Reader<E,T>`
 
 
 The library is stable but it's still in development, so as you can see documentation is pretty sparse right now.
@@ -322,4 +323,52 @@ This is all work in progress, but very stable and functional.  It's probably eas
 ```
 
 I will be updating this library with more parser components for language-parser building.  Watch this space :)
+
+
+## Reader
+
+The `Reader<E,T>` monad is for passing an initial 'environment' state through the bind function,  Each stage will recieve the same `E` environment reference (ideally you should make it immutable to be pure - it's not supposed to be a state monad).
+
+__Example__
+
+First let's set up a class that will hold our environment:
+
+```C#
+        class Person
+        {
+            public string Name;
+            public string Surname;
+        }
+```
+Now let's create a couple of methods that extract values from the reader monad.
+```C#
+        private static Reader<Person, string> Name()
+        {
+            return env => env.Name;
+        }
+
+        private static Reader<Person, string> Surname()
+        {
+            return env => env.Surname;
+        }
+```
+Next see how we can use those methods and the environment class (Person) in a monadic bind function.
+
+```C#
+       var person = new Person { Name = "Joe", Surname = "Bloggs" };
+
+       var reader = from n in Name()
+                    from s in Surname()
+                    select n + " " + s;
+
+       Assert.IsTrue(reader.Run(person) == "Joe Bloggs");
+```
+
+Note how the `person` is passed to the `Run` method.  That invokes the bind function using the environment.
+
+
+***More monads soon***
+
+
+
 
