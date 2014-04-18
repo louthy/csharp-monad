@@ -102,7 +102,7 @@ namespace Monad
         /// </summary>
         public static T GetValueOrDefault<T>(this Try<T> self)
         {
-            var res = self.Return();
+            var res = self.RunTry();
             if (res.IsFaulted)
                 return default(T);
             else
@@ -125,7 +125,7 @@ namespace Monad
         /// <summary>
         /// Invokes the bind function and returns the monad state
         /// </summary>
-        public static TryResult<T> Return<T>(this Try<T> self)
+        public static TryResult<T> RunTry<T>(this Try<T> self)
         {
             try
             {
@@ -134,7 +134,7 @@ namespace Monad
 
                 if (invocationList.Count() > 1)
                 {
-                    return invocationList.Select(del => (Try<T>)del).Mconcat().Return();
+                    return invocationList.Select(del => (Try<T>)del).Mconcat().RunTry();
                 }
                 else
                 {
@@ -263,7 +263,7 @@ namespace Monad
         /// </returns>
         public static IEnumerable<T> AsEnumerable<T>(this Try<T> self)
         {
-            var res = self.Return();
+            var res = self.RunTry();
             if (res.IsFaulted)
                 yield break;
             else
@@ -279,7 +279,7 @@ namespace Monad
         /// </returns>
         public static IEnumerable<T> AsEnumerableInfinite<T>(this Try<T> self)
         {
-            var res = self.Return();
+            var res = self.RunTry();
             if (res.IsFaulted)
                 yield break;
             else
@@ -293,10 +293,10 @@ namespace Monad
         {
             return () =>
             {
-                var lhsValue = lhs.Return();
+                var lhsValue = lhs.RunTry();
                 if (lhsValue.IsFaulted) return lhsValue;
 
-                var rhsValue = rhs.Return();
+                var rhsValue = rhs.RunTry();
                 if (rhsValue.IsFaulted) return rhsValue;
 
                 bool IsAppendable = typeof(IAppendable<T>).IsAssignableFrom(typeof(T));
@@ -363,7 +363,7 @@ namespace Monad
         /// </summary>
         public static R Match<T,R>(this Try<T> self, Func<T,R> Success, Func<Exception,R> Fail )
         {
-            var res = self.Return();
+            var res = self.RunTry();
             return res.IsFaulted
                 ? Fail(res.Exception)
                 : Success(res.Value);
@@ -374,7 +374,7 @@ namespace Monad
         /// </summary>
         public static R Match<T, R>(this Try<T> self, Func<T, R> Success)
         {
-            var res = self.Return();
+            var res = self.RunTry();
             return res.IsFaulted
                 ? default(R)
                 : Success(res.Value);
@@ -385,7 +385,7 @@ namespace Monad
         /// </summary>
         public static Unit Match<T>(this Try<T> self, Action<T> Success, Action<Exception> Fail)
         {
-            var res = self.Return();
+            var res = self.RunTry();
 
             if (res.IsFaulted)
                 Fail(res.Exception);
@@ -400,7 +400,7 @@ namespace Monad
         /// </summary>
         public static Unit Match<T>(this Try<T> self, Action<T> Success)
         {
-            var res = self.Return();
+            var res = self.RunTry();
             if( !res.IsFaulted )
                 Success(res.Value);
             return Unit.Return();

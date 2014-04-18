@@ -119,7 +119,7 @@ namespace Monad.UnitTests
 
             var res = opt1 + opt2 + opt3;
 
-            var v = res.Return().Value;
+            var v = res.RunTry().Value;
 
             Assert.IsTrue(v == 6);
             Assert.IsFalse(res == null);
@@ -127,16 +127,16 @@ namespace Monad.UnitTests
             var zero = Try.Mempty<int>();
 
             res = opt1 + opt2 + opt3 + zero;
-            Assert.IsTrue(res.Return().Value == 6);
+            Assert.IsTrue(res.RunTry().Value == 6);
 
             res = opt1 + opt2 + opt3 + zero + fail;
-            Assert.IsTrue(res.Return().IsFaulted);
+            Assert.IsTrue(res.RunTry().IsFaulted);
 
             res = fail + opt1 + opt2 + opt3 + zero;
-            Assert.IsTrue(res.Return().IsFaulted);
+            Assert.IsTrue(res.RunTry().IsFaulted);
 
             res = opt1 + opt2 + fail + opt3 + zero;
-            Assert.IsTrue(res.Return().IsFaulted);
+            Assert.IsTrue(res.RunTry().IsFaulted);
 
             Try<AType> a1 = () => new AType(1);
             Try<AType> a2 = () => new AType(2);
@@ -144,7 +144,7 @@ namespace Monad.UnitTests
 
             var res2 = a1 + a2 + a3;
 
-            Assert.IsTrue(res2.Return().Value.Value == 6);
+            Assert.IsTrue(res2.RunTry().Value.Value == 6);
         }
 
         [Test]

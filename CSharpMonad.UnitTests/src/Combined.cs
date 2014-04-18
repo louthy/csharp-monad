@@ -20,7 +20,7 @@ namespace Monad.UnitTests
                       from thr in t3
                       select one + two + thr;
 
-            Assert.IsTrue(res.Return().Value == 6);
+            Assert.IsTrue(res.RunTry().Value == 6);
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace Monad.UnitTests
                       from err in fail
                       select one + two + thr + err;
 
-            Assert.IsTrue(res.Return().IsFaulted);
+            Assert.IsTrue(res.RunTry().IsFaulted);
         }
 
         private Try<T> ErrIO<T>(IO<T> fn)
@@ -79,7 +79,7 @@ namespace Monad.UnitTests
 
             var rdrT = Trans<string,IO<string>>(errT);
 
-            Assert.IsTrue(rdrT("environ").Return().Value() == "Hello, World");
+            Assert.IsTrue(rdrT("environ").RunTry().Value() == "Hello, World");
         }
     }
 }
