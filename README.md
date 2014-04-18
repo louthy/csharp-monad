@@ -32,19 +32,13 @@ First we set up some methods that return either a `Left` or a `Right`.  In this 
 ```C#    
         public Either<int, string> Two()
         {
-            return 2;
+            return Either.Right<int, string>(2);
         }
     
         public Either<int, string> Error()
         {
-            return "Error!!";
+            return Either.Left<int, string>("Error!!");
         }
-```
-
-The `Either` monad has implicit conversion operators to remove the need to explicitly create an `Either<R,L>` type, however if you ever need to there are two helper methods to do so:
-```C#
-        Either.Left<R,L>(...)
-        Either.Right<R,L>(...)
 ```
 
 Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is returned it cancels the entire bind operation, so any functions after the `Left` will not be processed.
@@ -55,7 +49,7 @@ Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is retu
             from rhs in Two()
             select lhs+rhs;
     
-        Assert.IsTrue(r.IsRight && r.Right == 4);
+        Assert.IsTrue(r.IsRight() && r.Right() == 4);
 
         var r =
             from lhs in Two()
@@ -63,10 +57,10 @@ Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is retu
             from rhs in Two()
             select lhs+mid+rhs;
             
-        Assert.IsTrue(r.IsLeft && r.Left == "Error!!");
+        Assert.IsTrue(r.IsLeft() && r.Left() == "Error!!");
 ```
 
-You can also use the pattern matching methods to project the either value or to delegate to handlers:
+You can also use the pattern matching methods to project the either value or to delegate to handlers, this makes the whole expression lazy:
 
 __Example__
 
