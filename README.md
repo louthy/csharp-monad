@@ -62,9 +62,9 @@ Or by using the `Memo()` memoization extension method available on all of the mo
                                         select x + y)
                                        .Memo();
         
-        if( result.HasValue )
+        if( result().HasValue )
         {
-            return result.Value;        
+            return result().Value;        
         }
 ```
 All of them are valid methods, they're designed to fit the various scenarios that you may need them for.
