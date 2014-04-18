@@ -34,23 +34,22 @@ namespace Monad.UnitTests
         [Test]
         public void TestEitherBinding1()
         {
-            var r =
-                from lhs in Two()
-                from rhs in Two()
-                select lhs+rhs;
+            var r = from lhs in Two()
+                    from rhs in Two()
+                    select lhs+rhs;
 
-            Assert.IsTrue(r.IsRight && r.Right == 4);
+            Assert.IsTrue(r.IsRight() && r.Right() == 4);
         }
 
         [Test]
         public void TestEitherBinding2()
         {
-            var r =
-                from lhs in Two()
-                from rhs in Error()
-                select lhs+rhs;
+            var r = (from lhs in Two()
+                     from rhs in Error()
+                     select lhs + rhs)
+                    .Memo();
 
-            Assert.IsTrue(r.IsLeft && r.Left == "Error!!");
+            Assert.IsTrue(r().IsLeft && r().Left == "Error!!");
         }
 
 
@@ -61,7 +60,7 @@ namespace Monad.UnitTests
                 from lhs in Two()
                 select lhs;
 
-            Assert.IsTrue(r.IsRight && r.Right == 2);
+            Assert.IsTrue(r.IsRight() && r.Right() == 2);
         }    
 
         [Test]
@@ -71,7 +70,7 @@ namespace Monad.UnitTests
                 from lhs in Error()
                 select lhs;
 
-            Assert.IsTrue(r.IsLeft && r.Left == "Error!!");
+            Assert.IsTrue(r.IsLeft() && r.Left() == "Error!!");
         }
 
         [Test]
@@ -83,7 +82,7 @@ namespace Monad.UnitTests
                 from thr in Two()
                 select one + two + thr;
 
-            Assert.IsTrue(r.IsLeft && r.Left == "Error!!");
+            Assert.IsTrue(r.IsLeft() && r.Left() == "Error!!");
         }
 
         [Test]
@@ -178,12 +177,12 @@ namespace Monad.UnitTests
 
         public Either<int, string> Two()
         {
-            return 2;
+            return Either.Right<int, string>(2);
         }
 
         public Either<int, string> Error()
         {
-            return "Error!!";
+            return Either.Left<int, string>("Error!!");
         }
     }
 }

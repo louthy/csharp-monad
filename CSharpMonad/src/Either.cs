@@ -28,6 +28,7 @@ using System.Collections.Generic;
 
 namespace Monad
 {
+    /*
     /// <summary>
     /// Either constructor methods
     /// </summary>
@@ -551,6 +552,6 @@ namespace Monad
             }
             return value;
         }
-    }
+    }*/
 }
 
