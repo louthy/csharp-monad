@@ -4,7 +4,7 @@ csharp-monad
 Library of monads for C#:
 
 * `Either<R,L>`
-* `Error<T>`
+* `Try<T>`
 * `IO<T>`
 * `Option<T>`
 * `Parser<T>`
@@ -21,7 +21,7 @@ The Token section of the parser components are very work in progress.
 The `Either` monad represents values with two possibilities: a value of `Left` or `Right`.
 `Either` is sometimes used to represent a value which is either correct or an error, by convention, `Left` is used to hold an error value `Right` is used to hold a correct value.
 
-So you can see that Either has a very close relationship to the `Error` monad.  However, the `Either` monad won't capture exceptions.  `Either` would primarily be used for known error values rather than exceptional ones.
+So you can see that Either has a very close relationship to the `Try` monad.  However, the `Either` monad won't capture exceptions.  `Either` would primarily be used for known error values rather than exceptional ones.
 
 Once the `Either` monad is in the `Left` state it cancels the monad bind function and returns immediately.
 
@@ -117,21 +117,21 @@ __Example__
 ```
         
 
-## Error monad
+## Try monad
 
 Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure. Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
 
-Use `.Return()` at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from `Return()`, the Exception property will hold the thrown exception.
+Use `.RunTry()()` at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from `RunTry()` (or by using the `Match` methods), the Exception property will hold the thrown exception.
 
 __Example__
 
 ```C#
-        private Error<int> DoSomething(int value)
+        private Try<int> DoSomething(int value)
         {
             return () => value + 1;
         }
 
-        private Error<int> DoSomethingError(int value)
+        private Try<int> DoSomethingError(int value)
         {
             return () =>
             {
@@ -139,7 +139,7 @@ __Example__
             };
         }
 
-        private Error<int> DoNotEverEnterThisFunction(int value)
+        private Try<int> DoNotEverEnterThisFunction(int value)
         {
             return () => return 10000;
         }
@@ -149,7 +149,7 @@ __Example__
                       from val2 in DoSomethingError(val1)
                       from val3 in DoNotEverEnterThisFunction(val2)
                       select val3)
-                     .Return();
+                     .RunTry();
 
         Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
 ```
