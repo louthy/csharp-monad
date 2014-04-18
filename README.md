@@ -114,7 +114,7 @@ Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is retu
         Assert.IsTrue(r.IsLeft() && r.Left() == "Error!!");
 ```
 
-You can also use the pattern matching methods to project the either value or to delegate to handlers, this makes the whole expression lazy:
+You can also use the pattern matching methods to project the either value or to delegate to handlers.
 
 __Example__
 
