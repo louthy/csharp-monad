@@ -380,10 +380,10 @@ Next see how we can use those methods and the environment class (Person) in a mo
                     from s in Surname()
                     select n + " " + s;
 
-       Assert.IsTrue(reader.Run(person) == "Joe Bloggs");
+       Assert.IsTrue(reader(person) == "Joe Bloggs");
 ```
 
-Note how the `person` is passed to the `Run` method.  That invokes the bind function using the environment.
+Note how the `person` is passed to the reader at the end.  That invokes the bind function using the environment.
 
 
 ***More monads soon***
