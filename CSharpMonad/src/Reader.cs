@@ -68,5 +68,15 @@ namespace Monad
                     return resV;
                 };
         }
+
+        /// <summary>
+        /// Memoize the result 
+        /// </summary>
+        public static Func<T> Memo<E, T>(this Reader<E, T> self, E environment)
+        {
+            var res = self(environment);
+            return () => res;
+        }
+
     }
 }

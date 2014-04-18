@@ -392,6 +392,23 @@ namespace Monad
                 Success(res.Value);
             return Unit.Return();
         }
+
+        /// <summary>
+        /// Fetch and memoize the result 
+        /// </summary>
+        public static Func<TryResult<T>> TryMemo<T>(this Try<T> self)
+        {
+            TryResult<T> res;
+            try
+            {
+                res = self();
+            }
+            catch(Exception e)
+            {
+                res = new TryResult<T>(e);
+            }
+            return () => res;
+        }
     }
 
     public class Try

@@ -266,5 +266,14 @@ namespace Monad
             else
                 yield break;
         }
+
+        /// <summary>
+        /// Memoize the result 
+        /// </summary>
+        public static Func<OptionResult<T>> Memo<T>(this Option<T> self)
+        {
+            var res = self();
+            return () => res;
+        }
     }
 }

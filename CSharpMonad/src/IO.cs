@@ -146,7 +146,7 @@ namespace Monad
         }
 
         /// <summary>
-        /// Return - NOTE: You don't need to use this unless you're using the + operator
+        /// RunIO - NOTE: You don't need to use this unless you're using the + operator
         /// to append IO monads.  Return() will check for + and automatically combine the
         /// results.  Regular invocation cannot do that.
         /// </summary>
@@ -163,6 +163,15 @@ namespace Monad
             {
                 return self();
             }
+        }
+
+        /// <summary>
+        /// Memoize the result 
+        /// </summary>
+        public static Func<T> Memo<T>(this IO<T> self)
+        {
+            var res = self();
+            return () => res;
         }
     }
 
