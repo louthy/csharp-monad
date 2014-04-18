@@ -31,22 +31,40 @@ using System.Threading.Tasks;
 namespace Monad
 {
     /// <summary>
-    /// Option monad
+    /// The option delegate
     /// </summary>
-    public abstract class Option<T> : IEquatable<Option<T>>, IEquatable<T>
+    public delegate OptionResult<T> Option<T>();
+
+    public static class Option
     {
         /// <summary>
-        /// Represents a Option monad without a value
+        /// Represents an Option without a value
         /// </summary>
-        public readonly static Option<T> Nothing = new Nothing<T>();
+        public static Option<T> Nothing<T>()
+        {
+            return () => new Nothing<T>();
+        }
 
+        public static Option<T> Mempty<T>()
+        {
+            return Option.Nothing<T>();
+        }
+    }
+
+    /// <summary>
+    /// Option monad
+    /// </summary>
+    public abstract class OptionResult<T>
+    {
         /// <summary>
         /// Conversion from any value to Option<T>
         /// Null is always considered as Nothing
         /// </summary>
-        public static implicit operator Option<T>(T value)
+        public static implicit operator OptionResult<T>(T value)
         {
-            return value.ToOption();
+            return value == null
+                ? new Nothing<T>() as OptionResult<T>
+                : new Just<T>(value) as OptionResult<T>;
         }
 
         /// <summary>
@@ -74,191 +92,7 @@ namespace Monad
             return HasValue ? Value : default(T);
         }
 
-        /// <summary>
-        /// Executes the delegate related to the derived Option type.
-        /// </summary>
-        public abstract R Match<R>(Func<R> Just, Func<R> Nothing);
-
-        /// <summary>
-        /// Executes the delegate related to the derived Option type.
-        /// </summary>
-        public abstract R Match<R>(Func<T, R> Just, Func<R> Nothing);
-
-        /// <summary>
-        /// Executes the delegate related to the derived Option type.
-        /// </summary>
-        public abstract R Match<R>(Func<R> Just, R Nothing);
-
-        /// <summary>
-        /// Executes the delegate related to the derived Option type.
-        /// </summary>
-        public abstract R Match<R>(Func<T, R> Just, R Nothing);
-
-        /// <summary>
-        /// Mappend
-        /// If the left-hand side or right-hand side are in a Left state, then Left propogates
-        /// </summary>
-        public static Option<T> operator +(Option<T> lhs, Option<T> rhs)
-        {
-            return lhs.Mappend(rhs);
-        }
-
-        /// <summary>
-        /// Nothing coalescing operator
-        /// Returns the left-hand operand if the operand is not Nothing; otherwise it returns the right hand operand.
-        /// In other words it returns the first valid option in the operand sequence.
-        /// </summary>
-        public static Option<T> operator |(Option<T> lhs, Option<T> rhs)
-        {
-            return lhs.HasValue
-                ? lhs
-                : rhs;
-        }
-
-        /// <summary>
-        /// Returns the right-hand side if the left-hand and right-hand side are not Nothing.
-        /// In order words every operand must hold a value for the result to be Just.
-        /// </summary>
-        public static Option<T> operator &(Option<T> lhs, Option<T> rhs)
-        {
-            return lhs.HasValue && rhs.HasValue
-                ? rhs
-                : lhs.HasValue
-                    ? rhs
-                    : lhs;
-        }
-
-        /// <summary>
-        /// Equals override
-        /// Compares the underlying values
-        /// </summary>
-        public static bool operator ==(Option<T> lhs, Option<T> rhs)
-        {
-            return lhs.Equals(rhs);
-        }
-
-        /// <summary>
-        /// Not equals override
-        /// Compares the underlying values
-        /// </summary>
-        public static bool operator !=(Option<T> lhs, Option<T> rhs)
-        {
-            return !lhs.Equals(rhs);
-        }
-
-        /// <summary>
-        /// Monadic append
-        /// If the lhs or rhs are in a Nothing state then Nothing propagates
-        /// </summary>
-        public abstract Option<T> Mappend(Option<T> rhs);
-
-        /// <summary>
-        /// Converts the Option to an enumerable
-        /// </summary>
-        /// <returns>
-        /// Just: A list with one T in
-        /// Nothing: An empty list
-        /// </returns>
-        public IEnumerable<T> AsEnumerable()
-        {
-            if (HasValue)
-                yield return Value;
-            else
-                yield break;
-        }
-
-        /// <summary>
-        /// Converts the Option to an infinite enumerable
-        /// </summary>
-        /// <returns>
-        /// Just: An infinite list of T
-        /// Nothing: An empty list
-        /// </returns>
-        public IEnumerable<T> AsEnumerableInfinte()
-        {
-            if (HasValue)
-                while(true) yield return Value;
-            else
-                yield break;
-        }
-
-        /// <summary>
-        /// GetHashCode
-        /// </summary>
-        /// <returns>Just.GetHashCode() or Nothing.GetHashCode()</returns>
-        public override int GetHashCode()
-        {
-            return HasValue
-                ? Value == null ? 0 : Value.GetHashCode()
-                : Nothing.GetHashCode();
-        }
-
-        /// <summary>
-        /// Equals override
-        /// Compares the underlying values
-        /// </summary>
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-            else
-            {
-                if (obj is Option<T>)
-                {
-                    var rhs = (Option<T>)obj;
-                    return HasValue && rhs.HasValue
-                        ? Value.Equals(rhs.Value)
-                        : !HasValue && !rhs.HasValue
-                            ? true
-                            : false;
-                }
-                else if( obj is T )
-                {
-                    var rhs = (T)obj;
-                    return HasValue
-                        ? Value.Equals(rhs)
-                        : false;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Equals override
-        /// Compares the underlying values
-        /// </summary>
-        public bool Equals(Option<T> rhs)
-        {
-            return Equals((object)rhs);
-        }
-
-        /// <summary>
-        /// Equals override
-        /// Compares the underlying values
-        /// </summary>
-        public bool Equals(T rhs)
-        {
-            return Equals((object)rhs);
-        }
-    }
-
-    /// <summary>
-    /// Option<T> extensions
-    /// </summary>
-    public static class Option
-    {
-        /// <summary>
-        /// Monadic zero
-        /// </summary>
-        public static Option<T> Mempty<T>()
-        {
-            return new Just<T>(default(T));
-        }
+        public abstract OptionResult<T> Mappend(OptionResult<T> rhs);
     }
 
     /// <summary>
@@ -274,22 +108,27 @@ namespace Monad
         public static Option<T> ToOption<T>(this T self)
         {
             return self == null
-                ? Option<T>.Nothing
-                : new Just<T>(self);
+                ? Option.Nothing<T>()
+                : () => new Just<T>(self);
         }
 
         public static Option<R> Select<T, R>(this Option<T> self, Func<T, R> map)
         {
-            return self.HasValue
-                ? map(self.Value).ToOption()
-                : Option<R>.Nothing;
+            var resT = self();
+            return resT.HasValue
+                ? map(resT.Value).ToOption()
+                : Option.Nothing<R>();
         }
 
         public static Option<U> SelectMany<T, U>(this Option<T> self, Func<T, Option<U>> k)
         {
-            return self.HasValue
-                ? k(self.Value)
-                : Option<U>.Nothing;
+            return () =>
+            {
+                var resT = self();
+                return resT.HasValue
+                    ? k(resT.Value)()
+                    : new Nothing<U>();
+            };
         }
 
         public static Option<V> SelectMany<T, U, V>(
@@ -298,31 +137,134 @@ namespace Monad
             Func<T, U, V> project
             )
         {
-            if (!self.HasValue)
-                return Option<V>.Nothing;
+            return () =>
+            {
+                var resT = self();
 
-            var res = select(self.Value);
-            if( !res.HasValue)
-                return Option<V>.Nothing;
+                if (!resT.HasValue)
+                    return new Nothing<V>();
 
-            return new Just<V>(project(self.Value, res.Value));
+                var resU = select(resT.Value)();
+                if (!resU.HasValue)
+                    return new Nothing<V>();
+
+                return new Just<V>(project(resT.Value, resU.Value));
+            };
         }
 
         /// <summary>
-        /// Mconcat
+        /// Underlying value
         /// </summary>
-        public static Option<T> Mconcat<T>(this IEnumerable<Option<T>> ms)
+        public static T Value<T>(this Option<T> self)
         {
-            var value = ms.Head();
+            return self().Value;
+        }
 
-            foreach (var m in ms.Tail())
-            {
-                if (!value.HasValue)
-                    return value;
+        /// <summary>
+        /// Does the monad have a value
+        /// </summary>
+        public static bool HasValue<T>(this Option<T> self)
+        {
+            return self().HasValue;
+        }
 
-                value = value.Mappend(m);
-            }
-            return value;
+        /// <summary>
+        /// Get the monad's value or the default value for the type
+        /// </summary>
+        /// <returns></returns>
+        public static T GetValueOrDefault<T>(this Option<T> self)
+        {
+            var res = self();
+            return res.HasValue ? res.Value : default(T);
+        }
+
+        /// <summary>
+        /// Executes the delegate related to the derived Option type.
+        /// </summary>
+        public static R Match<T,R>(this Option<T> self, Func<R> Just, Func<R> Nothing)
+        {
+            var res = self();
+            if (res.HasValue)
+                return Just();
+            else
+                return Nothing();
+        }
+
+        /// <summary>
+        /// Executes the delegate related to the derived Option type.
+        /// </summary>
+        public static R Match<T, R>(this Option<T> self, Func<T, R> Just, Func<R> Nothing)
+        {
+            var res = self();
+            if (res.HasValue)
+                return Just(res.Value);
+            else
+                return Nothing();
+        }
+
+        /// <summary>
+        /// Executes the delegate related to the derived Option type.
+        /// </summary>
+        public static R Match<T, R>(this Option<T> self, Func<R> Just, R Nothing)
+        {
+            var res = self();
+            if (res.HasValue)
+                return Just();
+            else
+                return Nothing;
+        }
+
+        /// <summary>
+        /// Executes the delegate related to the derived Option type.
+        /// </summary>
+        public static R Match<T, R>(this Option<T> self, Func<T, R> Just, R Nothing)
+        {
+            var res = self();
+            if (res.HasValue)
+                return Just(res.Value);
+            else
+                return Nothing;
+        }
+
+        /// <summary>
+        /// Monadic append
+        /// If the lhs or rhs are in a Nothing state then Nothing propagates
+        /// </summary>
+        public static Option<T> Mappend<T>(this Option<T> self, Option<T> rhs)
+        {
+            return () => self().Mappend(rhs());
+        }
+
+        /// <summary>
+        /// Converts the Option to an enumerable
+        /// </summary>
+        /// <returns>
+        /// Just: A list with one T in
+        /// Nothing: An empty list
+        /// </returns>
+        public static IEnumerable<T> AsEnumerable<T>(this Option<T> self)
+        {
+            var res = self();
+            if (res.HasValue)
+                yield return res.Value;
+            else
+                yield break;
+        }
+
+        /// <summary>
+        /// Converts the Option to an infinite enumerable
+        /// </summary>
+        /// <returns>
+        /// Just: An infinite list of T
+        /// Nothing: An empty list
+        /// </returns>
+        public static IEnumerable<T> AsEnumerableInfinte<T>(this Option<T> self)
+        {
+            var res = self();
+            if (res.HasValue)
+                while (true) yield return res.Value;
+            else
+                yield break;
         }
     }
 }

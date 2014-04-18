@@ -36,65 +36,6 @@ namespace Monad.UnitTests
     public class OperatorTests
     {
         [Test]
-        public void TestOptionAnd()
-        {
-            Option<int> one = 1;
-            Option<int> two = 2;
-            Option<int> thr = 3;
-            Option<int> fail = Option<int>.Nothing;
-
-            var res = one & two & thr;
-
-            Assert.IsTrue(res == 3);
-
-            res = one & two & thr & fail;
-
-            Assert.IsTrue(res == Option<int>.Nothing);
-
-            res = fail & one & two & thr;
-
-            Assert.IsTrue(res == Option<int>.Nothing);
-
-            res = one & fail & two & thr;
-
-            Assert.IsTrue(res == Option<int>.Nothing);
-        }
-
-        [Test]
-        public void TestOptionOr()
-        {
-            Option<int> one = 1;
-            Option<int> two = 2;
-            Option<int> thr = 3;
-            Option<int> fail = Option<int>.Nothing;
-
-            var res = one | two | thr;
-
-            Assert.IsTrue(res == 1);
-
-            res = one | two | thr | fail;
-
-            Assert.IsTrue(res == 1);
-
-            res = fail | one | two | thr;
-
-            Assert.IsTrue(res == 1);
-
-            res = one | fail | two | thr;
-
-            Assert.IsTrue(res == 1);
-
-            res = fail | fail | fail | fail;
-
-            Assert.IsTrue(!res.HasValue);
-
-            res = fail | fail | fail | one;
-
-            Assert.IsTrue(res == 1);
-        }
-
-
-        [Test]
         public void TestEitherAnd()
         {
             Either<int, string> one = 1;

@@ -92,21 +92,22 @@ namespace Monad.UnitTests
             Try<int> errorM = () => value;
 
             Assert.IsTrue(
-                errorM().Value == 1000 && 
-                errorM().IsFaulted == false
+                errorM.Try().Value == 1000 &&
+                errorM.Try().IsFaulted == false
                 );
 
 
             errorM = DoSomethingError(0);
             Assert.IsTrue(
-                errorM().IsFaulted == true && 
-                errorM().Exception != null
+                errorM.Try().IsFaulted == true &&
+                errorM.Try().Exception != null
                 );
 
             // Bind
             var boundM = (from e in errorM
                           from b in DoSomethingError(0)
-                          select b)();
+                          select b)
+                         .Try();
 
             // Value
             Assert.IsTrue(
@@ -121,7 +122,8 @@ namespace Monad.UnitTests
         {
             var result = (from val1 in DoSomething(10)
                           from val2 in DoSomethingElse(val1)
-                          select val2)();
+                          select val2)
+                         .Try();
 
             Assert.IsTrue(result.IsFaulted == false, "Should have succeeded");
             Assert.IsTrue(result.Value == 21, "Value should be 21");
@@ -133,7 +135,8 @@ namespace Monad.UnitTests
             var result = (from val1 in DoSomething(10)
                           from val2 in DoSomethingError(val1)
                           from val3 in DoNotEverEnterThisFunction(val2)
-                          select val3)();
+                          select val3)
+                         .Try();
 
             Assert.IsTrue(result.Value != 10000, "Entered the function: DoNotEverEnterThisFunction()");
             Assert.IsTrue(result.IsFaulted == true, "Should throw an error");
@@ -143,7 +146,7 @@ namespace Monad.UnitTests
         [Test]
         public void TestErrorMonadSuccessFluent()
         {
-            var result = DoSomething(10).Then(val2 => val2 + 10).Invoke();
+            var result = DoSomething(10).Then(val2 => val2 + 10).Try();
 
             Assert.IsTrue(result.IsFaulted == false, "Should have succeeded");
             Assert.IsTrue(result.Value == 21, "Value should be 21");
@@ -156,7 +159,7 @@ namespace Monad.UnitTests
             var result = DoSomething(10)
                             .Then(ThrowError)
                             .Then(_ => 10000)
-                            .Invoke();
+                            .Try();
 
             Assert.IsTrue(result.Value != 10000, "Entered the function: DoNotEverEnterThisFunction()");
             Assert.IsTrue(result.IsFaulted == true, "Should throw an error");
@@ -185,7 +188,7 @@ namespace Monad.UnitTests
             from err in Error()
             from two in Two()
             select one + two + err)
-            .Match(
+           .Match(
                Success: v => Assert.IsTrue(false),
                Fail:    e => Assert.IsTrue(e.Message == "Error!!")
             );
@@ -213,10 +216,10 @@ namespace Monad.UnitTests
             (from one in One()
              from two in Two()
              select one + two)
-             .Match(
+            .Match(
                 Success: v => Assert.IsTrue(v == 3),
                 Fail: e => Assert.IsTrue(false)
-             );
+            );
         }
 
         [Test]

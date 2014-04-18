@@ -33,7 +33,7 @@ namespace Monad
     /// <summary>
     /// Nothing case of the Option<T> monad
     /// </summary>
-    public class Nothing<T> : Option<T>
+    public class Nothing<T> : OptionResult<T>
     {
         public override string ToString()
         {
@@ -56,31 +56,11 @@ namespace Monad
             }
         }
 
-        public override R Match<R>(Func<R> Just, Func<R> Nothing)
-        {
-            return Nothing();
-        }
-
-        public override R Match<R>(Func<T, R> Just, Func<R> Nothing)
-        {
-            return Nothing();
-        }
-
-        public override R Match<R>(Func<R> Just, R Nothing)
-        {
-            return Nothing;
-        }
-
-        public override R Match<R>(Func<T, R> Just, R Nothing)
-        {
-            return Nothing;
-        }
-
         /// <summary>
         /// Monadic append
         /// If the lhs or rhs are in a Nothing state then Nothing propagates
         /// </summary>
-        public override Option<T> Mappend(Option<T> rhs)
+        public override OptionResult<T> Mappend(OptionResult<T> rhs)
         {
             return this;
         }

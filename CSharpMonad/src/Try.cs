@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 namespace Monad
 {
     /// <summary>
-    /// The error monad delegate
+    /// The Try monad delegate
     /// </summary>
     public delegate TryResult<T> Try<T>();
 
@@ -97,6 +97,18 @@ namespace Monad
     /// </summary>
     public static class TryExt
     {
+        public static TryResult<T> Try<T>(this Try<T> self)
+        {
+            try
+            {
+                return self();
+            }
+            catch(Exception e)
+            {
+                return new TryResult<T>(e);
+            }
+        }
+
         /// <summary>
         /// Return a valid value regardless of the faulted state
         /// </summary>
