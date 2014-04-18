@@ -15,6 +15,60 @@ The library is stable but it's still in development, so as you can see documenta
 
 The Token section of the parser components are very work in progress.
 
+### A note about laziness
+
+All of the monads in this library are either delegates or wrappers for delegates (in the case of the `Parser<T>`).  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<R,L>` monad has `Value()` and `HasValue()` extension methods:
+
+```C#
+        Option<T> option = from x in DoSomething()
+                           from y in DoSomethingElse()
+                           select x + y;
+        
+        if( option.HasValue() )
+        {
+                return option.Value();
+        }
+```
+`HasValue()` and `Value()` will both cause the expression above to be invoked.  Therefore you end up doing twice as much work for no reason.  You can mitigate this by either using the `Match` methods on each monad:
+```C#
+        var res = (from x in DoSomething()
+                   from y in DoSomethingElse()
+                   select x + y)
+                  .Match(
+                      Just: v => ...,
+                      Nothing: ...
+                  );
+```
+
+Or by invoking the result once:
+
+
+```C#
+        Option<T> option = from x in DoSomething()
+                           from y in DoSomethingElse()
+                           select x + y;
+                           
+        OptionResult<T> result = option();          // This invokes the bind function
+        
+        if( result.HasValue )
+        {
+            return result.Value;        
+        }
+```
+Or by using the `Memo()` memoization extension method available on all of the monad types:
+```C#
+        Func<OptionResult<T>> result = (from x in DoSomething()
+                                        from y in DoSomethingElse()
+                                        select x + y)
+                                       .Memo();
+        
+        if( result().HasValue )
+        {
+            return result().Value;        
+        }
+```
+All of them are valid methods, they're designed to fit the various scenarios that you may need them for.
+
 
 ## Either monad
 
@@ -32,19 +86,13 @@ First we set up some methods that return either a `Left` or a `Right`.  In this 
 ```C#    
         public Either<int, string> Two()
         {
-            return 2;
+            return Either.Right<int, string>(2);
         }
     
         public Either<int, string> Error()
         {
-            return "Error!!";
+            return Either.Left<int, string>("Error!!");
         }
-```
-
-The `Either` monad has implicit conversion operators to remove the need to explicitly create an `Either<R,L>` type, however if you ever need to there are two helper methods to do so:
-```C#
-        Either.Left<R,L>(...)
-        Either.Right<R,L>(...)
 ```
 
 Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is returned it cancels the entire bind operation, so any functions after the `Left` will not be processed.
@@ -55,7 +103,7 @@ Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is retu
             from rhs in Two()
             select lhs+rhs;
     
-        Assert.IsTrue(r.IsRight && r.Right == 4);
+        Assert.IsTrue(r.IsRight() && r.Right() == 4);
 
         var r =
             from lhs in Two()
@@ -63,10 +111,10 @@ Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is retu
             from rhs in Two()
             select lhs+mid+rhs;
             
-        Assert.IsTrue(r.IsLeft && r.Left == "Error!!");
+        Assert.IsTrue(r.IsLeft() && r.Left() == "Error!!");
 ```
 
-You can also use the pattern matching methods to project the either value or to delegate to handlers:
+You can also use the pattern matching methods to project the either value or to delegate to handlers.
 
 __Example__
 
