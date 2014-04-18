@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 
 using Monad;
 using NUnit.Framework;
+using System.Reflection;
 
 namespace Monad.UnitTests
 {
@@ -46,10 +48,10 @@ namespace Monad.UnitTests
 
         private Try<T> ErrIO<T>(IO<T> fn)
         {
-            return new Try<T>( () => fn() );
+            return new Try<T>(() => fn());
         }
 
-        private Try<IO<T>> Trans<T>( IO<T> inner )
+        private Try<IO<T>> Trans<T>(IO<T> inner)
         {
             return () => inner;
         }
@@ -73,13 +75,32 @@ namespace Monad.UnitTests
         [Test]
         public void TransTest()
         {
-            var errT = Trans<string>( from h in Hello()
-                                      from w in World()
-                                      select h + w );
+            var errT = Trans<string>(from h in Hello()
+                                     from w in World()
+                                     select h + w);
 
-            var rdrT = Trans<string,IO<string>>(errT);
+            var rdrT = Trans<string, IO<string>>(errT);
 
             Assert.IsTrue(rdrT("environ")().Value() == "Hello, World");
+        }
+
+        public Try<Option<IO<string>>> OpenFile()
+        {
+            return () => Option.Return(() => I.O(() => "Data"));
+        }
+
+        [Test]
+        public void TransTest2()
+        {
+            Func<string, string> id = a => a;
+
+            var mon = from ed1 in OpenFile()
+                      from ed2 in OpenFile()
+                      select ed1.LiftM2(id) + ed2.LiftIO(id);
+
+            var res = mon();
+
+            Assert.IsTrue(res.Value == "DataData");
         }
     }
 }

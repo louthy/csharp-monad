@@ -125,7 +125,7 @@ namespace Monad
         /// Return the Value of the monad.  Note this will throw an InvalidOperationException if
         /// the monad is in a faulted state.
         /// </summary>
-        public static T GetValue<T>(this Try<T> self)
+        public static T Value<T>(this Try<T> self)
         {
             var res = self.Try();
             if (res.IsFaulted)

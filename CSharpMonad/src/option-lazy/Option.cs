@@ -49,6 +49,11 @@ namespace Monad
         {
             return Option.Nothing<T>();
         }
+
+        public static Option<T> Return<T>(Func<T> value)
+        {
+            return new Option<T>( () => new Just<T>(value()) );
+        }
     }
 
     /// <summary>
