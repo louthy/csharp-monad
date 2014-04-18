@@ -44,7 +44,7 @@ All of the monads in this library (except for those ending in `Strict`) are eith
             return result.Value;        
         }
 ```
-Or by using the `Memo()` memoization extension method available on all of the [lazy] monad types:
+Or by using the `Memo()` memoization extension method available on all of the non-strict monad types:
 ```C#
         Func<OptionResult<T>> result = (from x in DoSomething()
                                         from y in DoSomethingElse()
@@ -66,11 +66,11 @@ Or by either using the `Match` methods on each monad (see the documentation afte
                              Nothing: 0
                         );
 ```
-Note that even Match uses laziness, but the testing for valid values is now encapsulated.  You would still need to be careful when using the `res`. 
+Note that even `Match` uses laziness, but the testing for valid values is now encapsulated.  You would still need to be careful when using the `res`. 
 
-All of them are valid methods, they're designed to fit the various scenarios that you may need them for.  You may wonder why do this at all.  The primary benefit of using laziness is that you can avoid doing calculations that aren't required, this allows you to build a more expression oriented system rather than the standard if-then-thatness of imperative programming.
+All of them are valid methods, they're designed to fit the various scenarios that you may need them for.  You may wonder why do this at all?  The primary benefit of using laziness is that you can avoid doing calculations that aren't required, this allows you to build a more expression oriented system rather than the standard if-then-thatness of imperative programming.
 
-You can always collapse the laziness by invoking the method, so you can have the best of both worlds.
+You can always collapse the laziness by invoking the monad delegate, so you can have the best of both worlds.
 
 
 ## Either monad
