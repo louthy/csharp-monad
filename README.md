@@ -155,6 +155,23 @@ __Example__
         Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
 ```
 
+Note, if you're using the `Try<T>` monad outside of a LINQ expression then you will need to append .Try() to safely invoke the wrapped function.  i.e.
+
+```C#
+        var value = DoSomethingError().Try();
+```
+
+You can pattern match on the result to make it simpler:
+
+```C#
+        var value = DoSomethingError()
+                        .Match( 
+                                Success: v => v 
+                                Fail: err => ...
+                        );
+```
+
+
 ## IO monad
 
 The IO monad may be seen as unnecessary in C# where everything has side-effects, but it can be useful for chaining IO calls and lazy-loading, however I think it's main benefit is as a programmer warning of the potential non-repeatable nature of a method.
@@ -196,7 +213,7 @@ __Example__
 ```
 ## Option monad 
 
-If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit like `Nullable<T>` but it works with reference types too and implements the monad bind function.  The bind is cancelled as soon as `Option<T>.Nothing` is returned by any method.  Also known as the `Maybe` monad.
+If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit like `Nullable<T>` but it works with reference types too and implements the monad bind function.  The bind is cancelled as soon as `Option<T>.Nothing` is returned by any method.  `Option` is known as the `Maybe` monad.
 ```C#
         result = from o in MaybeGetAnInt()
                  from o2 in Option<int>.Nothing
@@ -212,7 +229,8 @@ If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit l
                 : Option<int>.Nothing;
         }
 ```
-You can check the result by looking at the HasValue property, however an even even nicer way is to use pattern matching for a proper functional expression:
+You can check the result by looking at the HasValue() property, however each access to `HasValue()`, `Value()`, etc will re-invoke the option function, so it's best to match on the result, or call `GetValueOrDefault`.
+
 ```C#
         var result = MaybeGetAnInt().Match(
                         Just: v => v * 10,
