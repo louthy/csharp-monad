@@ -4,9 +4,11 @@ csharp-monad
 Library of monads for C#:
 
 * `Either<R,L>`
+* `EitherStrict<R,L>`
 * `Try<T>`
 * `IO<T>`
 * `Option<T>`
+* `OptionStrict<T>`
 * `Parser<T>`
 * `Reader<E,T>`
 
@@ -17,7 +19,7 @@ The Token section of the parser components are very work in progress.
 
 ### A note about laziness
 
-All of the monads in this library are either delegates or wrappers for delegates (in the case of the `Parser<T>`).  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<R,L>` monad has `Value()` and `HasValue()` extension methods:
+All of the monads in this library (except for those ending in `Strict`) are either delegates or wrappers for delegates (in the case of the `Parser<T>`).  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<R,L>` monad has `Value()` and `HasValue()` extension methods:
 
 ```C#
         Option<T> option = from x in DoSomething()
@@ -29,20 +31,7 @@ All of the monads in this library are either delegates or wrappers for delegates
                 return option.Value();
         }
 ```
-`HasValue()` and `Value()` will both cause the expression above to be invoked.  Therefore you end up doing twice as much work for no reason.  You can mitigate this by either using the `Match` methods on each monad:
-```C#
-        var res = (from x in DoSomething()
-                   from y in DoSomethingElse()
-                   select x + y)
-                  .Match(
-                      Just: v => ...,
-                      Nothing: ...
-                  );
-```
-
-Or by invoking the result once:
-
-
+`HasValue()` and `Value()` will both cause the LINQ expression above to be invoked.  Therefore you end up doing twice as much work for no reason.  You can mitigate this by invoking the result once:
 ```C#
         Option<T> option = from x in DoSomething()
                            from y in DoSomethingElse()
@@ -67,7 +56,21 @@ Or by using the `Memo()` memoization extension method available on all of the mo
             return result().Value;        
         }
 ```
-All of them are valid methods, they're designed to fit the various scenarios that you may need them for.
+Or by either using the `Match` methods on each monad (see the documentation after this section):
+```C#
+        Func<int> res = (from x in DoSomething()
+                         from y in DoSomethingElse()
+                         select x + y)
+                        .Match(
+                           Just: v => v * 10,
+                          Nothing: 0
+                        );
+```
+Note that even Match uses laziness, but the testing for valid values is now encapsulated.  You would still need to be careful when using the `res`. 
+
+All of them are valid methods, they're designed to fit the various scenarios that you may need them for.  You may wonder why do this at all.  The primary benefit of using laziness is that you can avoid doing calculations that aren't required, this allows you to build a more expression oriented system rather than the standard if-then-thatness of imperative programming.
+
+You can always collapse the laziness by invoking the method, so you can have the best of both worlds.
 
 
 ## Either monad
