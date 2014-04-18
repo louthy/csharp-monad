@@ -145,14 +145,14 @@ namespace Monad
         /// to append IO monads.  Return() will check for + and automatically combine the
         /// results.  Regular invocation cannot do that.
         /// </summary>
-        public static T Return<T>(this IO<T> self)
+        public static T RunIO<T>(this IO<T> self)
         {
             var mdel = (MulticastDelegate)self;
             var invocationList = mdel.GetInvocationList();
 
             if (invocationList.Count() > 1)
             {
-                return invocationList.Select(del => (IO<T>)del).Mconcat().Return();
+                return invocationList.Select(del => (IO<T>)del).Mconcat().RunIO();
             }
             else
             {

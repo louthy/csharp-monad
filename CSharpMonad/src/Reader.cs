@@ -68,15 +68,5 @@ namespace Monad
                     return resV;
                 };
         }
-
-        /// <summary>
-        /// Runs the reader and returns the result
-        /// </summary>
-        /// <param name="environment">Environment to pass in</param>
-        /// <returns>The reader result</returns>
-        public static A Run<E,A>(this Reader<E,A> self, E environment)
-        {
-            return self(environment);
-        }
     }
 }

@@ -44,9 +44,9 @@ namespace Monad.UnitTests
             Assert.IsTrue(res.Return().IsFaulted);
         }
 
-        private Error<T> ErrIO<T>(IO<T> fn)
+        private Try<T> ErrIO<T>(IO<T> fn)
         {
-            return new Error<T>( () => fn() );
+            return new Try<T>( () => fn() );
         }
     }
 }

@@ -112,10 +112,10 @@ namespace Monad.UnitTests
         [Test]
         public void TestErrorMappend()
         {
-            Error<int> opt1 = () => 1;
-            Error<int> opt2 = () => 2;
-            Error<int> opt3 = () => 3;
-            Error<int> fail = () => { throw new Exception("Error"); };
+            Try<int> opt1 = () => 1;
+            Try<int> opt2 = () => 2;
+            Try<int> opt3 = () => 3;
+            Try<int> fail = () => { throw new Exception("Error"); };
 
             var res = opt1 + opt2 + opt3;
 
@@ -124,7 +124,7 @@ namespace Monad.UnitTests
             Assert.IsTrue(v == 6);
             Assert.IsFalse(res == null);
 
-            var zero = Error.Mempty<int>();
+            var zero = Try.Mempty<int>();
 
             res = opt1 + opt2 + opt3 + zero;
             Assert.IsTrue(res.Return().Value == 6);
@@ -138,9 +138,9 @@ namespace Monad.UnitTests
             res = opt1 + opt2 + fail + opt3 + zero;
             Assert.IsTrue(res.Return().IsFaulted);
 
-            Error<AType> a1 = () => new AType(1);
-            Error<AType> a2 = () => new AType(2);
-            Error<AType> a3 = () => new AType(3);
+            Try<AType> a1 = () => new AType(1);
+            Try<AType> a2 = () => new AType(2);
+            Try<AType> a3 = () => new AType(3);
 
             var res2 = a1 + a2 + a3;
 
@@ -156,7 +156,7 @@ namespace Monad.UnitTests
 
             var res = opt1 + opt2 + opt3;
 
-            var v = res.Return();
+            var v = res.RunIO();
 
             Assert.IsTrue(v == 6);
             Assert.IsFalse(res == null);
@@ -164,7 +164,7 @@ namespace Monad.UnitTests
             var zero = IO.Mempty<int>();
 
             res = opt1 + opt2 + opt3 + zero;
-            Assert.IsTrue(res.Return() == 6);
+            Assert.IsTrue(res.RunIO() == 6);
 
             IO<AType> a1 = () => new AType(1);
             IO<AType> a2 = () => new AType(2);
@@ -172,7 +172,7 @@ namespace Monad.UnitTests
 
             var res2 = a1 + a2 + a3;
 
-            Assert.IsTrue(res2.Return().Value == 6);
+            Assert.IsTrue(res2.RunIO().Value == 6);
         }
 
 

@@ -34,14 +34,14 @@ namespace Monad
     /// <summary>
     /// The error monad delegate
     /// </summary>
-    public delegate ErrorResult<T> Error<T>();
+    public delegate TryResult<T> Try<T>();
 
     /// <summary>
     /// Holds the state of the error monad during the bind function
     /// If IsFaulted == true then the bind function will be cancelled.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ErrorResult<T>
+    public class TryResult<T>
     {
         public readonly T Value;
         public readonly Exception Exception;
@@ -49,7 +49,7 @@ namespace Monad
         /// <summary>
         /// Ctor
         /// </summary>
-        public ErrorResult(T value)
+        public TryResult(T value)
         {
             Value = value;
         }
@@ -57,14 +57,14 @@ namespace Monad
         /// <summary>
         /// Ctor
         /// </summary>
-        public ErrorResult(Exception e)
+        public TryResult(Exception e)
         {
             Exception  = e;
         }
 
-        public static implicit operator ErrorResult<T>(T value)
+        public static implicit operator TryResult<T>(T value)
         {
-            return new ErrorResult<T>(value);
+            return new TryResult<T>(value);
         }
 
         /// <summary>
@@ -95,12 +95,12 @@ namespace Monad
     /// <summary>
     /// Extension methods for the error monad
     /// </summary>
-    public static class ErrorExt
+    public static class TryExt
     {
         /// <summary>
         /// Return a valid value regardless of the faulted state
         /// </summary>
-        public static T GetValueOrDefault<T>(this Error<T> self)
+        public static T GetValueOrDefault<T>(this Try<T> self)
         {
             var res = self.Return();
             if (res.IsFaulted)
@@ -113,11 +113,11 @@ namespace Monad
         /// Return the Value of the monad.  Note this will throw an InvalidOperationException if
         /// the monad is in a faulted state.
         /// </summary>
-        public static T GetValue<T>(this Error<T> self)
+        public static T GetValue<T>(this Try<T> self)
         {
             var res = self();
             if (res.IsFaulted)
-                throw new InvalidOperationException("The error monad has no value.  It holds an exception of type: "+res.GetType().Name+".");
+                throw new InvalidOperationException("The try monad has no value.  It holds an exception of type: "+res.GetType().Name+".");
             else
                 return res.Value;
         }
@@ -125,7 +125,7 @@ namespace Monad
         /// <summary>
         /// Invokes the bind function and returns the monad state
         /// </summary>
-        public static ErrorResult<T> Return<T>(this Error<T> self)
+        public static TryResult<T> Return<T>(this Try<T> self)
         {
             try
             {
@@ -134,7 +134,7 @@ namespace Monad
 
                 if (invocationList.Count() > 1)
                 {
-                    return invocationList.Select(del => (Error<T>)del).Mconcat().Return();
+                    return invocationList.Select(del => (Try<T>)del).Mconcat().Return();
                 }
                 else
                 {
@@ -143,27 +143,27 @@ namespace Monad
             }
             catch (Exception e)
             {
-                return new ErrorResult<T>(e);
+                return new TryResult<T>(e);
             }
         }
 
         /// <summary>
         /// Select
         /// </summary>
-        public static Error<U> Select<T, U>(this Error<T> self, Func<T, U> select)
+        public static Try<U> Select<T, U>(this Try<T> self, Func<T, U> select)
         {
-            return new Error<U>( () =>
+            return new Try<U>( () =>
                 {
-                    ErrorResult<T> resT;
+                    TryResult<T> resT;
                     try
                     {
                         resT = self();
                         if (resT.IsFaulted)
-                            return new ErrorResult<U>(resT.Exception);
+                            return new TryResult<U>(resT.Exception);
                     }
                     catch(Exception e)
                     {
-                        return new ErrorResult<U>(e);
+                        return new TryResult<U>(e);
                     }
 
                     U resU;
@@ -173,47 +173,47 @@ namespace Monad
                     }
                     catch (Exception e)
                     {
-                        return new ErrorResult<U>(e);
+                        return new TryResult<U>(e);
                     }
 
-                    return new ErrorResult<U>(resU);
+                    return new TryResult<U>(resU);
                 });
         }
 
         /// <summary>
         /// SelectMany
         /// </summary>
-        public static Error<V> SelectMany<T, U, V>(
-            this Error<T> self,
-            Func<T, Error<U>> select,
+        public static Try<V> SelectMany<T, U, V>(
+            this Try<T> self,
+            Func<T, Try<U>> select,
             Func<T, U, V> bind
             )
         {
-            return new Error<V>(
+            return new Try<V>(
                 () =>
                 {
-                    ErrorResult<T> resT;
+                    TryResult<T> resT;
                     try
                     {
                         resT = self();
                         if( resT.IsFaulted )
-                            return new ErrorResult<V>(resT.Exception);
+                            return new TryResult<V>(resT.Exception);
                     }
                     catch (Exception e)
                     {
-                        return new ErrorResult<V>(e);
+                        return new TryResult<V>(e);
                     }
 
-                    ErrorResult<U> resU;
+                    TryResult<U> resU;
                     try
                     {
                         resU = select(resT.Value)();
                         if (resU.IsFaulted)
-                            return new ErrorResult<V>(resU.Exception);
+                            return new TryResult<V>(resU.Exception);
                     }
                     catch (Exception e)
                     {
-                        return new ErrorResult<V>(e);
+                        return new TryResult<V>(e);
                     }
 
                     V resV;
@@ -223,45 +223,45 @@ namespace Monad
                     }
                     catch (Exception e)
                     {
-                        return new ErrorResult<V>(e);
+                        return new TryResult<V>(e);
                     }
 
-                    return new ErrorResult<V>(resV);
+                    return new TryResult<V>(resV);
                 }
             );
         }
 
         /// <summary>
-        /// Allows fluent chaining of Error monads
+        /// Allows fluent chaining of Try monads
         /// </summary>
-        public static Error<U> Then<T, U>(this Error<T> self, Func<T, U> getValue)
+        public static Try<U> Then<T, U>(this Try<T> self, Func<T, U> getValue)
         {
             var resT = self();
 
             return resT.IsFaulted
-                ? new Error<U>( () => new ErrorResult<U>(resT.Exception) )
-                : new Error<U>( () => 
+                ? new Try<U>( () => new TryResult<U>(resT.Exception) )
+                : new Try<U>( () => 
                     {
                         try
                         {
                             U resU = getValue(resT.Value);
-                            return new ErrorResult<U>(resU);
+                            return new TryResult<U>(resU);
                         }
                         catch (Exception e)
                         {
-                            return new ErrorResult<U>(e);
+                            return new TryResult<U>(e);
                         }
                     });
         }
 
         /// <summary>
-        /// Converts the Error to an enumerable of T
+        /// Converts the Try to an enumerable of T
         /// </summary>
         /// <returns>
         /// Success: A list with one T in
         /// Error: An empty list
         /// </returns>
-        public static IEnumerable<T> AsEnumerable<T>(this Error<T> self)
+        public static IEnumerable<T> AsEnumerable<T>(this Try<T> self)
         {
             var res = self.Return();
             if (res.IsFaulted)
@@ -271,13 +271,13 @@ namespace Monad
         }
 
         /// <summary>
-        /// Converts the Error to an infinite enumerable of T
+        /// Converts the Try to an infinite enumerable of T
         /// </summary>
         /// <returns>
         /// Success: An infinite list of T
         /// Error: An empty list
         /// </returns>
-        public static IEnumerable<T> AsEnumerableInfinite<T>(this Error<T> self)
+        public static IEnumerable<T> AsEnumerableInfinite<T>(this Try<T> self)
         {
             var res = self.Return();
             if (res.IsFaulted)
@@ -289,7 +289,7 @@ namespace Monad
         /// <summary>
         /// Mappend
         /// </summary>
-        public static Error<T> Mappend<T>(this Error<T> lhs, Error<T> rhs)
+        public static Try<T> Mappend<T>(this Try<T> lhs, Try<T> rhs)
         {
             return () =>
             {
@@ -347,7 +347,7 @@ namespace Monad
         /// <summary>
         /// Mconcat
         /// </summary>
-        public static Error<T> Mconcat<T>(this IEnumerable<Error<T>> ms)
+        public static Try<T> Mconcat<T>(this IEnumerable<Try<T>> ms)
         {
             var value = ms.Head();
 
@@ -361,7 +361,7 @@ namespace Monad
         /// <summary>
         /// Pattern matching
         /// </summary>
-        public static R Match<T,R>(this Error<T> self, Func<T,R> Success, Func<Exception,R> Fail )
+        public static R Match<T,R>(this Try<T> self, Func<T,R> Success, Func<Exception,R> Fail )
         {
             var res = self.Return();
             return res.IsFaulted
@@ -372,7 +372,7 @@ namespace Monad
         /// <summary>
         /// Pattern matching
         /// </summary>
-        public static R Match<T, R>(this Error<T> self, Func<T, R> Success)
+        public static R Match<T, R>(this Try<T> self, Func<T, R> Success)
         {
             var res = self.Return();
             return res.IsFaulted
@@ -383,7 +383,7 @@ namespace Monad
         /// <summary>
         /// Pattern matching
         /// </summary>
-        public static Unit Match<T>(this Error<T> self, Action<T> Success, Action<Exception> Fail)
+        public static Unit Match<T>(this Try<T> self, Action<T> Success, Action<Exception> Fail)
         {
             var res = self.Return();
 
@@ -398,7 +398,7 @@ namespace Monad
         /// <summary>
         /// Pattern matching
         /// </summary>
-        public static Unit Match<T>(this Error<T> self, Action<T> Success)
+        public static Unit Match<T>(this Try<T> self, Action<T> Success)
         {
             var res = self.Return();
             if( !res.IsFaulted )
@@ -407,12 +407,12 @@ namespace Monad
         }
     }
 
-    public class Error
+    public class Try
     {
         /// <summary>
         /// Mempty
         /// </summary>
-        public static Error<T> Mempty<T>()
+        public static Try<T> Mempty<T>()
         {
             return () => default(T);
         }

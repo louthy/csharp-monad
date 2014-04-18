@@ -37,17 +37,17 @@ namespace Monad.UnitTests
     public class ErrorTests
     {
 
-        private Error<int> DoSomething(int value)
+        private Try<int> DoSomething(int value)
         {
             return () => value + 1;
         }
 
-        private Error<int> DoSomethingElse(int value)
+        private Try<int> DoSomethingElse(int value)
         {
             return () => value + 10;
         }
 
-        private Error<int> DoSomethingError(int value)
+        private Try<int> DoSomethingError(int value)
         {
             return () =>
             {
@@ -60,7 +60,7 @@ namespace Monad.UnitTests
             throw new Exception("Whoops");
         }
 
-        private Error<int> DoNotEverEnterThisFunction(int value)
+        private Try<int> DoNotEverEnterThisFunction(int value)
         {
             return () => 10000;
         }
@@ -71,7 +71,7 @@ namespace Monad.UnitTests
             var value = 1000;
 
             // Return
-            Error<int> errorM = () => value;
+            Try<int> errorM = () => value;
 
             Assert.IsTrue(
                 errorM.Return().Value == 1000 && 
@@ -148,17 +148,17 @@ namespace Monad.UnitTests
 
         }
 
-        public Error<int> One()
+        public Try<int> One()
         {
             return () => 1;
         }
 
-        public Error<int> Two()
+        public Try<int> Two()
         {
             return () => 2;
         }
 
-        public Error<int> Error()
+        public Try<int> Error()
         {
             return () => { throw new Exception("Error!!"); };
         }

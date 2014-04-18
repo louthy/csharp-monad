@@ -20,7 +20,7 @@ namespace CSharpMonad.UnitTests.src
                          from s in Surname()
                          select n + " " + s;
 
-            Assert.IsTrue(reader.Run(person) == "Joe Bloggs");
+            Assert.IsTrue(reader(person) == "Joe Bloggs");
 
         }
 
