@@ -15,6 +15,68 @@ The library is stable but it's still in development, so as you can see documenta
 
 The Token section of the parser components are very work in progress.
 
+### A note about laziness
+
+All of the monads in this library are either delegates or wrappers for delegates (in the case of the `Parser<T>`).  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<R,L>` monad has `Value()` and `HasValue()` extension methods:
+
+```C#
+        Option<T> option = from x in DoSomething()
+                           from y in DoSomethingElse()
+                           select x + y;
+        
+        if( option.HasValue() )
+                return option.Value();
+                
+```
+
+`HasValue()` and `Value()` will both cause the expression above to be invoked.  Therefore you end up doing twice as much work for no reason.  You can mitigate this by either using the `Match` methods on each monad:
+
+
+```C#
+        var res = (from x in DoSomething()
+                   from y in DoSomethingElse()
+                   select x + y)
+                  .Match(
+                      Just: v => ...,
+                      Nothing: ...
+                  );
+                      
+
+```
+
+Or by invoking the result once:
+
+
+```C#
+        Option<T> option = from x in DoSomething()
+                           from y in DoSomethingElse()
+                           select x + y;
+                           
+        var result = option();          // This invokes the bind function
+        
+        if( result.HasValue )
+        {
+            return result.Value;        
+        }
+```
+
+Or by using the `Memo()` memoization extension method available on all of the monad types:
+
+
+```C#
+        Func<OptionResult<T>> result = (from x in DoSomething()
+                                        from y in DoSomethingElse()
+                                        select x + y)
+                                       .Memo();
+        
+        if( result.HasValue )
+        {
+            return result.Value;        
+        }
+```
+
+All of them are valid methods, they're designed to fit the various scenarios that you may need them for.
+
 
 ## Either monad
 
