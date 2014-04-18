@@ -121,7 +121,7 @@ __Example__
 
 Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure. Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
 
-Use `.RunTry()()` at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from `RunTry()` (or by using the `Match` methods), the Exception property will hold the thrown exception.
+Use `()` or '.Invoke()' at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from the invocation (or by using the `Match` methods), the Exception property will hold the thrown exception.
 
 __Example__
 
@@ -145,14 +145,32 @@ __Example__
         }
         
         
-        var result = (from val1 in DoSomething(10)
-                      from val2 in DoSomethingError(val1)
-                      from val3 in DoNotEverEnterThisFunction(val2)
-                      select val3)
-                     .RunTry();
+        var monad = (from val1 in DoSomething(10)
+                     from val2 in DoSomethingError(val1)
+                     from val3 in DoNotEverEnterThisFunction(val2)
+                     select val3);
+                  
+        var result = monad();
 
         Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
 ```
+
+Note, if you're using the `Try<T>` monad outside of a LINQ expression then you will need to append .Try() to safely invoke the wrapped function.  i.e.
+
+```C#
+        var value = DoSomethingError().Try();
+```
+
+You can pattern match on the result to make it simpler:
+
+```C#
+        var value = DoSomethingError()
+                        .Match( 
+                                Success: v => v 
+                                Fail: err => ...
+                        );
+```
+
 
 ## IO monad
 
@@ -195,7 +213,7 @@ __Example__
 ```
 ## Option monad 
 
-If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit like `Nullable<T>` but it works with reference types too and implements the monad bind function.  The bind is cancelled as soon as `Option<T>.Nothing` is returned by any method.  Also known as the `Maybe` monad.
+If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit like `Nullable<T>` but it works with reference types too and implements the monad bind function.  The bind is cancelled as soon as `Option<T>.Nothing` is returned by any method.  `Option` is known as the `Maybe` monad.
 ```C#
         result = from o in MaybeGetAnInt()
                  from o2 in Option<int>.Nothing
@@ -211,7 +229,8 @@ If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit l
                 : Option<int>.Nothing;
         }
 ```
-You can check the result by looking at the HasValue property, however an even even nicer way is to use pattern matching for a proper functional expression:
+You can check the result by looking at the HasValue() property, however each access to `HasValue()`, `Value()`, etc will re-invoke the option function, so it's best to match on the result, or call `GetValueOrDefault`.
+
 ```C#
         var result = MaybeGetAnInt().Match(
                         Just: v => v * 10,
@@ -361,10 +380,10 @@ Next see how we can use those methods and the environment class (Person) in a mo
                     from s in Surname()
                     select n + " " + s;
 
-       Assert.IsTrue(reader.Run(person) == "Joe Bloggs");
+       Assert.IsTrue(reader(person) == "Joe Bloggs");
 ```
 
-Note how the `person` is passed to the `Run` method.  That invokes the bind function using the environment.
+Note how the `person` is passed to the reader at the end.  That invokes the bind function using the environment.
 
 
 ***More monads soon***
