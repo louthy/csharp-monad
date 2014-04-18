@@ -25,13 +25,11 @@ All of the monads in this library are either delegates or wrappers for delegates
                            select x + y;
         
         if( option.HasValue() )
+        {
                 return option.Value();
-                
+        }
 ```
-
 `HasValue()` and `Value()` will both cause the expression above to be invoked.  Therefore you end up doing twice as much work for no reason.  You can mitigate this by either using the `Match` methods on each monad:
-
-
 ```C#
         var res = (from x in DoSomething()
                    from y in DoSomethingElse()
@@ -40,8 +38,6 @@ All of the monads in this library are either delegates or wrappers for delegates
                       Just: v => ...,
                       Nothing: ...
                   );
-                      
-
 ```
 
 Or by invoking the result once:
@@ -52,17 +48,14 @@ Or by invoking the result once:
                            from y in DoSomethingElse()
                            select x + y;
                            
-        var result = option();          // This invokes the bind function
+        OptionResult<T> result = option();          // This invokes the bind function
         
         if( result.HasValue )
         {
             return result.Value;        
         }
 ```
-
 Or by using the `Memo()` memoization extension method available on all of the monad types:
-
-
 ```C#
         Func<OptionResult<T>> result = (from x in DoSomething()
                                         from y in DoSomethingElse()
@@ -74,7 +67,6 @@ Or by using the `Memo()` memoization extension method available on all of the mo
             return result.Value;        
         }
 ```
-
 All of them are valid methods, they're designed to fit the various scenarios that you may need them for.
 
 
