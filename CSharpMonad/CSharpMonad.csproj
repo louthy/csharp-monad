@@ -41,9 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\Either2.cs" />
+    <Compile Include="src\EitherLazy.cs" />
     <Compile Include="src\ext\EnumerableExt.cs" />
     <Compile Include="src\ext\ObjectExt.cs" />
+    <Compile Include="src\option-strict\Just.cs" />
+    <Compile Include="src\option-strict\Nothing.cs" />
+    <Compile Include="src\option-strict\OptionStrict.cs" />
     <Compile Include="src\Try.cs" />
     <Compile Include="src\ext\TupleExt.cs" />
     <Compile Include="src\IAppendable.cs" />
@@ -52,9 +55,9 @@
     <Compile Include="src\Reader.cs" />
     <Compile Include="src\utility\Lam.da.cs" />
     <Compile Include="src\utility\Memoize.cs" />
-    <Compile Include="src\option\Just.cs" />
-    <Compile Include="src\option\Nothing.cs" />
-    <Compile Include="src\option\Option.cs" />
+    <Compile Include="src\option-lazy\Just.cs" />
+    <Compile Include="src\option-lazy\Nothing.cs" />
+    <Compile Include="src\option-lazy\Option.cs" />
     <Compile Include="src\parsec\Empty.cs" />
     <Compile Include="src\parsec\expr\Assoc.cs" />
     <Compile Include="src\parsec\expr\ExprParser.cs" />
