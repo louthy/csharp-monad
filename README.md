@@ -44,7 +44,7 @@ All of the monads in this library (except for those ending in `Strict`) are eith
             return result.Value;        
         }
 ```
-Or by using the `Memo()` memoization extension method available on all of the monad types:
+Or by using the `Memo()` memoization extension method available on all of the [lazy] monad types:
 ```C#
         Func<OptionResult<T>> result = (from x in DoSomething()
                                         from y in DoSomethingElse()
@@ -62,8 +62,8 @@ Or by either using the `Match` methods on each monad (see the documentation afte
                          from y in DoSomethingElse()
                          select x + y)
                         .Match(
-                           Just: v => v * 10,
-                          Nothing: 0
+                             Just: v => v * 10,
+                             Nothing: 0
                         );
 ```
 Note that even Match uses laziness, but the testing for valid values is now encapsulated.  You would still need to be careful when using the `res`. 
