@@ -90,6 +90,7 @@
     <Compile Include="src\parsec\SrcLoc.cs" />
     <Compile Include="src\utility\Unit.cs" />
     <Compile Include="src\EitherStrict.cs" />
+    <Compile Include="src\State.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
