@@ -20,7 +20,7 @@ The Token section of the parser components are very work in progress.
 
 ### A note about laziness
 
-All of the monads in this library (except for those ending in `Strict`) are either delegates or wrappers for delegates (in the case of the `Parser<T>`).  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<R,L>` monad has `Value()` and `HasValue()` extension methods:
+All of the monads in this library (except for those ending in `Strict`) are either delegates or (as in the case of the `Parser<T>`), they are wrappers for delegates.  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<T>` monad has `Value()` and `HasValue()` extension methods:
 
 ```C#
         Option<T> option = from x in DoSomething()
