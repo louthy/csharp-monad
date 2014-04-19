@@ -36,23 +36,6 @@ namespace Monad
         }
     }
 
-    public class StateResult<S,A>
-    {
-        public readonly S State;
-        public readonly A Value;
-
-        public StateResult(S state, A value)
-        {
-            State = state;
-            Value = value;
-        }
-
-        public StateResult<S,A> Set(S state)
-        {
-            return new StateResult<S,A>(state, Value);
-        }
-    }
-
     public static class StateExt
     {
         public static State<S, U> Select<S,T,U>(this State<S,T> self, Func<T,U> map)
@@ -77,6 +60,15 @@ namespace Monad
                 var resV = project(resT.Item2,resU.Item2);
                 return new Tuple<S,V>(resU.Item1,resV);
             };
+        }
+
+        /// <summary>
+        /// Memoize the result 
+        /// </summary>
+        public static Func<Tuple<S,A>> Memo<S, A>(this State<S, A> self, S state)
+        {
+            var res = self(state);
+            return () => res;
         } 
     } 
 }
