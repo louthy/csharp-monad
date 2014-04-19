@@ -5,13 +5,13 @@ Library of monads for C#:
 
 * `Either<R,L>`
 * `EitherStrict<R,L>`
-* `Try<T>`
 * `IO<T>`
 * `Option<T>`
 * `OptionStrict<T>`
 * `Parser<T>`
 * `Reader<E,T>`
 * `State<S,T>`
+* `Try<T>`
 
 
 The library is stable but it's still in development, so as you can see documentation is pretty sparse right now.
@@ -166,61 +166,6 @@ __Example__
             );
             
         Assert.IsTrue(result == 8);
-```
-        
-
-## Try monad
-
-Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure. Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
-
-Use `()` or '.Invoke()' at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from the invocation (or by using the `Match` methods), the Exception property will hold the thrown exception.
-
-__Example__
-
-```C#
-        private Try<int> DoSomething(int value)
-        {
-            return () => value + 1;
-        }
-
-        private Try<int> DoSomethingError(int value)
-        {
-            return () =>
-            {
-                throw new Exception("Whoops");
-            };
-        }
-
-        private Try<int> DoNotEverEnterThisFunction(int value)
-        {
-            return () => return 10000;
-        }
-        
-        
-        var monad = (from val1 in DoSomething(10)
-                     from val2 in DoSomethingError(val1)
-                     from val3 in DoNotEverEnterThisFunction(val2)
-                     select val3);
-                  
-        var result = monad();
-
-        Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
-```
-
-Note, if you're using the `Try<T>` monad outside of a LINQ expression then you will need to append .Try() to safely invoke the wrapped function.  i.e.
-
-```C#
-        var value = DoSomethingError().Try();
-```
-
-You can pattern match on the result to make it simpler:
-
-```C#
-        var value = DoSomethingError()
-                        .Match( 
-                                Success: v => v 
-                                Fail: err => ...
-                        );
 ```
 
 
@@ -440,6 +385,61 @@ Note how the `person` is passed to the reader at the end.  That invokes the bind
 ## State
 
 __Documentation coming soon__
+        
+
+## Try monad
+
+Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure. Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
+
+Use `()` or '.Invoke()' at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from the invocation (or by using the `Match` methods), the Exception property will hold the thrown exception.
+
+__Example__
+
+```C#
+        private Try<int> DoSomething(int value)
+        {
+            return () => value + 1;
+        }
+
+        private Try<int> DoSomethingError(int value)
+        {
+            return () =>
+            {
+                throw new Exception("Whoops");
+            };
+        }
+
+        private Try<int> DoNotEverEnterThisFunction(int value)
+        {
+            return () => return 10000;
+        }
+        
+        
+        var monad = (from val1 in DoSomething(10)
+                     from val2 in DoSomethingError(val1)
+                     from val3 in DoNotEverEnterThisFunction(val2)
+                     select val3);
+                  
+        var result = monad();
+
+        Console.WriteLine(result.IsFaulted ? result.Exception.Message : "Success");
+```
+
+Note, if you're using the `Try<T>` monad outside of a LINQ expression then you will need to append .Try() to safely invoke the wrapped function.  i.e.
+
+```C#
+        var value = DoSomethingError().Try();
+```
+
+You can pattern match on the result to make it simpler:
+
+```C#
+        var value = DoSomethingError()
+                        .Match( 
+                                Success: v => v 
+                                Fail: err => ...
+                        );
+```
 
 
 
