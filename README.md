@@ -14,9 +14,9 @@ Library of monads for C#:
 * `Try<T>`
 
 
-The library is stable but it's still in development, so as you can see documentation is pretty sparse right now.
+The library is functional and pretty well tested, but it's in active development, so as you can see documentation is pretty sparse right now and everything is liable to change.
 
-The Token section of the parser components are very work in progress.
+The Token section of the parser components currently don't have enough unit-tests to be confident enough in its robustness.  So be cautious and expect bugs.
 
 ### A note about laziness
 
