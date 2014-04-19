@@ -11,6 +11,7 @@ Library of monads for C#:
 * `OptionStrict<T>`
 * `Parser<T>`
 * `Reader<E,T>`
+* `State<S,T>`
 
 
 The library is stable but it's still in development, so as you can see documentation is pretty sparse right now.
@@ -436,8 +437,9 @@ Next see how we can use those methods and the environment class (Person) in a mo
 
 Note how the `person` is passed to the reader at the end.  That invokes the bind function using the environment.
 
+## State
 
-***More monads soon***
+__Documentation coming soon__
 
 
 
