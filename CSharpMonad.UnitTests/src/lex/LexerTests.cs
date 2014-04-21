@@ -41,6 +41,15 @@ namespace Monad.UnitTests.Lex
     [TestFixture]
     public class LexerTests
     {
+        private static string TestData2 =
+          @"def foo(x y) x+foo(y, 4);
+            def foo(x y) x+y y;
+            def foo(x y) x+y );
+            extern sin(a);";
+
+        private static string TestData1 =
+            @"def foo(x y) 1=2;";
+
         /// <summary>
         /// This test is work in progress.  It looks very pretty but does nothing at the moment.
         /// </summary>
@@ -309,15 +318,5 @@ namespace Monad.UnitTests.Lex
                 List = exprs;
             }
         }
-
-        private static string TestData2 = 
-          @"def foo(x y) x+foo(y, 4);
-            def foo(x y) x+y y;
-            def foo(x y) x+y );
-            extern sin(a);";
-
-    //    private static string TestData1 =
-    //      @"def foo(x y) 1=2;";
-
     }
 }

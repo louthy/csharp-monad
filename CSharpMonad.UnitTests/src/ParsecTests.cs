@@ -329,6 +329,14 @@ namespace Monad.UnitTests
             Assert.IsTrue(empty);
             Assert.IsTrue(r.Value.Single().Item2.AsString() == "a");
         }
+
+        [Test]
+        public void TestBetween()
+        {
+            var r = Prim.Between(Prim.Character('['), Prim.Character(']'), Prim.String("abc")).Parse("[abc]");
+            Assert.IsTrue(!r.IsFaulted);
+            Assert.IsTrue(r.Value.First().Item1.AsString() == "abc");
+        }
     }
 
 }

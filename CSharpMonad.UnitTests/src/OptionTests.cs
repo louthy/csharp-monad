@@ -29,6 +29,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Monad;
+using Monad.Utility;
 
 namespace Monad.UnitTests
 {
@@ -38,8 +39,8 @@ namespace Monad.UnitTests
         [Test]
         public void TestBinding()
         {
-            var option = 1000.ToOption();
-            var option2 = 2000.ToOption();
+            Option<int> option = () => 1000.ToOption();
+            Option<int> option2 = () => 2000.ToOption();
 
             var result = from o in option
                          select o;
@@ -57,10 +58,15 @@ namespace Monad.UnitTests
             Assert.IsTrue(result.Match(Just: () => true, Nothing: false)());
 
             result = from o in option
-                     from o2 in Option.Nothing<int>()
+                     from o2 in Nothing()
                      select o2;
 
             Assert.IsTrue(result.HasValue() == false);
+        }
+
+        public Option<int> Nothing()
+        {
+            return () => Option.Nothing<int>();
         }
     }
 }

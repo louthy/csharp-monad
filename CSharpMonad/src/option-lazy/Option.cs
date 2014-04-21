@@ -40,14 +40,14 @@ namespace Monad
         /// <summary>
         /// Represents an Option without a value
         /// </summary>
-        public static Option<T> Nothing<T>()
+        public static OptionResult<T> Nothing<T>()
         {
-            return () => new Nothing<T>();
+            return new Nothing<T>();
         }
 
         public static Option<T> Mempty<T>()
         {
-            return Option.Nothing<T>();
+            return () => Option.Nothing<T>();
         }
 
         public static Option<T> Return<T>(Func<T> value)
@@ -110,19 +110,22 @@ namespace Monad
         /// Tretas null as Nothing
         /// </summary>
         /// <returns>Option<T></returns>
-        public static Option<T> ToOption<T>(this T self)
+        public static OptionResult<T> ToOption<T>(this T self)
         {
             return self == null
                 ? Option.Nothing<T>()
-                : () => new Just<T>(self);
+                : new Just<T>(self);
         }
 
         public static Option<R> Select<T, R>(this Option<T> self, Func<T, R> map)
         {
-            var resT = self();
-            return resT.HasValue
-                ? map(resT.Value).ToOption()
-                : Option.Nothing<R>();
+            return () =>
+            {
+                var resT = self();
+                return resT.HasValue
+                    ? map(resT.Value).ToOption()
+                    : Option.Nothing<R>();
+            };
         }
 
         public static Option<U> SelectMany<T, U>(this Option<T> self, Func<T, Option<U>> k)
