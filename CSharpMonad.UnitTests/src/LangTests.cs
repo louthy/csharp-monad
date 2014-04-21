@@ -164,6 +164,7 @@ namespace Monad.UnitTests.Lang
             }
 
             Assert.IsTrue(!result.IsFaulted);
+            Assert.IsTrue(result.Value.First().Item2.IsEmpty());
 
             Term ast = result.Value.Single().Item1;
 

@@ -125,6 +125,7 @@ namespace Monad.UnitTests.ML
             var r = Term1.Parse("fred");
             Assert.IsTrue(!r.IsFaulted);
             Assert.IsTrue(r.Value.First().Item1.GetType().Name.Contains("VarTerm"));
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
         }
 
         [Test]
@@ -134,6 +135,7 @@ namespace Monad.UnitTests.ML
 
             var r = Term.Parse("add x y z w");
             Assert.IsTrue(!r.IsFaulted);
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
         }
 
         [Test]
@@ -143,6 +145,7 @@ namespace Monad.UnitTests.ML
 
             var r = Term.Parse("let add = x in y");
             Assert.IsTrue(!r.IsFaulted);
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
         }
 
         [Test]
@@ -153,6 +156,7 @@ namespace Monad.UnitTests.ML
             var r = LetId.Parse("let");
             Assert.IsTrue(!r.IsFaulted);
             Assert.IsTrue(r.Value.First().Item1.AsString() == "let");
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
         }
 
         [Test]
@@ -163,6 +167,7 @@ namespace Monad.UnitTests.ML
             var r = InId.Parse("in");
             Assert.IsTrue(!r.IsFaulted);
             Assert.IsTrue(r.Value.First().Item1.AsString() == "in");
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
         }
 
         [Test]
@@ -178,6 +183,7 @@ namespace Monad.UnitTests.ML
             var result = Parser.Parse(input);
 
             Assert.IsTrue(!result.IsFaulted);
+            Assert.IsTrue(result.Value.First().Item2.IsEmpty());
 
             Term ast = result.Value.Single().Item1;
 
