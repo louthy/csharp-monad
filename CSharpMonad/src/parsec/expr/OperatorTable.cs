@@ -47,7 +47,7 @@ namespace Monad.Parsec.Expr
 
         public OperatorTable<A> Add(Operator<A> op)
         {
-            ops[current].Concat(op.Cons());
+            ops[current] = ops[current].Concat(op.Cons());
             return this;
         }
 

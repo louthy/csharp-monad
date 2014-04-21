@@ -41,14 +41,17 @@ namespace Monad.UnitTests.Lex
     [TestFixture]
     public class LexerTests
     {
-        private static string TestData2 =
-          @"def foo(x y) x+foo(y, 4);
-            def foo(x y) x+y y;
-            def foo(x y) x+y );
-            extern sin(a);";
-
         private static string TestData1 =
             @"def foo(x y) 1=2;";
+
+        private static string TestData2 =
+          @"def foo(x y) x+foo(y, 4);
+            def foo(x y) x+y*2;
+            def foo(x y) x+y;
+            extern sin(a);";
+
+        private static string TestData3=
+            @"1+1";
 
         /// <summary>
         /// This test is work in progress.  It looks very pretty but does nothing at the moment.
@@ -56,7 +59,9 @@ namespace Monad.UnitTests.Lex
         [Test]
         public void LexerTest()
         {
-            Parser<Term> expr = null;
+            Parser<Term> exprlazy = null;
+            Parser<Term> expr = Prim.Lazy<Term>(() => exprlazy);
+
             Func<Parser<Term>, Parser<Term>> contents;
             Func<Parser<Term>,Parser<IEnumerable<Term>>> many = Prim.Many;
             Func<Parser<Term>,Parser<Term>> @try = Prim.Try;
@@ -132,9 +137,11 @@ namespace Monad.UnitTests.Lex
                            )
                            select ts;
 
-            expr = Ex.BuildExpressionParser<Term>(binops, factor);
+            exprlazy = Ex.BuildExpressionParser<Term>(binops, factor);
 
-            var result = contents(expr).Parse(TestData2);
+            var result = toplevel.Parse(TestData2);
+            //var result = expr.Parse(TestData3);
+
             if (result.IsFaulted)
             {
                 string errs = System.String.Join("\n",

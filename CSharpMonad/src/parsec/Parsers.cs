@@ -33,6 +33,19 @@ using Monad.Utility;
 
 namespace Monad.Parsec
 {
+    public class Lazy<A> : Parser<A>
+    {
+        public Lazy(Func<Parser<A>> func)
+            :
+            base(
+                inp => func() == null 
+                        ? new Failure<A>(new ParserError("Lazy parser not resolved before use",inp)).Parse(inp)
+                        : func().Parse(inp)
+            )
+        {
+        }
+    }
+
     public class Item : Parser<ParserChar>
     {
         public Item()

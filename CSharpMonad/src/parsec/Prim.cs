@@ -37,6 +37,11 @@ namespace Monad.Parsec
     /// </summary>
     public static partial class Prim
     {
+        public static Parser<A> Lazy<A>(Func<Parser<A>> lazy)
+        {
+            return new Lazy<A>(lazy);
+        }
+
         public static Item Item()
         {
             return new Item();
@@ -47,10 +52,14 @@ namespace Monad.Parsec
         }
         public static Failure<T> Failure<T>(ParserError error)
         {
+            if (error == null) throw new ArgumentNullException("error");
             return new Failure<T>(error);
         }
         public static Failure<T> Failure<T>(ParserError error, IEnumerable<ParserError> errors)
         {
+            if (error == null) throw new ArgumentNullException("error");
+            if (errors == null) throw new ArgumentNullException("errors");
+
             return new Failure<T>(error, errors);
         }
         public static Return<T> Return<T>(T v)
@@ -59,18 +68,28 @@ namespace Monad.Parsec
         }
         public static Choice<A> Choice<A>(Parser<A> p, params Parser<A>[] ps)
         {
+            if (p == null) throw new ArgumentNullException("p");
+            if (ps == null) throw new ArgumentNullException("ps");
+
             return new Choice<A>(p, ps);
         }
         public static Choice<A> Choice<A>(Parser<A> p, IEnumerable<Parser<A>> ps)
         {
+            if (p == null) throw new ArgumentNullException("p");
+            if (ps == null) throw new ArgumentNullException("ps");
             return new Choice<A>(p, ps);
         }
         public static Choice<A> Choice<A>(IEnumerable<Parser<A>> ps)
         {
+            if (ps == null) throw new ArgumentNullException("ps");
+
             return new Choice<A>(ps);
         }
         public static Satisfy Satisfy(Func<char, bool> predicate, string expecting = "")
         {
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (expecting == null) throw new ArgumentNullException("expecting");
+
             return new Satisfy(predicate, expecting);
         }
         public static OneOf OneOf(string chars)
@@ -79,10 +98,14 @@ namespace Monad.Parsec
         }
         public static OneOf OneOf(IEnumerable<char> chars)
         {
+            if (chars == null) throw new ArgumentNullException("chars");
+
             return new OneOf(chars);
         }
         public static OneOf OneOf(IEnumerable<ParserChar> chars)
         {
+            if (chars == null) throw new ArgumentNullException("chars");
+
             return new OneOf(chars);
         }
         public static NoneOf NoneOf(string chars)
@@ -91,18 +114,28 @@ namespace Monad.Parsec
         }
         public static NoneOf NoneOf(IEnumerable<char> chars)
         {
+            if (chars == null) throw new ArgumentNullException("chars");
+
             return new NoneOf(chars);
         }
         public static NoneOf NoneOf(IEnumerable<ParserChar> chars)
         {
+            if (chars == null) throw new ArgumentNullException("chars");
+
             return new NoneOf(chars);
         }
         public static Parser<IEnumerable<A>> SepBy<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
+            if (parser == null) throw new ArgumentNullException("parser");
+            if (sepParser == null) throw new ArgumentNullException("sepParser");
+
             return SepBy1<A, B>(parser, sepParser) | Prim.Return(new A[0].AsEnumerable());
         }
         public static Parser<IEnumerable<A>> SepBy1<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
+            if (parser == null) throw new ArgumentNullException("parser");
+            if (sepParser == null) throw new ArgumentNullException("sepParser");
+            
             return (from x in parser
                     from xs in Prim.Many<A>( sepParser.And(parser) )
                     select x.Cons(xs));
@@ -138,22 +171,32 @@ namespace Monad.Parsec
         }
         public static Parser<IEnumerable<T>> Many<T>(Parser<T> parser)
         {
+            if (parser == null) throw new ArgumentNullException("parser");
+
             return new Many<T>(parser);
         }
         public static Parser<IEnumerable<T>> Many1<T>(Parser<T> parser)
         {
+            if (parser == null) throw new ArgumentNullException("parser");
+
             return new Many1<T>(parser);
         }
         public static Try<T> Try<T>(Parser<T> parser)
         {
+            if (parser == null) throw new ArgumentNullException("parser");
+
             return new Try<T>(parser);
         }
         public static StringParse String(string str)
         {
+            if (str == null) throw new ArgumentNullException("str");
+
             return new StringParse(str);
         }
         public static StringParse String(IEnumerable<char> str)
         {
+            if (str == null) throw new ArgumentNullException("str");
+
             return new StringParse(str);
         }
         public static ParserChar ParserChar(char c, SrcLoc location = null)
@@ -170,16 +213,24 @@ namespace Monad.Parsec
         }
         public static NotFollowedBy<A> NotFollowedBy<A>(Parser<A> followParser)
         {
+            if (followParser == null) throw new ArgumentNullException("followParser");
+
             return new NotFollowedBy<A>(followParser);
         }
 
         public static Between<O, C, B> Between<O, C, B>(Parser<O> openParser, Parser<C> closeParser, Parser<B> betweenParser)
         {
+            if (openParser == null) throw new ArgumentNullException("openParser");
+            if (closeParser == null) throw new ArgumentNullException("closeParser");
+            if (betweenParser == null) throw new ArgumentNullException("betweenParser");
+
             return new Between<O, C, B>(openParser,closeParser,betweenParser);
         }
 
         public static Parser<Unit> SkipMany1<A>(Parser<A> skipParser)
         {
+            if (skipParser == null) throw new ArgumentNullException("skipParser");
+
             return new Parser<Unit>(
                 inp =>
                 {
@@ -193,6 +244,8 @@ namespace Monad.Parsec
 
         public static Parser<Unit> SkipMany<A>(Parser<A> skipParser)
         {
+            if (skipParser == null) throw new ArgumentNullException("skipParser");
+
             return new Parser<Unit>(
                 inp =>
                 {
@@ -216,11 +269,15 @@ namespace Monad.Parsec
 
         public static Func<A, Parser<ParserChar>> FromDelegate<A>(Func<A,Func<IEnumerable<ParserChar>, ParserResult<ParserChar>>> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
+
             return FromDelegate<A, ParserChar>(func);
         }
 
         public static Func<A, Parser<P>> FromDelegate<A, P>(Func<A, Func<IEnumerable<ParserChar>, ParserResult<P>>> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
+
             return (A a) => new Parser<P>(func(a));
         }
     }

@@ -48,6 +48,7 @@
     <Compile Include="src\option-strict\Just.cs" />
     <Compile Include="src\option-strict\Nothing.cs" />
     <Compile Include="src\option-strict\OptionStrict.cs" />
+    <Compile Include="src\parsec\ParserException.cs" />
     <Compile Include="src\Try.cs" />
     <Compile Include="src\ext\TupleExt.cs" />
     <Compile Include="src\IAppendable.cs" />

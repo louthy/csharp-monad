@@ -26,68 +26,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Monad;
-using Monad.Parsec;
-using Monad.Parsec.Token;
 
-namespace Monad.Parsec.Expr
+namespace Monad.Parsec
 {
-    public enum OperatorType
+    public class ParserException : Exception
     {
-        None,
-        Infix,
-        Postfix,
-        Prefix
-    }
-
-    public abstract class Operator<A>
-    {
-        public readonly OperatorType Type;
-        public readonly string Name;
-
-        public Operator(OperatorType type, string name)
-        {
-            Type = type;
-            Name = name;
-        }
-    }
-
-    public class Infix<A> : Operator<A>
-    {
-        public readonly Assoc Assoc;
-        public readonly Parser<Func<A, A, A>> Parser;
-
-        public Infix(string name, Parser<Func<A, A, A>> parser, Assoc assoc)
+        public ParserException(string msg)
             :
-            base(OperatorType.Infix, name)
+            base(msg)
         {
-            Parser = parser;
-            Assoc = assoc;
-        }
-    }
-
-    public class Prefix<A> : Operator<A>
-    {
-        public readonly Parser<Func<A, A>> Parser;
-
-        public Prefix(string name, Parser<Func<A, A>> parser)
-            :
-            base(OperatorType.Prefix, name)
-        {
-            Parser = parser;
-        }
-    }
-
-    public class Postfix<A> : Operator<A>
-    {
-        public readonly Parser<Func<A, A>> Parser;
-
-        public Postfix(string name, Parser<Func<A, A>> parser)
-            :
-            base(OperatorType.Postfix, name)
-        {
-            Parser = parser;
         }
     }
 }

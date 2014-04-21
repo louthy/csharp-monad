@@ -42,6 +42,8 @@ namespace Monad.Parsec
 
         public Parser(Func<IEnumerable<ParserChar>, ParserResult<A>> func)
 		{
+            if (func == null) throw new ArgumentNullException("func");
+
             // This memoization will only work if the exact same reference
             // is passed to Parse.  We could obviously hash the entire enumerable
             // but I suspect that would negate any benefits from the memoization.
@@ -51,42 +53,54 @@ namespace Monad.Parsec
 
         public ParserResult<A> Parse(IEnumerable<ParserChar> input)
 		{
-			return Value(input);
+            if (input == null) throw new ArgumentNullException("input");
+            return Value(input);
 		}
 
         public ParserResult<A> Parse(IEnumerable<char> input)
         {
+            if (input == null) throw new ArgumentNullException("input");
             return Parse(input.ToParserChar());
         }
 
         public static Parser<A> Create(Func<IEnumerable<ParserChar>, ParserResult<A>> func)
 		{
-			return new Parser<A>(func);
+            if (func == null) throw new ArgumentNullException("func");
+            return new Parser<A>(func);
 		}
 
         public static implicit operator Parser<A>(Func<IEnumerable<ParserChar>, ParserResult<A>> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             return new Parser<A>(func);
         }
 
         public static implicit operator A(Parser<A> parser)
         {
+            if (parser == null) throw new ArgumentNullException("parser");
             return from p in parser
                    select p;
         }
 
         public static Parser<A> operator |(Parser<A> lhs, Parser<A> rhs) 
         {
+            if (lhs == null) throw new ArgumentNullException("LHS of |");
+            if (rhs == null) throw new ArgumentNullException("RHS of |");
+
             return lhs.Or(rhs);
         }
 
         public static Parser<A> operator &(Parser<A> lhs, Parser<A> rhs)
         {
+            if (lhs == null) throw new ArgumentNullException("lhs of &");
+            if (rhs == null) throw new ArgumentNullException("rhs of &");
             return lhs.Or(rhs);
         }
 
         public Parser<IEnumerable<A>> Mconcat( IEnumerable<Parser<A>> parsers )
         {
+            if (parsers == null) throw new ArgumentNullException("parsers");
+
             return new Parser<IEnumerable<A>>(
                 inp =>
                 {
@@ -112,6 +126,7 @@ namespace Monad.Parsec
 
         public Parser<IEnumerable<A>> Mconcat(params Parser<A>[] parsers)
         {
+            if (parsers == null) throw new ArgumentNullException("parsers");
             return Mconcat(parsers.AsEnumerable());
         }
     }
