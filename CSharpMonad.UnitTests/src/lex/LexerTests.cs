@@ -35,6 +35,7 @@ using Monad.Parsec.Language;
 using Monad.Parsec.Token;
 using Monad.Parsec.Expr;
 using Monad.Utility;
+using System.Diagnostics;
 
 namespace Monad.UnitTests.Lex
 {
@@ -139,8 +140,10 @@ namespace Monad.UnitTests.Lex
 
             exprlazy = Ex.BuildExpressionParser<Term>(binops, factor);
 
+            var watch = Stopwatch.StartNew();
             var result = toplevel.Parse(TestData4);
-            //var result = expr.Parse(TestData3);
+            watch.Stop();
+            var time = watch.ElapsedMilliseconds;
 
             if (result.IsFaulted)
             {

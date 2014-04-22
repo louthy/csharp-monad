@@ -36,6 +36,7 @@ namespace Monad.Parsec
         {
             return new ImmutableList<T>(new T[0]);
         }
+
     }
 
     /// <summary>
@@ -43,12 +44,15 @@ namespace Monad.Parsec
     /// </summary>
     public class ImmutableList<T> : IEnumerable<T>
     {
+        const int CollapseAtDepth = 64;
+
         private readonly T[] source;
         private readonly int length;
         private readonly int sourceLength;
         private readonly int totalLength; 
         private readonly ImmutableList<T> next;
         private readonly int pos;
+        private readonly int depth;
 
         public ImmutableList(IEnumerable<T> source)
         {
@@ -57,14 +61,32 @@ namespace Monad.Parsec
             this.totalLength = this.length;
         }
 
-        private ImmutableList(T[] source, int pos, ImmutableList<T> next)
+        private ImmutableList(T[] source, int pos, ImmutableList<T> next, int depth)
         {
+            if (depth >= CollapseAtDepth)
+            {
+                T[] ts = new T[source.Length + next.Length];
+                int index = source.Length;
+                Array.Copy(source, ts, source.Length);
+
+                while(next != null)
+                {
+                    Array.Copy(next.source, next.pos, ts, index, next.length);
+                    index += next.length;
+                    next = next.next;
+                }
+                source = ts;
+                next = null;
+                depth = 0;
+            }
+
             this.sourceLength = source.Length;
             this.length = source.Length - pos;
             this.totalLength = this.length + (next == null ? 0 : next.totalLength);
             this.source = source;
             this.pos = pos;
             this.next = next;
+            this.depth = depth;
         }
 
         public int Length
@@ -87,12 +109,12 @@ namespace Monad.Parsec
 
         public ImmutableList<T> InsertAtHead(T value)
         {
-            return new ImmutableList<T>(new T[1] { value }, 0, this);
+            return new ImmutableList<T>(new T[1] { value }, 0, this, this.depth + 1);
         }
 
         public ImmutableList<T> Concat(ImmutableList<T> right)
         {
-            return new ImmutableList<T>(source, pos, right);
+            return new ImmutableList<T>(source, pos, right, right.depth + 1);
         }
 
         public T Head()
@@ -133,7 +155,7 @@ namespace Monad.Parsec
             {
                 if (next == null)
                 {
-                    return new ImmutableList<T>(source, pos + 1, next);
+                    return new ImmutableList<T>(source, pos + 1, next, next == null ? 0 : next.depth+1);
                 }
                 else
                 {
@@ -144,7 +166,7 @@ namespace Monad.Parsec
             {
                 throw new ParserException("Nothing left to parse (tail access)");
             }
-            return new ImmutableList<T>(source, pos+1, next);
+            return new ImmutableList<T>(source, pos+1, next, next == null ? 0 : next.depth+1);
         }
 
         public bool IsEmpty
