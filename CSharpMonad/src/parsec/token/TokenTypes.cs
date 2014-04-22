@@ -111,9 +111,9 @@ namespace Monad.Parsec.Token
 
     public class StringToken : Token
     {
-        public readonly IEnumerable<ParserChar> Value;
+        public readonly ImmutableList<ParserChar> Value;
 
-        public StringToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+        public StringToken(ImmutableList<ParserChar> value, SrcLoc location = null)
             :
             base(location)
         {
@@ -123,7 +123,7 @@ namespace Monad.Parsec.Token
 
     public class WhiteSpaceToken : StringToken
     {
-        public WhiteSpaceToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+        public WhiteSpaceToken(ImmutableList<ParserChar> value, SrcLoc location = null)
             :
             base(value,location)
         {
@@ -132,7 +132,7 @@ namespace Monad.Parsec.Token
 
     public class StringLiteralToken : StringToken
     {
-        public StringLiteralToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+        public StringLiteralToken(ImmutableList<ParserChar> value, SrcLoc location = null)
             :
             base(value, location)
         {
@@ -141,7 +141,7 @@ namespace Monad.Parsec.Token
 
     public class IdentifierToken : StringToken
     {
-        public IdentifierToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+        public IdentifierToken(ImmutableList<ParserChar> value, SrcLoc location = null)
             :
             base(value,location)
         {
@@ -150,7 +150,7 @@ namespace Monad.Parsec.Token
 
     public class ReservedToken : StringToken
     {
-        public ReservedToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+        public ReservedToken(ImmutableList<ParserChar> value, SrcLoc location = null)
             :
             base(value, location)
         {
@@ -159,7 +159,7 @@ namespace Monad.Parsec.Token
 
     public class OperatorToken : StringToken
     {
-        public OperatorToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+        public OperatorToken(ImmutableList<ParserChar> value, SrcLoc location = null)
             :
             base(value, location)
         {
@@ -168,7 +168,7 @@ namespace Monad.Parsec.Token
 
     public class ReservedOpToken : StringToken
     {
-        public ReservedOpToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+        public ReservedOpToken(ImmutableList<ParserChar> value, SrcLoc location = null)
             :
             base(value, location)
         {
@@ -177,7 +177,7 @@ namespace Monad.Parsec.Token
 
     public class SymbolToken : StringToken
     {
-        public SymbolToken(IEnumerable<ParserChar> value, SrcLoc location = null)
+        public SymbolToken(ImmutableList<ParserChar> value, SrcLoc location = null)
             :
             base(value, location == null ? location = value.First().Location : location)
         {

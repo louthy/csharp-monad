@@ -102,7 +102,7 @@ namespace Monad.Parsec
 
             return new OneOf(chars);
         }
-        public static OneOf OneOf(IEnumerable<ParserChar> chars)
+        public static OneOf OneOf(ImmutableList<ParserChar> chars)
         {
             if (chars == null) throw new ArgumentNullException("chars");
 
@@ -118,20 +118,20 @@ namespace Monad.Parsec
 
             return new NoneOf(chars);
         }
-        public static NoneOf NoneOf(IEnumerable<ParserChar> chars)
+        public static NoneOf NoneOf(ImmutableList<ParserChar> chars)
         {
             if (chars == null) throw new ArgumentNullException("chars");
 
             return new NoneOf(chars);
         }
-        public static Parser<IEnumerable<A>> SepBy<A, B>(Parser<A> parser, Parser<B> sepParser)
+        public static Parser<ImmutableList<A>> SepBy<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
             if (parser == null) throw new ArgumentNullException("parser");
             if (sepParser == null) throw new ArgumentNullException("sepParser");
 
-            return SepBy1<A, B>(parser, sepParser) | Prim.Return(new A[0].AsEnumerable());
+            return SepBy1<A, B>(parser, sepParser) | Prim.Return(new ImmutableList<A>(new A[0]));
         }
-        public static Parser<IEnumerable<A>> SepBy1<A, B>(Parser<A> parser, Parser<B> sepParser)
+        public static Parser<ImmutableList<A>> SepBy1<A, B>(Parser<A> parser, Parser<B> sepParser)
         {
             if (parser == null) throw new ArgumentNullException("parser");
             if (sepParser == null) throw new ArgumentNullException("sepParser");
@@ -169,13 +169,13 @@ namespace Monad.Parsec
         {
             return new Character(c);
         }
-        public static Parser<IEnumerable<T>> Many<T>(Parser<T> parser)
+        public static Parser<ImmutableList<T>> Many<T>(Parser<T> parser)
         {
             if (parser == null) throw new ArgumentNullException("parser");
 
             return new Many<T>(parser);
         }
-        public static Parser<IEnumerable<T>> Many1<T>(Parser<T> parser)
+        public static Parser<ImmutableList<T>> Many1<T>(Parser<T> parser)
         {
             if (parser == null) throw new ArgumentNullException("parser");
 
@@ -249,32 +249,32 @@ namespace Monad.Parsec
             return new Parser<Unit>(
                 inp =>
                 {
-                    if( inp.IsEmpty() ) 
+                    if( inp.IsEmpty ) 
                         return Prim.Return<Unit>(Unit.Return()).Parse(inp);
 
                     do
                     {
                         var resA = skipParser.Parse(inp);
-                        if (resA.IsFaulted || resA.Value.IsEmpty())
+                        if (resA.IsFaulted || resA.Value.IsEmpty)
                             return Prim.Return<Unit>(Unit.Return()).Parse(inp);
 
                         inp = resA.Value.Last().Item2;
                     }
-                    while (!inp.IsEmpty());
+                    while (!inp.IsEmpty);
 
                     return Prim.Return<Unit>(Unit.Return()).Parse(inp);
                 }
             );
         }
 
-        public static Func<A, Parser<ParserChar>> FromDelegate<A>(Func<A,Func<IEnumerable<ParserChar>, ParserResult<ParserChar>>> func)
+        public static Func<A, Parser<ParserChar>> FromDelegate<A>(Func<A,Func<ImmutableList<ParserChar>, ParserResult<ParserChar>>> func)
         {
             if (func == null) throw new ArgumentNullException("func");
 
             return FromDelegate<A, ParserChar>(func);
         }
 
-        public static Func<A, Parser<P>> FromDelegate<A, P>(Func<A, Func<IEnumerable<ParserChar>, ParserResult<P>>> func)
+        public static Func<A, Parser<P>> FromDelegate<A, P>(Func<A, Func<ImmutableList<ParserChar>, ParserResult<P>>> func)
         {
             if (func == null) throw new ArgumentNullException("func");
 

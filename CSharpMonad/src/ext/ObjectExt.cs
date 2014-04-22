@@ -22,6 +22,7 @@
 // SOFTWARE.
 // 
 
+using Monad.Parsec;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,7 @@ namespace Monad
 {
     public static class ObjectExt
     {
+        /*
         public static IEnumerable<T> Cons<T>(this T x, IEnumerable<T> xs)
         {
             yield return x;
@@ -41,6 +43,17 @@ namespace Monad
         public static IEnumerable<T> Cons<T>(this T x)
         {
             yield return x;
+        }
+         */
+
+        public static ImmutableList<T> Cons<T>(this T x, ImmutableList<T> xs)
+        {
+            return xs.InsertAtHead(x);
+        }
+
+        public static ImmutableList<T> Cons<T>(this T x)
+        {
+            return new ImmutableList<T>(new T[1] { x });
         }
     }
 }

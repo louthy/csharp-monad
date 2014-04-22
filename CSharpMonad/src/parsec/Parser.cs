@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Monad.Utility;
+using System.Diagnostics;
 
 namespace Monad.Parsec
 {
@@ -38,23 +39,44 @@ namespace Monad.Parsec
 
 	public class Parser<A> : IParser<A>
 	{
-        public readonly Func<IEnumerable<ParserChar>,  ParserResult<A>> Value;
+        public readonly Func<ImmutableList<ParserChar>, ParserResult<A>> Value;
 
-        public Parser(Func<IEnumerable<ParserChar>, ParserResult<A>> func)
+#if DEBUG
+        int parses = 0;
+        long timeTaken = 0;
+        Stopwatch watch = new Stopwatch();
+#endif
+
+
+        public Parser(Func<ImmutableList<ParserChar>, ParserResult<A>> func)
 		{
             if (func == null) throw new ArgumentNullException("func");
 
             // This memoization will only work if the exact same reference
             // is passed to Parse.  We could obviously hash the entire enumerable
             // but I suspect that would negate any benefits from the memoization.
-            //this.Value = func.Memo();
-            this.Value = func;
+            this.Value = func.Memo();
 		}
 
-        public ParserResult<A> Parse(IEnumerable<ParserChar> input)
+        public ParserResult<A> Parse(ImmutableList<ParserChar> input)
 		{
             if (input == null) throw new ArgumentNullException("input");
-            return Value(input);
+
+#if DEBUG
+            watch.Restart();
+            try
+            {
+#endif
+                return Value(input);
+#if DEBUG
+            }
+            finally
+            {
+                parses++;
+                watch.Stop();
+                timeTaken += watch.ElapsedMilliseconds;
+            }
+#endif
 		}
 
         public ParserResult<A> Parse(IEnumerable<char> input)
@@ -63,13 +85,13 @@ namespace Monad.Parsec
             return Parse(input.ToParserChar());
         }
 
-        public static Parser<A> Create(Func<IEnumerable<ParserChar>, ParserResult<A>> func)
+        public static Parser<A> Create(Func<ImmutableList<ParserChar>, ParserResult<A>> func)
 		{
             if (func == null) throw new ArgumentNullException("func");
             return new Parser<A>(func);
 		}
 
-        public static implicit operator Parser<A>(Func<IEnumerable<ParserChar>, ParserResult<A>> func)
+        public static implicit operator Parser<A>(Func<ImmutableList<ParserChar>, ParserResult<A>> func)
         {
             if (func == null) throw new ArgumentNullException("func");
             return new Parser<A>(func);
@@ -97,37 +119,73 @@ namespace Monad.Parsec
             return lhs.Or(rhs);
         }
 
-        public Parser<IEnumerable<A>> Mconcat( IEnumerable<Parser<A>> parsers )
+        public Parser<ImmutableList<A>> Mconcat(ImmutableList<Parser<A>> parsers)
         {
             if (parsers == null) throw new ArgumentNullException("parsers");
 
-            return new Parser<IEnumerable<A>>(
+            return new Parser<ImmutableList<A>>(
                 inp =>
                 {
                     parsers = this.Cons(parsers);
 
-                    var final = new A[0].AsEnumerable();
+                    var final = ImmutableList.Empty<A>();
                     var last = inp;
 
                     foreach (var parser in parsers)
                     {
                         var res = parser.Parse(inp);
                         if (res.IsFaulted)
-                            return new ParserResult<IEnumerable<A>>(res.Errors);
+                            return new ParserResult<ImmutableList<A>>(res.Errors);
 
                         final = final.Concat(res.Value.Select(r => r.Item1));
-                        if (!res.Value.IsEmpty())
+                        if (!res.Value.IsEmpty)
                             last = res.Value.Last().Item2;
                     }
 
-                    return new ParserResult<IEnumerable<A>>(Tuple.Create(final, last).Cons());
+                    return new ParserResult<ImmutableList<A>>( Tuple.Create(final, last).Cons() );
                 });
         }
 
-        public Parser<IEnumerable<A>> Mconcat(params Parser<A>[] parsers)
+        public Parser<ImmutableList<A>> Mconcat(params Parser<A>[] parsers)
         {
             if (parsers == null) throw new ArgumentNullException("parsers");
-            return Mconcat(parsers.AsEnumerable());
+            return Mconcat(new ImmutableList<Parser<A>>(parsers));
+        }
+
+        public ParseReport GetParseReport()
+        {
+#if DEBUG
+            return new ParseReport(
+                parses,
+                timeTaken,
+                ((double)this.timeTaken) / ((double)timeTaken),
+                GetType().Name
+            );
+#else
+            throw new ParserException("GetParseReport is only available in DEBUG");
+#endif
+        }
+
+    }
+
+    public class ParseReport
+    {
+        public readonly int Runs;
+        public readonly long TotalMilliseconds;
+        public readonly double AverageMilliseconds;
+        public readonly string ParserType;
+
+        public ParseReport(
+            int runs,
+            long totalMilliseconds,
+            double averageMilliseconds,
+            string parserType
+        )
+        {
+            Runs = runs;
+            TotalMilliseconds = totalMilliseconds;
+            AverageMilliseconds = averageMilliseconds;
+            ParserType = parserType;
         }
     }
 }

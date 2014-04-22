@@ -51,7 +51,7 @@ namespace Monad.Parsec.Expr
             return this;
         }
 
-        public IEnumerable<IEnumerable<Operator<A>>> AsEnumerable()
+        public IEnumerable<IEnumerable<Operator<A>>> AsImmutableList()
         {
             return ops;
         }

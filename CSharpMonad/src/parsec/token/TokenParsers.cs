@@ -36,7 +36,7 @@ namespace Monad.Parsec.Token
         public Symbol(string name)
             :
             base(
-                inp => (from sym in Tok.Lexeme<IEnumerable<ParserChar>>(Prim.String(name))
+                inp => (from sym in Tok.Lexeme<ImmutableList<ParserChar>>(Prim.String(name))
                         select new SymbolToken(sym))
                        .Parse(inp)
             )
@@ -117,7 +117,7 @@ namespace Monad.Parsec.Token
                         }
 
                         var resU = Prim.SkipMany(Prim.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
-                        if (resU.Value.Head().Item2.IsEmpty())
+                        if (resU.Value.Head().Item2.IsEmpty)
                         {
                             return Prim.Failure<Unit>(ParserError.Create("end of comment", inp)).Parse(inp);
                         }
@@ -145,7 +145,7 @@ namespace Monad.Parsec.Token
                     }
 
                     var resU = Prim.SkipMany(Prim.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);
-                    if (resU.Value.Head().Item2.IsEmpty())
+                    if (resU.Value.Head().Item2.IsEmpty)
                     {
                         return Prim.Failure<Unit>(ParserError.Create("end of comment", inp)).Parse(inp);
                     }

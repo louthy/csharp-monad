@@ -60,13 +60,13 @@ namespace Monad.Parsec
                         return ParserResult.Fail<U>(res.Errors);
 
                     var resT = res.Value;
-                    var left = resT.IsEmpty()
+                    var left = resT.IsEmpty
                         ? input
                         : resT.Last().Item2;
 
                     return ParserResult.Success(
                         resT.Select(resU =>
-                            Tuple.Create<U, IEnumerable<ParserChar>>(select(resU.Item1), left)
+                            Tuple.Create<U, ImmutableList<ParserChar>>(select(resU.Item1), left)
                         ));
                 });
         }
@@ -89,11 +89,11 @@ namespace Monad.Parsec
                     if (res.IsFaulted) 
                         return ParserResult.Fail<V>(res.Errors);
 
-                    var left = res.Value.IsEmpty()
+                    var left = res.Value.IsEmpty
                         ? input
                         : res.Value.Last().Item2;
 
-                    var resV = new List<Tuple<V, IEnumerable<ParserChar>>>();
+                    var resV = new List<Tuple<V, ImmutableList<ParserChar>>>();
                     foreach (var resT in res.Value)
                     {
                         var resUTmp = bind(resT.Item1).Parse(left);
@@ -101,13 +101,13 @@ namespace Monad.Parsec
                         if (resUTmp.IsFaulted)
                             return ParserResult.Fail<V>(resUTmp.Errors);
 
-                        left = resUTmp.Value.IsEmpty()
+                        left = resUTmp.Value.IsEmpty
                             ? input
                             : resUTmp.Value.Last().Item2;
 
                         foreach (var resU in resUTmp.Value)
                         {
-                            resV.Add(Tuple.Create<V, IEnumerable<ParserChar>>(select(resT.Item1, resU.Item1), left));
+                            resV.Add(Tuple.Create<V, ImmutableList<ParserChar>>(select(resT.Item1, resU.Item1), left));
                         }
                     }
                     return ParserResult.Success<V>(resV);
@@ -121,7 +121,7 @@ namespace Monad.Parsec
                 input =>
                 {
                     var res = self.Parse(input);
-                    if (res.IsFaulted || res.Value.IsEmpty())
+                    if (res.IsFaulted || res.Value.IsEmpty)
                         return alternative.Parse(input);
                     else
                         return res;
@@ -134,7 +134,7 @@ namespace Monad.Parsec
                 input =>
                 {
                     var res = self.Parse(input);
-                    if (res.IsFaulted || res.Value.IsEmpty())
+                    if (res.IsFaulted || res.Value.IsEmpty)
                         return ParserResult.Fail<U>(res.Errors);
                     else
                     {
@@ -169,7 +169,7 @@ namespace Monad.Parsec
                 );
         }
 
-        public static bool IsEqualTo(this IEnumerable<ParserChar> self, string rhs)
+        public static bool IsEqualTo(this ImmutableList<ParserChar> self, string rhs)
         {
             return self.Count() != rhs.Length
                 ? false
@@ -178,7 +178,7 @@ namespace Monad.Parsec
                       .Count() == 0;
         }
 
-        public static bool IsNotEqualTo(this IEnumerable<ParserChar> self, string rhs)
+        public static bool IsNotEqualTo(this ImmutableList<ParserChar> self, string rhs)
         {
             return !self.IsEqualTo(rhs);
         }

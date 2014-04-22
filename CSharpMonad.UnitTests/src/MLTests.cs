@@ -41,10 +41,10 @@ namespace Monad.UnitTests.ML
     [TestFixture]
     public class MLTests
     {
-        Parser<IEnumerable<ParserChar>> Id;
-        Parser<IEnumerable<ParserChar>> Ident;
-        Parser<IEnumerable<ParserChar>> LetId;
-        Parser<IEnumerable<ParserChar>> InId;
+        Parser<ImmutableList<ParserChar>> Id;
+        Parser<ImmutableList<ParserChar>> Ident;
+        Parser<ImmutableList<ParserChar>> LetId;
+        Parser<ImmutableList<ParserChar>> InId;
         Parser<Term> Term;
         Parser<Term> Term1;
         Parser<Term> Parser;
@@ -125,7 +125,7 @@ namespace Monad.UnitTests.ML
             var r = Term1.Parse("fred");
             Assert.IsTrue(!r.IsFaulted);
             Assert.IsTrue(r.Value.First().Item1.GetType().Name.Contains("VarTerm"));
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace Monad.UnitTests.ML
 
             var r = Term.Parse("add x y z w");
             Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace Monad.UnitTests.ML
 
             var r = Term.Parse("let add = x in y");
             Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace Monad.UnitTests.ML
             var r = LetId.Parse("let");
             Assert.IsTrue(!r.IsFaulted);
             Assert.IsTrue(r.Value.First().Item1.AsString() == "let");
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
         }
 
         [Test]
@@ -167,7 +167,7 @@ namespace Monad.UnitTests.ML
             var r = InId.Parse("in");
             Assert.IsTrue(!r.IsFaulted);
             Assert.IsTrue(r.Value.First().Item1.AsString() == "in");
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty());
+            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
         }
 
         [Test]
@@ -183,7 +183,7 @@ namespace Monad.UnitTests.ML
             var result = Parser.Parse(input);
 
             Assert.IsTrue(!result.IsFaulted);
-            Assert.IsTrue(result.Value.First().Item2.IsEmpty());
+            Assert.IsTrue(result.Value.First().Item2.IsEmpty);
 
             Term ast = result.Value.Single().Item1;
 
@@ -195,9 +195,9 @@ namespace Monad.UnitTests.ML
     public abstract class Term { }
     public class LambdaTerm : Term
     {
-        public readonly IEnumerable<ParserChar> Ident; 
+        public readonly ImmutableList<ParserChar> Ident; 
         public readonly Term Term;
-        public LambdaTerm(IEnumerable<ParserChar> i, Term t)
+        public LambdaTerm(ImmutableList<ParserChar> i, Term t)
         {
             Ident = i; 
             Term = t;
@@ -206,10 +206,10 @@ namespace Monad.UnitTests.ML
 
     public class LetTerm : Term
     {
-        public readonly IEnumerable<ParserChar> Ident; 
+        public readonly ImmutableList<ParserChar> Ident; 
         public readonly Term Rhs; 
         public Term Body;
-        public LetTerm(IEnumerable<ParserChar> i, Term r, Term b)
+        public LetTerm(ImmutableList<ParserChar> i, Term r, Term b)
         {
             Ident = i; 
             Rhs = r; 
@@ -228,8 +228,8 @@ namespace Monad.UnitTests.ML
     }
     public class VarTerm : Term
     {
-        public readonly IEnumerable<ParserChar> Ident;
-        public VarTerm(IEnumerable<ParserChar> ident)
+        public readonly ImmutableList<ParserChar> Ident;
+        public VarTerm(ImmutableList<ParserChar> ident)
         {
             Ident = ident;
         }

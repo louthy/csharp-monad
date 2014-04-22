@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\EitherLazy.cs" />
+    <Compile Include="src\ext\ImmutableListExt.cs" />
     <Compile Include="src\ext\EnumerableExt.cs" />
     <Compile Include="src\ext\LiftExt.cs" />
     <Compile Include="src\ext\ObjectExt.cs" />
@@ -49,6 +50,7 @@
     <Compile Include="src\option-strict\Nothing.cs" />
     <Compile Include="src\option-strict\OptionStrict.cs" />
     <Compile Include="src\parsec\ParserException.cs" />
+    <Compile Include="src\parsec\ImmutableList.cs" />
     <Compile Include="src\Try.cs" />
     <Compile Include="src\ext\TupleExt.cs" />
     <Compile Include="src\IAppendable.cs" />

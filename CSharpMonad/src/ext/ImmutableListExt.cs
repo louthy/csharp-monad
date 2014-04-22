@@ -22,43 +22,67 @@
 // SOFTWARE.
 // 
 
+using Monad.Parsec;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace Monad.Parsec
+namespace Monad
 {
-    public class ParserError
+    public static class ImmutableListExt
     {
-        public readonly string Message;
-        public readonly string Expected;
-        public readonly ImmutableList<ParserChar> Input;
-        public readonly SrcLoc Location;
-
-        public ParserError(string expected, ImmutableList<ParserChar> input, string message = "")
+        public static bool CanTake<T>(this ImmutableList<T> self, int amount)
         {
-            Message = message;
-            Expected = expected;
-            Input = input;
-            if (input.IsEmpty)
-            {
-                Location = SrcLoc.EndOfSource;
-            }
-            else
-            {
-                Location = input.Head().Location;
-            }
+            return self.Length - amount >= 0;
         }
 
-        public static ParserError Create(string expected, ImmutableList<ParserChar> input, string message = "")
+        public static string AsString(this ImmutableList<ParserChar> self)
         {
-            return new ParserError(expected, input, message);
+            return String.Concat(self.Select(pc=>pc.Value));
         }
 
-        public static ParserError Create(char expected, ImmutableList<ParserChar> input, string message = "")
+        public static T Second<T>(this ImmutableList<T> self)
         {
-            return new ParserError(expected.ToString(), input, message);
+            return self.Tail().Head();
+        }
+
+        /// <summary>
+        /// Foldr
+        /// </summary>
+        public static U Foldr<T, U>(this ImmutableList<T> self, Func<T, U, U> func, U state)
+        {
+            foreach (var item in self)
+            {
+                state = func(item, state);
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Foldr
+        /// </summary>
+        public static U Foldr<T, U>(this ImmutableList<T> self, Func<U, U> func, U state)
+        {
+            foreach (var item in self)
+            {
+                state = func(state);
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Foldl
+        /// </summary>
+        public static U Foldl<T, U>(this ImmutableList<T> self, Func<T, U, U> func, U state)
+        {
+            var iter = self.GetReverseEnumerator();
+            while (iter.MoveNext())
+            {
+                state = func(iter.Current, state);
+            }
+            return state;
         }
     }
 }

@@ -42,7 +42,7 @@ namespace Monad.Parsec.Token.Chars
                         Prim.Character('\'').Fail("end of character"),
                         new CharacterChar()
                     ))
-                    .Select(ch => new CharLiteralToken(ch, inp.First().Location))
+                    .Select(ch => new CharLiteralToken(ch, inp.Head().Location))
                     .Fail("character")
                     .Parse(inp)
             )
@@ -156,7 +156,7 @@ namespace Monad.Parsec.Token.Chars
                         {
                             var tuple = r.Value.First();
                             return ParserResult.Success<ParserChar>(
-                                Tuple.Create<ParserChar, IEnumerable<ParserChar>>(
+                                Tuple.Create<ParserChar, ImmutableList<ParserChar>>(
                                     new ParserChar(
                                         code,
                                         tuple.Item1.Location

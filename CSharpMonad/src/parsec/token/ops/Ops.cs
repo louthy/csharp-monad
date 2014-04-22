@@ -35,7 +35,7 @@ namespace Monad.Parsec.Token.Ops
         /// <summary>
         /// TODO: Make this pay attention to the case-sensitivity settings
         /// </summary>
-        internal static bool IsReservedOp(IEnumerable<ParserChar> name, GeneralLanguageDef languageDef)
+        internal static bool IsReservedOp(ImmutableList<ParserChar> name, GeneralLanguageDef languageDef)
         {
             return languageDef.ReservedOpNames.Contains(name.AsString());
         }
@@ -73,7 +73,7 @@ namespace Monad.Parsec.Token.Ops
                     if (res.IsFaulted)
                         return res;
 
-                    if (res.Value.IsEmpty())
+                    if (res.Value.IsEmpty)
                         return ParserResult.Fail<OperatorToken>("unexpected: reserved operator", inp);
 
                     return res;
@@ -82,7 +82,7 @@ namespace Monad.Parsec.Token.Ops
         { }
     }
 
-    public class Oper : Parser<IEnumerable<ParserChar>>
+    public class Oper : Parser<ImmutableList<ParserChar>>
     {
         public Oper(GeneralLanguageDef languageDef)
             :

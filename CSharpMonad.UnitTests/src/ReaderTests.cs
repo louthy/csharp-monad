@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Monad;
 
-namespace CSharpMonad.UnitTests.src
+namespace Monad.UnitTests.src
 {
     [TestFixture]
     public class ReaderTests

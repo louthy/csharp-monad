@@ -33,50 +33,25 @@ namespace Monad
 {
     public static class EnumerableExt
     {
-        public static bool CanTake<T>(this IEnumerable<T> self, int amount)
-        {
-            return self.Take(amount).Count() == amount;
-        }
-
-        public static bool IsEmpty<T>(this IEnumerable<T> self)
-        {
-            return !self.CanTake(1);
-        }
-
-        public static T HeadSafe<T>(this IEnumerable<T> self)
-        {
-            return self.FirstOrDefault();
-        }
-
         public static T Head<T>(this IEnumerable<T> self)
         {
             return self.First();
         }
-
         public static IEnumerable<T> Tail<T>(this IEnumerable<T> self)
         {
             return self.Skip(1);
         }
-
-        public static string AsString(this IEnumerable<char> self)
-        {
-            return String.Concat(self);
-        }
-
-        public static string AsString(this IEnumerable<ParserChar> self)
-        {
-            return String.Concat(self.Select(pc=>pc.Value));
-        }
-
         public static T Second<T>(this IEnumerable<T> self)
         {
             return self.Tail().Head();
         }
 
-        public static IEnumerable<ParserChar> ToParserChar(this IEnumerable<char> input)
+        public static ImmutableList<ParserChar> ToParserChar(this IEnumerable<char> input)
         {
             int line = 1;
             int col = 1;
+
+            var list = new List<ParserChar>();
 
             foreach (var c in input)
             {
@@ -85,7 +60,7 @@ namespace Monad
                     continue;
                 }
 
-                yield return new ParserChar(c, SrcLoc.Return(line,col));
+                list.Add(new ParserChar(c, SrcLoc.Return(line, col)));
 
                 if (c == '\n')
                 {
@@ -94,6 +69,8 @@ namespace Monad
                 }
                 col++;
             }
+
+            return new ImmutableList<ParserChar>(list);
         }
 
         /// <summary>

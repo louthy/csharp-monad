@@ -36,7 +36,7 @@ namespace Monad.Parsec.Token.Idents
         /// <summary>
         /// TODO: Make this pay attention to the case-sensitivity settings
         /// </summary>
-        internal static Parser<IEnumerable<ParserChar>> CaseString(string str, GeneralLanguageDef languageDef)
+        internal static Parser<ImmutableList<ParserChar>> CaseString(string str, GeneralLanguageDef languageDef)
         {
             return Prim.String(str);
         }
@@ -44,7 +44,7 @@ namespace Monad.Parsec.Token.Idents
         /// <summary>
         /// TODO: Make this pay attention to the case-sensitivity settings
         /// </summary>
-        internal static bool IsReservedName(IEnumerable<ParserChar> name, GeneralLanguageDef languageDef)
+        internal static bool IsReservedName(ImmutableList<ParserChar> name, GeneralLanguageDef languageDef)
         {
             return languageDef.ReservedNames.Contains(name.AsString());
         }
@@ -59,7 +59,7 @@ namespace Monad.Parsec.Token.Idents
                         from cs in IdentHelper.CaseString(name, languageDef)
                         from nf in Prim.NotFollowedBy( languageDef.IdentLetter )
                                       .Fail("end of " + cs.AsString())
-                        select new ReservedToken(cs,inp.First().Location)
+                        select new ReservedToken(cs,inp.Head().Location)
                     )
                     .Parse(inp)
             )
@@ -83,7 +83,7 @@ namespace Monad.Parsec.Token.Idents
                     if (res.IsFaulted)
                         return res;
 
-                    if (res.Value.IsEmpty())
+                    if (res.Value.IsEmpty)
                         return ParserResult.Fail<IdentifierToken>("unexpected: reserved word",inp);
 
                     return res;
@@ -92,7 +92,7 @@ namespace Monad.Parsec.Token.Idents
         { }
     }
 
-    public class Ident : Parser<IEnumerable<ParserChar>>
+    public class Ident : Parser<ImmutableList<ParserChar>>
     {
         public Ident(GeneralLanguageDef languageDef)
             :

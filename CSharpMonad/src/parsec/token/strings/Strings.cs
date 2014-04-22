@@ -43,7 +43,7 @@ namespace Monad.Parsec.Token.Strings
                                 )
                             select str
                         )
-                        select new StringLiteralToken(l,inp.First().Location)
+                        select new StringLiteralToken(l,inp.Head().Location)
                        )
                        .Fail("literal string")
                        .Parse(inp)

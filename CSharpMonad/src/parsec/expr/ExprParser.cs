@@ -53,8 +53,8 @@ namespace Monad.Parsec.Expr
 
         private static Parser<A> MakeParser<A>(IEnumerable<Operator<A>> ops, Parser<A> term)
         {
-            var empty2 = new Parser<Func<A, A>>[0].AsEnumerable();
-            var empty3 = new Parser<Func<A, A, A>>[0].AsEnumerable();
+            var empty2 = ImmutableList.Empty<Parser<Func<A, A>>>();
+            var empty3 = ImmutableList.Empty<Parser<Func<A, A, A>>>();
 
             return ops.Foldr(
                    SplitOp,
@@ -136,20 +136,20 @@ namespace Monad.Parsec.Expr
         /// Assigns the operator to one of the five buckets in state provided
         /// </summary>
         private static Tuple<
-                IEnumerable<Parser<Func<A, A, A>>>,
-                IEnumerable<Parser<Func<A, A, A>>>,
-                IEnumerable<Parser<Func<A, A, A>>>,
-                IEnumerable<Parser<Func<A, A>>>,
-                IEnumerable<Parser<Func<A, A>>>
+                ImmutableList<Parser<Func<A, A, A>>>,
+                ImmutableList<Parser<Func<A, A, A>>>,
+                ImmutableList<Parser<Func<A, A, A>>>,
+                ImmutableList<Parser<Func<A, A>>>,
+                ImmutableList<Parser<Func<A, A>>>
             >
             SplitOp<A>(
             Operator<A> def,
             Tuple<
-                IEnumerable<Parser<Func<A, A, A>>>,
-                IEnumerable<Parser<Func<A, A, A>>>,
-                IEnumerable<Parser<Func<A, A, A>>>,
-                IEnumerable<Parser<Func<A, A>>>,
-                IEnumerable<Parser<Func<A, A>>>> state)
+                ImmutableList<Parser<Func<A, A, A>>>,
+                ImmutableList<Parser<Func<A, A, A>>>,
+                ImmutableList<Parser<Func<A, A, A>>>,
+                ImmutableList<Parser<Func<A, A>>>,
+                ImmutableList<Parser<Func<A, A>>>> state)
         {
             // Oh for pattern matching in C#, sigh.
             switch (def.Type)

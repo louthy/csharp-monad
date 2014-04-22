@@ -51,7 +51,7 @@ namespace Monad.Parsec
         public Item()
             :
             base(
-                inp => inp.IsEmpty()
+                inp => inp.IsEmpty
                     ? ParserResult.Fail<ParserChar>("a character", inp)
                     : Tuple.Create(inp.Head(), inp.Tail()).Cons().Success()
             )
@@ -63,54 +63,38 @@ namespace Monad.Parsec
         public Empty()
             :
             base(
-                inp => new ParserResult<A>(new Tuple<A, IEnumerable<ParserChar>>[0])
+                inp => new ParserResult<A>( new Tuple<A, ImmutableList<ParserChar>>[0] )
             )
         { }
     }
 
     public class Failure<A> : Parser<A>
     {
-        readonly IEnumerable<ParserError> errors;
-
         public Failure(ParserError error)
             :
             base(
                 inp => ParserResult.Fail<A>(error)
             )
         {
-            errors = error.Cons();
         }
 
         private Failure(IEnumerable<ParserError> errors)
             :
             base(
-                inp => ParserResult.Fail<A>(errors)
+                inp => ParserResult.Fail<A>(new ImmutableList<ParserError>(errors))
             )
         {
-            this.errors = errors;
         }
-
         public Failure(ParserError error, IEnumerable<ParserError> errors)
             :
             base(
-                inp => ParserResult.Fail<A>(error.Cons(errors))
+                inp => ParserResult.Fail<A>(
+                    new ImmutableList<ParserError>(Enumerable.Concat(new ParserError[]{ error}, errors))
+                    )
             )
         {
-            this.errors = error.Cons(errors);
         }
 
-        public IEnumerable<ParserError> Errors
-        {
-            get
-            {
-                return errors;
-            }
-        }
-
-        public Failure<A> AddError(ParserError error)
-        {
-            return new Failure<A>(error.Cons(errors));
-        }
     }
 
     public class Return<A> : Parser<A>
@@ -133,7 +117,7 @@ namespace Monad.Parsec
 
         public Choice(IEnumerable<Parser<A>> ps)
             :
-            this(ps.HeadSafe(), ps.Tail())
+            this(ps.FirstOrDefault(), ps.Skip(1))
         {
         }
 
@@ -147,9 +131,9 @@ namespace Monad.Parsec
 
                     var r = p.Parse(inp);
                     return r.IsFaulted
-                        ? ps.IsEmpty()
+                        ? ps.FirstOrDefault() == null
                             ? ParserResult.Fail<A>("choice not satisfied", inp)
-                            : new Choice<A>(ps.Head(), ps.Tail()).Parse(inp)
+                            : new Choice<A>(ps.First(), ps.Skip(1)).Parse(inp)
                         : r;
                 }
             )
@@ -163,7 +147,7 @@ namespace Monad.Parsec
             :
             base(
                 inp =>
-                    inp.IsEmpty()
+                    inp.IsEmpty
                         ? Prim.Failure<ParserChar>(ParserError.Create(expecting, inp)).Parse(inp)
                         : (from res in Prim.Item().Parse(inp).Value
                            select pred(res.Item1.Value)
@@ -184,7 +168,7 @@ namespace Monad.Parsec
             :
             base(ch => chars.Contains(ch), "one of: " + chars)
         { }
-        public OneOf(IEnumerable<ParserChar> chars)
+        public OneOf(ImmutableList<ParserChar> chars)
             :
             base(ch => chars.Select(pc=>pc.Value).Contains(ch), "one of: " + chars)
         { }
@@ -200,7 +184,7 @@ namespace Monad.Parsec
             :
             base(ch => !chars.Contains(ch), "none of: " + chars)
         { }
-        public NoneOf(IEnumerable<ParserChar> chars)
+        public NoneOf(ImmutableList<ParserChar> chars)
             :
             base(ch => !chars.Select(pc => pc.Value).Contains(ch), "none of: " + chars)
         { }
@@ -267,7 +251,7 @@ namespace Monad.Parsec
         {
         }
 
-        private static int DigitsToInt(IEnumerable<ParserChar> digits)
+        private static int DigitsToInt(ImmutableList<ParserChar> digits)
         {
             return Int32.Parse(digits.AsString());
         }
@@ -289,7 +273,7 @@ namespace Monad.Parsec
                 {
                     var res = parser.Parse(inp);
                     return res.IsFaulted
-                        ? new ParserResult<A>(new Tuple<A,IEnumerable<ParserChar>>[0])
+                        ? new ParserResult<A>(new Tuple<A, ImmutableList<ParserChar>>[0])
                         : res;
                 }
             )
@@ -302,15 +286,15 @@ namespace Monad.Parsec
         }
     }
 
-    public class Many<A> : Parser<IEnumerable<A>>
+    public class Many<A> : Parser<ImmutableList<A>>
     {
         public Many(Parser<A> parser)
             :
-            base(inp => (Prim.Many1(parser) | Prim.Return(new A[0].AsEnumerable())).Parse(inp))
+            base(inp => (Prim.Many1(parser) | Prim.Return(new ImmutableList<A>(new A[0]))).Parse(inp))
         { }
     }
 
-    public class Many1<A> : Parser<IEnumerable<A>>
+    public class Many1<A> : Parser<ImmutableList<A>>
     {
         public Many1(Parser<A> parser)
             :
@@ -323,7 +307,7 @@ namespace Monad.Parsec
         { }
     }
 
-    public class StringParse : Parser<IEnumerable<ParserChar>>
+    public class StringParse : Parser<ImmutableList<ParserChar>>
     {
         public StringParse(string str)
             :
@@ -334,10 +318,10 @@ namespace Monad.Parsec
         public StringParse(IEnumerable<char> str)
             :
             base(
-                inp => str.IsEmpty()
-                          ? Prim.Return(new ParserChar[0] as IEnumerable<ParserChar>).Parse(inp)
-                          : (from x in Prim.Character(str.Head())
-                             from xs in Prim.String(str.Tail())
+                inp => str.Count() == 0
+                          ? Prim.Return(ImmutableList.Empty<ParserChar>()).Parse(inp)
+                          : (from x in Prim.Character(str.First())
+                             from xs in Prim.String(str.Skip(1))
                              select x.Cons(xs))
                             .Parse(inp)
             )
@@ -360,7 +344,7 @@ namespace Monad.Parsec
         { }
     }
 
-    public class SimpleSpace : Parser<IEnumerable<ParserChar>>
+    public class SimpleSpace : Parser<ImmutableList<ParserChar>>
     {
         public SimpleSpace()
             :

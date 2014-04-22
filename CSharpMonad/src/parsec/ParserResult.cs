@@ -32,17 +32,22 @@ namespace Monad.Parsec
 {
     public class ParserResult<A>
     {
-        public readonly IEnumerable<Tuple<A, IEnumerable<ParserChar>>> Value;
-        public readonly IEnumerable<ParserError> Errors;
+        public readonly ImmutableList<Tuple<A, ImmutableList<ParserChar>>> Value;
+        public readonly ImmutableList<ParserError> Errors;
 
-        public ParserResult(IEnumerable<Tuple<A, IEnumerable<ParserChar>>> value)
+        public ParserResult(ImmutableList<Tuple<A, ImmutableList<ParserChar>>> value)
         {
             Value = value;
         }
 
-        public ParserResult(IEnumerable<ParserError> errors)
+        public ParserResult(Tuple<A, ImmutableList<ParserChar>>[] value)
         {
-            Value = new Tuple<A, IEnumerable<ParserChar>>[0];
+            Value = new ImmutableList<Tuple<A, ImmutableList<ParserChar>>>(value);
+        }
+
+        public ParserResult(ImmutableList<ParserError> errors)
+        {
+            Value = new ImmutableList<Tuple<A, ImmutableList<ParserChar>>>(new Tuple<A, ImmutableList<ParserChar>>[0]);
             Errors = errors;
         }
 
@@ -57,9 +62,14 @@ namespace Monad.Parsec
 
     public static class ParserResult
     {
-        public static ParserResult<A> Fail<A>(IEnumerable<ParserError> errors)
+        public static ParserResult<A> Fail<A>(ImmutableList<ParserError> errors)
         {
             return new ParserResult<A>(errors);
+        }
+
+        public static ParserResult<A> Fail<A>(ParserError[] errors)
+        {
+            return new ParserResult<A>(new ImmutableList<ParserError>(errors));
         }
 
         public static ParserResult<A> Fail<A>(ParserError error)
@@ -67,14 +77,19 @@ namespace Monad.Parsec
             return new ParserResult<A>(error.Cons());
         }
 
-        public static ParserResult<A> Fail<A>(string expected, IEnumerable<ParserChar> input,string message = "")
+        public static ParserResult<A> Fail<A>(string expected, ImmutableList<ParserChar> input, string message = "")
         {
             return new ParserResult<A>(new ParserError(expected,input,message).Cons());
         }
 
-        public static ParserResult<A> Success<A>(this IEnumerable<Tuple<A, IEnumerable<ParserChar>>> self)
+        public static ParserResult<A> Success<A>(this ImmutableList<Tuple<A, ImmutableList<ParserChar>>> self)
         {
             return new ParserResult<A>(self);
+        }
+
+        public static ParserResult<A> Success<A>(this IEnumerable<Tuple<A, ImmutableList<ParserChar>>> self)
+        {
+            return new ParserResult<A>(new ImmutableList<Tuple<A, ImmutableList<ParserChar>>>(self));
         }
     }
 }

@@ -47,5 +47,10 @@ namespace Monad.Parsec
         {
             return Value.ToString();
         }
+
+        public override int GetHashCode()
+        {
+            return Location == null ? Value.GetHashCode() : Location.GetHashCode();
+        }
     }
 }

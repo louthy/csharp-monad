@@ -112,7 +112,7 @@ namespace Monad.Parsec.Token.Numbers
                             Tok.Numbers.Decimal() as Parser<IntegerToken>,
                             Prim.Return(new IntegerToken(0, SrcLoc.Null)) as Parser<IntegerToken>
                             )
-                        select new IntegerToken(0, !inp.IsEmpty() ? inp.Head().Location : SrcLoc.EndOfSource))
+                        select new IntegerToken(0, !inp.IsEmpty ? inp.Head().Location : SrcLoc.EndOfSource))
                         .Fail("")
                         .Parse(inp)
             )

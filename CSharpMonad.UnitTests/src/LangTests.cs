@@ -37,13 +37,13 @@ namespace Monad.UnitTests.Lang
     [TestFixture]
     public class LangTests
     {
-        Parser<IEnumerable<ParserChar>> Id;
-        Parser<IEnumerable<ParserChar>> Ident;
-        Parser<IEnumerable<ParserChar>> LetId;
-        Parser<IEnumerable<ParserChar>> Semi;
-        Parser<IEnumerable<ParserChar>> LambdaArrow;
-        Parser<IEnumerable<ParserChar>> InId;
-        Parser<IEnumerable<ParserChar>> Op;
+        Parser<ImmutableList<ParserChar>> Id;
+        Parser<ImmutableList<ParserChar>> Ident;
+        Parser<ImmutableList<ParserChar>> LetId;
+        Parser<ImmutableList<ParserChar>> Semi;
+        Parser<ImmutableList<ParserChar>> LambdaArrow;
+        Parser<ImmutableList<ParserChar>> InId;
+        Parser<ImmutableList<ParserChar>> Op;
         Parser<Term> Integer;
         Parser<Term> String;
         Parser<Term> Term;
@@ -164,7 +164,7 @@ namespace Monad.UnitTests.Lang
             }
 
             Assert.IsTrue(!result.IsFaulted);
-            Assert.IsTrue(result.Value.First().Item2.IsEmpty());
+            Assert.IsTrue(result.Value.First().Item2.IsEmpty);
 
             Term ast = result.Value.Single().Item1;
 
@@ -176,9 +176,9 @@ namespace Monad.UnitTests.Lang
     public abstract class Term { }
     public class LambdaTerm : Term
     {
-        public readonly IEnumerable<ParserChar> Ident; 
+        public readonly ImmutableList<ParserChar> Ident; 
         public readonly Term Term;
-        public LambdaTerm(IEnumerable<ParserChar> i, Term t)
+        public LambdaTerm(ImmutableList<ParserChar> i, Term t)
         {
             Ident = i; 
             Term = t;
@@ -187,9 +187,9 @@ namespace Monad.UnitTests.Lang
 
     public class StringTerm : Term
     {
-        public readonly IEnumerable<ParserChar> Value;
+        public readonly ImmutableList<ParserChar> Value;
 
-        public StringTerm(IEnumerable<ParserChar> cs)
+        public StringTerm(ImmutableList<ParserChar> cs)
         {
             Value = cs;
         }
@@ -207,10 +207,10 @@ namespace Monad.UnitTests.Lang
 
     public class LetTerm : Term
     {
-        public readonly IEnumerable<ParserChar> Ident; 
+        public readonly ImmutableList<ParserChar> Ident; 
         public readonly Term Rhs; 
         public Term Body;
-        public LetTerm(IEnumerable<ParserChar> i, Term r, Term b)
+        public LetTerm(ImmutableList<ParserChar> i, Term r, Term b)
         {
             Ident = i; 
             Rhs = r; 
@@ -229,8 +229,8 @@ namespace Monad.UnitTests.Lang
     }
     public class VarTerm : Term
     {
-        public readonly IEnumerable<ParserChar> Ident;
-        public VarTerm(IEnumerable<ParserChar> ident)
+        public readonly ImmutableList<ParserChar> Ident;
+        public VarTerm(ImmutableList<ParserChar> ident)
         {
             Ident = ident;
         }
