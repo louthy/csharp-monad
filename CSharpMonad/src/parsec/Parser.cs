@@ -41,13 +41,6 @@ namespace Monad.Parsec
 	{
         public readonly Func<ImmutableList<ParserChar>, ParserResult<A>> Value;
 
-#if DEBUG
-        int parses = 0;
-        long timeTaken = 0;
-        Stopwatch watch = new Stopwatch();
-#endif
-
-
         public Parser(Func<ImmutableList<ParserChar>, ParserResult<A>> func)
 		{
             if (func == null) throw new ArgumentNullException("func");
@@ -61,22 +54,7 @@ namespace Monad.Parsec
         public ParserResult<A> Parse(ImmutableList<ParserChar> input)
 		{
             if (input == null) throw new ArgumentNullException("input");
-
-#if DEBUG
-            watch.Restart();
-            try
-            {
-#endif
-                return Value(input);
-#if DEBUG
-            }
-            finally
-            {
-                parses++;
-                watch.Stop();
-                timeTaken += watch.ElapsedMilliseconds;
-            }
-#endif
+             return Value(input);
 		}
 
         public ParserResult<A> Parse(IEnumerable<char> input)
@@ -150,42 +128,6 @@ namespace Monad.Parsec
         {
             if (parsers == null) throw new ArgumentNullException("parsers");
             return Mconcat(new ImmutableList<Parser<A>>(parsers));
-        }
-
-        public ParseReport GetParseReport()
-        {
-#if DEBUG
-            return new ParseReport(
-                parses,
-                timeTaken,
-                ((double)this.timeTaken) / ((double)timeTaken),
-                GetType().Name
-            );
-#else
-            throw new ParserException("GetParseReport is only available in DEBUG");
-#endif
-        }
-
-    }
-
-    public class ParseReport
-    {
-        public readonly int Runs;
-        public readonly long TotalMilliseconds;
-        public readonly double AverageMilliseconds;
-        public readonly string ParserType;
-
-        public ParseReport(
-            int runs,
-            long totalMilliseconds,
-            double averageMilliseconds,
-            string parserType
-        )
-        {
-            Runs = runs;
-            TotalMilliseconds = totalMilliseconds;
-            AverageMilliseconds = averageMilliseconds;
-            ParserType = parserType;
         }
     }
 }
