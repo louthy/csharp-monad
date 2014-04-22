@@ -298,12 +298,45 @@ namespace Monad.Parsec
     {
         public Many1(Parser<A> parser)
             :
-            base( inp =>
-                (from v in parser
-                 from vs in Prim.Many(parser)
-                 select v.Cons(vs))
-                .Parse(inp)
-            )
+            base(inp =>
+            {
+                //
+                // This is the original parser.  Beautiful, but less efficient unfortunately.
+                // I will leave it here for future generations to admire.
+                //
+                //    (from v in parser
+                //     from vs in Prim.Many(parser)
+                //     select v.Cons(vs))
+                //    .Parse(inp)
+                //
+
+                var v = parser.Parse(inp);
+                if (v.IsFaulted)
+                    return new ParserResult<ImmutableList<A>>(v.Errors);
+                if (v.Value.Length == 0)
+                    return new ParserResult<ImmutableList<A>>(
+                        ImmutableList.Empty<Tuple<ImmutableList<A>, ImmutableList<ParserChar>>>()
+                        );
+
+                List<A> vs = new List<A>();
+                var fst = v.Value.Head();
+                vs.Add(fst.Item1);
+
+                while (true)
+                {
+                    v = parser.Parse(fst.Item2);
+                    if (v.IsFaulted || v.Value.Length == 0)
+                        return new ParserResult<ImmutableList<A>>(
+                            Tuple.Create(new ImmutableList<A>(vs), fst.Item2
+                            ).Cons());
+                    if (v.Value.Length == 0)
+                        return new ParserResult<ImmutableList<A>>(
+                            Tuple.Create(new ImmutableList<A>(vs), fst.Item2
+                            ).Cons());
+                    fst = v.Value.First();
+                    vs.Add(fst.Item1);
+                }
+            })
         { }
     }
 

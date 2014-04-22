@@ -178,7 +178,6 @@ namespace Monad.UnitTests.Lex
         {
             Func<T, T, ReservedOpToken, T> fn = (lhs, rhs, op) =>
             {
-                Console.WriteLine(op.ToString());
                 return new BinaryOp(lhs,rhs,op) as T;
             };
 
