@@ -45,6 +45,7 @@ namespace Monad.Parsec
     {
         private readonly T[] source;
         private readonly int length;
+        private readonly int sourceLength;
         private readonly int totalLength; 
         private readonly ImmutableList<T> next;
         private readonly int pos;
@@ -52,12 +53,13 @@ namespace Monad.Parsec
         public ImmutableList(IEnumerable<T> source)
         {
             this.source = source.ToArray();
-            this.length = this.source.Length;
+            this.sourceLength = this.length = this.source.Length;
             this.totalLength = this.length;
         }
 
         private ImmutableList(T[] source, int pos, ImmutableList<T> next)
         {
+            this.sourceLength = source.Length;
             this.length = source.Length - pos;
             this.totalLength = this.length + (next == null ? 0 : next.totalLength);
             this.source = source;
@@ -186,9 +188,9 @@ namespace Monad.Parsec
         {
             var offset = pos + index;
 
-            if (offset >= (length+pos))
+            if (offset >= sourceLength)
             {
-                return next.GetIndex(offset - (length + pos));
+                return next.GetIndex(offset - sourceLength);
             }
             else
             {
@@ -200,10 +202,12 @@ namespace Monad.Parsec
         {
             ImmutableList<T> str;
             int current = -1;
+            int length;
 
             public Iter(ImmutableList<T> str)
             {
                 this.str = str;
+                this.length = this.str.Length;
             }
 
             public T Current
@@ -229,7 +233,7 @@ namespace Monad.Parsec
             public bool MoveNext()
             {
                 current++;
-                if (current == str.Length)
+                if (current == length)
                 {
                     return false;
                 }
