@@ -248,7 +248,6 @@ __Roadmap for this feature__:
 ```C#
             Parser<Term> exprlazy = null;
             Parser<Term> expr = Prim.Lazy<Term>(() => exprlazy);
-            Func<Parser<Term>, Parser<Term>> contents;
             Func<Parser<Term>,Parser<ImmutableList<Term>>> many = Prim.Many;
             Func<Parser<Term>,Parser<Term>> @try = Prim.Try;
 
