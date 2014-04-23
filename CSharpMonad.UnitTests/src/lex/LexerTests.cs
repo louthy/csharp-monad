@@ -55,7 +55,7 @@ namespace Monad.UnitTests.Lex
             @"1+1";
 
         /// <summary>
-        /// This test is work in progress.  It looks very pretty but does nothing at the moment.
+        /// Fully working language lexer and parser
         /// </summary>
         [Test]
         public void LexerTest()
