@@ -1,7 +1,7 @@
 csharp-monad
 ============
 
-Library of monads for C#:
+Library of monads and a full set of parser combinators based on the Haskell Parsec library.
 
 * `Either<R,L>`
 * `EitherStrict<R,L>`
