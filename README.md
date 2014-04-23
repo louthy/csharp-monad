@@ -273,13 +273,13 @@ This is all work in progress, but very stable and functional.  It's probably eas
             var commaSepExpr = parens(from cs in commaSep(expr)
                                       select new Exprs(cs) as Term);
 
-            var function = from _ in reserved("def")
+            var function = from resv in reserved("def")
                            from name in identifier
                            from args in manyargs
                            from body in expr
                            select new Function(name, args, body) as Term;
 
-            var externFn = from _ in reserved("extern")
+            var externFn = from resv in reserved("extern")
                            from name in identifier
                            from args in manyargs
                            select new Extern(name, args) as Term;
@@ -304,11 +304,6 @@ This is all work in progress, but very stable and functional.  It's probably eas
                        | @try(expr)
                        select f;
 
-            contents = p =>
-                from ws in whiteSpace
-                from r in p
-                select r;
-
             var toplevel = from ts in many(
                                from fn in defn
                                from semi in reservedOp(";")
@@ -318,8 +313,12 @@ This is all work in progress, but very stable and functional.  It's probably eas
 
             exprlazy = Ex.BuildExpressionParser<Term>(binops, factor);
 
-            var watch = Stopwatch.StartNew();
-            var result = toplevel.Parse(TestData4);
+            var text = @"def foo(x y) x+foo(y, 4);
+                         def foo(x y) x+y*2;
+                         def foo(x y) x+y;
+                         extern sin(a);";
+
+            var result = toplevel.Parse(text);
 ```
 
 For the full version of this, including the definition of the operator table, see LexerTests.cs in the UnitTest project.
