@@ -236,7 +236,13 @@ You can check the result by looking at the HasValue() property, however each acc
 
 ## Parsec
 
-This is all work in progress, but very stable and functional.  It's probably easiest to check the unit test code for examples of usage.  Here's a very simple expression parser:
+Based on the Haskell Parsec library, this monad allows composition of parsers.  There is a whole library of parsers from reading a single character up to processing expressions and operator associativty.  The library is very stable.  
+Roadmap for this:
+* More unit tests
+* Speed improvements
+* Floating point number parsers
+* Implement the rest of the usefel parsers from the Parsec lib
+
 
 ```C#
             Parser<Term> exprlazy = null;
