@@ -239,105 +239,91 @@ You can check the result by looking at the HasValue() property, however each acc
 This is all work in progress, but very stable and functional.  It's probably easiest to check the unit test code for examples of usage.  Here's a very simple expression parser:
 
 ```C#
-    public class TestExpr
-    {
-        public void ExpressionTests()
-        {
-            var ten = Eval("2*3+4");
+            Parser<Term> exprlazy = null;
+            Parser<Term> expr = Prim.Lazy<Term>(() => exprlazy);
+            Func<Parser<Term>, Parser<Term>> contents;
+            Func<Parser<Term>,Parser<ImmutableList<Term>>> many = Prim.Many;
+            Func<Parser<Term>,Parser<Term>> @try = Prim.Try;
 
-            Assert.IsTrue(ten == 10);
+            var def = new Lang();
+            var lexer = Tok.MakeTokenParser<Term>(def);
+            var binops = BuildOperatorsTable<Term>(lexer);
 
-            var fourteen = Eval("2*(3+4)");
+            // Lexer
+            var intlex = lexer.Integer;
+            var floatlex = lexer.Float;
+            var parens = lexer.Parens;
+            var commaSep = lexer.CommaSep;
+            var semiSep = lexer.SemiSep;
+            var identifier = lexer.Identifier;
+            var reserved = lexer.Reserved;
+            var reservedOp = lexer.ReservedOp;
+            var whiteSpace = lexer.WhiteSpace;
 
-            Assert.IsTrue(fourteen == 14);
-        }
+            // Parser
+            var integer = from n in intlex
+                          select new Integer(n) as Term;
 
-        public int Eval(string expr)
-        {
-            var r = New.Expr().Parse(expr);
-            if (r.Count() == 0)
-            {
-                throw new Exception("Invalid expression");
-            }
-            else
-            {
-                return r.First().Item1;
-            }
-        }
-    }
+            var variable = from v in identifier
+                           select new Var(v) as Term;
 
-    public class New
-    {
-        public static Expr Expr()
-        {
-            return new Expr();
-        }
-        public static Term Term()
-        {
-            return new Term();
-        }
-        public static Factor Factor()
-        {
-            return new Factor();
-        }
-    }
+            var manyargs = parens(from ts in many(variable)
+                                  select new Arguments(ts) as Term);
 
-    public class Expr : Parser<int>
-    {
-        public Expr()
-            :
-            base(
-                inp => (from t in New.Term()
-                        from e in
-                            (from plus in Gen.Character('+')
-                             from expr in New.Expr()
-                             select expr)
-                             | Gen.Return<int>(0)
-                        select t + e)
-                       .Parse(inp)
-            )
-        { }
-    }
+            var commaSepExpr = parens(from cs in commaSep(expr)
+                                      select new Exprs(cs) as Term);
 
-    public class Term : Parser<int>
-    {
-        public Term()
-            :
-            base(
-                inp => (from f in New.Factor()
-                        from t in
-                            (from mult in Gen.Character('*')
-                             from term in New.Term()
-                             select term)
-                             | Gen.Return<int>(1)
-                        select f * t)
-                       .Parse(inp)
-            )
-        { }
-    }
+            var function = from _ in reserved("def")
+                           from name in identifier
+                           from args in manyargs
+                           from body in expr
+                           select new Function(name, args, body) as Term;
 
-    public class Factor : Parser<int>
-    {
-        public Factor()
-            :
-            base(
-                inp => (from choice in
-                            (from d in Gen.Digit()
-                             select Int32.Parse(d.Value.ToString()))
-                             | from open in Gen.Character('(')
-                               from expr in New.Expr()
-                               from close in Gen.Character(')')
-                               select expr
-                        select choice)
-                        .Parse(inp)
+            var externFn = from _ in reserved("extern")
+                           from name in identifier
+                           from args in manyargs
+                           select new Extern(name, args) as Term;
 
-            )
-        { }
+            var call = from name in identifier
+                       from args in commaSepExpr
+                       select new Call(name, args as Exprs) as Term;
 
-    }
+            var subexpr = (from p in parens(expr)
+                           select new Expression(p) as Term);
+
+            var factor = from f in @try(integer)
+                         | @try(externFn)
+                         | @try(function)
+                         | @try(call)
+                         | @try(variable)
+                         | subexpr
+                         select f;
+
+            var defn = from f in @try(externFn)
+                       | @try(function)
+                       | @try(expr)
+                       select f;
+
+            contents = p =>
+                from ws in whiteSpace
+                from r in p
+                select r;
+
+            var toplevel = from ts in many(
+                               from fn in defn
+                               from semi in reservedOp(";")
+                               select fn
+                           )
+                           select ts;
+
+            exprlazy = Ex.BuildExpressionParser<Term>(binops, factor);
+
+            var watch = Stopwatch.StartNew();
+            var result = toplevel.Parse(TestData4);
 ```
 
-I will be updating this library with more parser components for language-parser building.  Watch this space :)
+For the full version of this, including the definition of the operator table, see LexerTests.cs in the UnitTest project.
+
 
 
 ## Reader
