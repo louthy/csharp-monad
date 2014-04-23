@@ -14,7 +14,7 @@ Library of monads and a full set of parser combinators based on the Haskell Pars
 * `Try<T>`
 
 
-The library is stable, functional and pretty well tested, but it's in active development, so as you can see documentation is pretty sparse right now and everything is liable to change.
+The library is stable, functional and pretty well tested.
 
 
 ### A note about laziness
