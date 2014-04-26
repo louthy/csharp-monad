@@ -35,25 +35,44 @@ namespace Monad
     /// </summary>
     public delegate OptionResult<T> Option<T>();
 
+    /// <summary>
+    /// Non-generic Option helper class.  Contains generic methods for creating
+    /// Option<T> types.
+    /// </summary>
     public static class Option
     {
         /// <summary>
         /// Represents an Option without a value
         /// </summary>
-        public static OptionResult<T> Nothing<T>()
+        public static Option<T> Nothing<T>()
         {
-            return new Nothing<T>();
+            return () => NothingResult<T>.Default;
         }
 
         public static Option<T> Mempty<T>()
         {
-            return () => Option.Nothing<T>();
+            return Option.Nothing<T>();
         }
 
-        public static Option<T> Return<T>(Func<T> value)
+        /// <summary>
+        /// Wraps a Func<T> in an Option<T>
+        /// Upon invocation if del() returns null it will automatically be
+        /// converted to a Nothing<T>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Option<T> Return<T>(Func<T> del)
         {
-            return new Option<T>( () => new Just<T>(value()) );
+            return new Option<T>( () =>
+                {
+                    var res = del();
+                    return res == null
+                        ? NothingResult<T>.Default
+                        : new JustResult<T>(res);
+                });
         }
+
     }
 
     /// <summary>
@@ -62,14 +81,14 @@ namespace Monad
     public abstract class OptionResult<T>
     {
         /// <summary>
-        /// Conversion from any value to Option<T>
+        /// Conversion from any value to OptionResult<T>
         /// Null is always considered as Nothing
         /// </summary>
         public static implicit operator OptionResult<T>(T value)
         {
             return value == null
-                ? new Nothing<T>() as OptionResult<T>
-                : new Just<T>(value) as OptionResult<T>;
+                ? NothingResult<T>.Default
+                : new JustResult<T>(value);
         }
 
         /// <summary>
@@ -106,36 +125,41 @@ namespace Monad
     public static class OptionExtensions
     {
         /// <summary>
-        /// Converts this object to a Option monad.
-        /// Tretas null as Nothing
+        /// Converts _this_ to an OptionResult<T>.
+        /// Treats null as Nothing
         /// </summary>
-        /// <returns>Option<T></returns>
+        /// <returns>OptionResult<T></returns>
         public static OptionResult<T> ToOption<T>(this T self)
         {
             return self == null
-                ? Option.Nothing<T>()
-                : new Just<T>(self);
+                    ? NothingResult<T>.Default
+                    : new JustResult<T>(self);
         }
 
+        /// <summary>
+        /// Select
+        /// </summary>
         public static Option<R> Select<T, R>(this Option<T> self, Func<T, R> map)
         {
             return () =>
             {
                 var resT = self();
-                return resT.HasValue
-                    ? map(resT.Value).ToOption()
-                    : Option.Nothing<R>();
-            };
-        }
-
-        public static Option<U> SelectMany<T, U>(this Option<T> self, Func<T, Option<U>> k)
-        {
-            return () =>
-            {
-                var resT = self();
-                return resT.HasValue
-                    ? k(resT.Value)()
-                    : new Nothing<U>();
+                if (resT != null && resT.HasValue)
+                {
+                    var resR = map(resT.Value);
+                    if (resR == null)
+                    {
+                        return NothingResult<R>.Default;
+                    }
+                    else
+                    {
+                        return new JustResult<R>(resR);
+                    }
+                }
+                else
+                {
+                    return NothingResult<R>.Default;
+                }
             };
         }
 
@@ -149,14 +173,38 @@ namespace Monad
             {
                 var resT = self();
 
-                if (!resT.HasValue)
-                    return new Nothing<V>();
-
-                var resU = select(resT.Value)();
-                if (!resU.HasValue)
-                    return new Nothing<V>();
-
-                return new Just<V>(project(resT.Value, resU.Value));
+                if (resT != null && resT.HasValue)
+                {
+                    var resUOpt = select(resT.Value);
+                    if (resUOpt != null)
+                    {
+                        var resU = resUOpt();
+                        if (resU != null && resU.HasValue)
+                        {
+                            var resV = project(resT.Value, resU.Value);
+                            if (resV != null)
+                            {
+                                return new JustResult<V>(resV);
+                            }
+                            else
+                            {
+                                return NothingResult<V>.Default;
+                            }
+                        }
+                        else
+                        {
+                            return NothingResult<V>.Default;
+                        }
+                    }
+                    else
+                    {
+                        return NothingResult<V>.Default;
+                    }
+                }
+                else
+                {
+                    return NothingResult<V>.Default;
+                }
             };
         }
 

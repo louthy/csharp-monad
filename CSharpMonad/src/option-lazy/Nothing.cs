@@ -33,8 +33,10 @@ namespace Monad
     /// <summary>
     /// Nothing case of the Option<T> monad
     /// </summary>
-    public class Nothing<T> : OptionResult<T>
+    public class NothingResult<T> : OptionResult<T>
     {
+        internal static OptionResult<T> Default = new NothingResult<T>();
+
         public override string ToString()
         {
             return "[Nothing]";

@@ -66,7 +66,7 @@ namespace Monad.UnitTests
 
         public Option<int> Nothing()
         {
-            return () => Option.Nothing<int>();
+            return Option.Nothing<int>();
         }
     }
 }
