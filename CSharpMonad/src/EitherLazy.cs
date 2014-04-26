@@ -51,6 +51,16 @@ namespace Monad
             Left = l;
             IsLeft = true;
         }
+
+        public static implicit operator EitherPair<R,L>(L value)
+        {
+            return new EitherPair<R,L>(value);
+        }
+
+        public static implicit operator EitherPair<R, L>(R value)
+        {
+            return new EitherPair<R,L>(value);
+        }
     }
 
     /// <summary>
@@ -61,17 +71,25 @@ namespace Monad
         /// <summary>
         /// Construct an Either Left monad
         /// </summary>
-        public static Either<R, L> Left<R, L>(L left)
+        public static Either<R, L> Left<R, L>(Func<L> left)
         {
-            return () => new EitherPair<R, L>(left);
+            return () => new EitherPair<R, L>( left() );
         }
 
         /// <summary>
         /// Construct an Either Right monad
         /// </summary>
-        public static Either<R, L> Right<R, L>(R right)
+        public static Either<R, L> Right<R, L>(Func<R> right)
         {
-            return () => new EitherPair<R, L>(right);
+            return () => new EitherPair<R, L>( right() );
+        }
+
+        /// <summary>
+        /// Construct an either Left or Right
+        /// </summary>
+        public static Either<R, L> Return<R, L>(Func<EitherPair<R,L>> either)
+        {
+            return () => either();
         }
 
         /// <summary>

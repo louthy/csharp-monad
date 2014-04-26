@@ -177,12 +177,12 @@ namespace Monad.UnitTests
 
         public Either<int, string> Two()
         {
-            return Either.Right<int, string>(2);
+            return () => 2;
         }
 
         public Either<int, string> Error()
         {
-            return Either.Left<int, string>("Error!!");
+            return () => "Error!!";
         }
     }
 }
