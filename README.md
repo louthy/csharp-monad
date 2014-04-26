@@ -1,7 +1,7 @@
 csharp-monad
 ============
 
-Library of monads for C#:
+Library of monads and a full set of parser combinators based on the Haskell Parsec library.
 
 * `Either<R,L>`
 * `EitherStrict<R,L>`
@@ -14,9 +14,8 @@ Library of monads for C#:
 * `Try<T>`
 
 
-The library is functional and pretty well tested, but it's in active development, so as you can see documentation is pretty sparse right now and everything is liable to change.
+The library is stable, functional and pretty well tested.
 
-The Token section of the parser components currently don't have enough unit-tests to be confident enough in its robustness.  So be cautious and expect bugs.
 
 ### A note about laziness
 
@@ -237,108 +236,101 @@ You can check the result by looking at the HasValue() property, however each acc
 
 ## Parsec
 
-This is all work in progress, but very stable and functional.  It's probably easiest to check the unit test code for examples of usage.  Here's a very simple expression parser:
+Based on the Haskell Parsec library, this monad allows composition of parsers.  There is a whole library of parsers from reading a single character up to processing expressions and operator associativty.  The library is very stable.  
+
+__Roadmap for this feature__:
+* More unit tests
+* Speed improvements
+* Floating point number parsers
+* Implement the rest of the usefel parsers from the Parsec lib
+
 
 ```C#
-    public class TestExpr
-    {
-        public void ExpressionTests()
-        {
-            var ten = Eval("2*3+4");
+            // Inspired by http://www.stephendiehl.com/llvm/
 
-            Assert.IsTrue(ten == 10);
+            Parser<Term> exprlazy = null;
+            Parser<Term> expr = Prim.Lazy<Term>(() => exprlazy);
+            Func<Parser<Term>,Parser<ImmutableList<Term>>> many = Prim.Many;
+            Func<Parser<Term>,Parser<Term>> @try = Prim.Try;
 
-            var fourteen = Eval("2*(3+4)");
+            var def = new Lang();
+            var lexer = Tok.MakeTokenParser<Term>(def);
+            var binops = BuildOperatorsTable<Term>(lexer);
 
-            Assert.IsTrue(fourteen == 14);
-        }
+            // Lexer
+            var intlex = lexer.Integer;
+            var floatlex = lexer.Float;
+            var parens = lexer.Parens;
+            var commaSep = lexer.CommaSep;
+            var semiSep = lexer.SemiSep;
+            var identifier = lexer.Identifier;
+            var reserved = lexer.Reserved;
+            var reservedOp = lexer.ReservedOp;
+            var whiteSpace = lexer.WhiteSpace;
 
-        public int Eval(string expr)
-        {
-            var r = New.Expr().Parse(expr);
-            if (r.Count() == 0)
-            {
-                throw new Exception("Invalid expression");
-            }
-            else
-            {
-                return r.First().Item1;
-            }
-        }
-    }
+            // Parser
+            var integer = from n in intlex
+                          select new Integer(n) as Term;
 
-    public class New
-    {
-        public static Expr Expr()
-        {
-            return new Expr();
-        }
-        public static Term Term()
-        {
-            return new Term();
-        }
-        public static Factor Factor()
-        {
-            return new Factor();
-        }
-    }
+            var variable = from v in identifier
+                           select new Var(v) as Term;
 
-    public class Expr : Parser<int>
-    {
-        public Expr()
-            :
-            base(
-                inp => (from t in New.Term()
-                        from e in
-                            (from plus in Gen.Character('+')
-                             from expr in New.Expr()
-                             select expr)
-                             | Gen.Return<int>(0)
-                        select t + e)
-                       .Parse(inp)
-            )
-        { }
-    }
+            var manyargs = parens(from ts in many(variable)
+                                  select new Arguments(ts) as Term);
 
-    public class Term : Parser<int>
-    {
-        public Term()
-            :
-            base(
-                inp => (from f in New.Factor()
-                        from t in
-                            (from mult in Gen.Character('*')
-                             from term in New.Term()
-                             select term)
-                             | Gen.Return<int>(1)
-                        select f * t)
-                       .Parse(inp)
-            )
-        { }
-    }
+            var commaSepExpr = parens(from cs in commaSep(expr)
+                                      select new Exprs(cs) as Term);
 
-    public class Factor : Parser<int>
-    {
-        public Factor()
-            :
-            base(
-                inp => (from choice in
-                            (from d in Gen.Digit()
-                             select Int32.Parse(d.Value.ToString()))
-                             | from open in Gen.Character('(')
-                               from expr in New.Expr()
-                               from close in Gen.Character(')')
-                               select expr
-                        select choice)
-                        .Parse(inp)
+            var function = from resv in reserved("def")
+                           from name in identifier
+                           from args in manyargs
+                           from body in expr
+                           select new Function(name, args, body) as Term;
 
-            )
-        { }
+            var externFn = from resv in reserved("extern")
+                           from name in identifier
+                           from args in manyargs
+                           select new Extern(name, args) as Term;
 
-    }
+            var call = from name in identifier
+                       from args in commaSepExpr
+                       select new Call(name, args as Exprs) as Term;
+
+            var subexpr = (from p in parens(expr)
+                           select new Expression(p) as Term);
+
+            var factor = from f in @try(integer)
+                         | @try(externFn)
+                         | @try(function)
+                         | @try(call)
+                         | @try(variable)
+                         | subexpr
+                         select f;
+
+            var defn = from f in @try(externFn)
+                       | @try(function)
+                       | @try(expr)
+                       select f;
+
+            var toplevel = from ts in many(
+                               from fn in defn
+                               from semi in reservedOp(";")
+                               select fn
+                           )
+                           select ts;
+
+            exprlazy = Ex.BuildExpressionParser<Term>(binops, factor);
+
+            var text = @"def foo(x y) x+foo(y, 4);
+                         def foo(x y) x+y*2;
+                         def foo(x y) x+y;
+                         extern sin(a);";
+
+            var result = toplevel.Parse(text);
 ```
 
-I will be updating this library with more parser components for language-parser building.  Watch this space :)
+For the full version of this, including the definition of the operator table, see LexerTests.cs in the UnitTest project.
+
 
 
 ## Reader
