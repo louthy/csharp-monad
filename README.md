@@ -239,9 +239,9 @@ Based on the Haskell Parsec library, this monad allows composition of parsers.  
 
 __Roadmap for this feature__:
 * More unit tests
-* Speed improvements
 * Floating point number parsers
-* Implement the rest of the usefel parsers from the Parsec lib
+* Speed improvements (the example below, which is pretty damn complex, can parse 800 lines of source in 750ms - which isn't bad, but can be improved)
+* Implement the rest of the usefel parsers from the Parsec lib (almost everything you'll need is in the package already - check the static `Prim`, `Tok` and `Ex` helpers - but it would be nice to have the full set)
 
 
 __Example__
