@@ -246,6 +246,8 @@ __Roadmap for this feature__:
 
 
 ```C#
+            // Inspired by http://www.stephendiehl.com/llvm/
+
             Parser<Term> exprlazy = null;
             Parser<Term> expr = Prim.Lazy<Term>(() => exprlazy);
             Func<Parser<Term>,Parser<ImmutableList<Term>>> many = Prim.Many;
