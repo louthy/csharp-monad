@@ -376,7 +376,33 @@ Note how the `person` is passed to the reader at the end.  That invokes the bind
 
 ## State
 
-__Documentation coming soon__
+Pass in some initial state which can be 'mutated' through the bind function.  In reality the state isn't mutated, as each stage returns a new version.  A `Tuple` is used to facilitate the passing of state and the underlying monad value.  `Item1` is the state, `Item2` is the monadic value.  
+
+If you take a look at the example below, `w`, `x` and `y` in the LINQ expression hold `0`, `1` and `2` respectivly.  
+
+```C#
+        var state = State.Return<string,int>(0);
+
+        var sm = from w in state
+                 from x in DoSomething()
+                 from y in DoSomethingElse()
+                 select x + y;
+
+        var res = sm("Hello");
+
+        Assert.IsTrue(res.Item1 == "Hello, World");
+        Assert.IsTrue(res.Item2 == 3);
+
+        State<string,int> DoSomethingElse()
+        {
+            return state => Tuple.Create(state + "rld", 1);
+        }
+
+        State<string,int> DoSomething()
+        {
+            return state => Tuple.Create(state + ", Wo", 2);
+        }
+```
         
 
 ## Try monad
