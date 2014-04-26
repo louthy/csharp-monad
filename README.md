@@ -381,9 +381,7 @@ Pass in some initial state which can be 'mutated' through the bind function.  In
 If you take a look at the example below, `w`, `x` and `y` in the LINQ expression hold `0`, `1` and `2` respectivly.  
 
 ```C#
-        var state = State.Return<string,int>(0);
-
-        var sm = from w in state
+        var sm = from w in State.Return<string,int>(0)
                  from x in DoSomething()
                  from y in DoSomethingElse()
                  select x + y;
