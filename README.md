@@ -219,7 +219,7 @@ If you're thinking of returning `null`, don't.  Use `Option<T>`.  It works a bit
             var rnd = new Random(); 
             
             return () =>
-                 (Math.Abs(rnd.Next()_ % 10) > 5
+                 Math.Abs(rnd.Next() % 10) > 5
                         ? rnd.ToOption()
                         : Option<int>.Nothing;
         }
