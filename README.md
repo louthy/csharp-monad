@@ -19,7 +19,7 @@ The library is stable, functional and pretty well tested.
 
 ### A note about laziness
 
-All of the monads in this library (except for those ending in `Strict`) are either delegates or (as in the case of the `Parser<T>`), they are wrappers for delegates.  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<T>` monad has `Value()` and `HasValue()` extension methods:
+All of the monads in this library (except for those ending in `Strict`) are either delegates or they are wrappers for delegates (as in the case of the `Parser<T>`).  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<T>` monad has `Value()` and `HasValue()` extension methods:
 
 ```C#
         Option<T> option = from x in DoSomething()
@@ -31,7 +31,7 @@ All of the monads in this library (except for those ending in `Strict`) are eith
                 return option.Value();
         }
 ```
-`HasValue()` and `Value()` will both cause the LINQ expression above to be invoked.  Therefore you end up doing twice as much work for no reason.  You can mitigate this by invoking the result once:
+`HasValue()` and `Value()` will both cause the LINQ expression above to be invoked.  Therefore you end up doing the same computation twice.  You can mitigate this by invoking the result once:
 ```C#
         Option<T> option = from x in DoSomething()
                            from y in DoSomethingElse()
@@ -66,11 +66,11 @@ Or by either using the `Match` methods on each monad (see the documentation afte
                              Nothing: 0
                         );
 ```
-Note that even `Match` uses laziness, but the testing for valid values is now encapsulated.  You would still need to be careful when using the `res`. 
+Note that even `Match` uses laziness, but the testing for valid values is now encapsulated into a single expression.  You would still need to be careful when using the result `res`. 
 
-All of them are valid methods, they're designed to fit the various scenarios that you may need them for.  You may wonder why do this at all?  The primary benefit of using laziness is that you can avoid doing calculations that aren't required, this allows you to build a more expression oriented system rather than the standard if-then-thatness of imperative programming.
+All of these are valid methods, they're designed to fit the various scenarios in which you may need them.  You may wonder why do this at all?  The primary benefit of using laziness is that you can avoid doing calculations that aren't required, this allows you to build a more expression oriented system rather than the standard if-then-thatness of imperative programming.
 
-You can always collapse the laziness by invoking the monad delegate, so you can have the best of both worlds.
+You can always collapse the laziness by invoking the monad delegate, so you can have the best of both worlds. 
 
 
 ## Either monad
@@ -78,7 +78,7 @@ You can always collapse the laziness by invoking the monad delegate, so you can 
 The `Either` monad represents values with two possibilities: a value of `Left` or `Right`.
 `Either` is sometimes used to represent a value which is either correct or an error, by convention, `Left` is used to hold an error value `Right` is used to hold a correct value.
 
-So you can see that Either has a very close relationship to the `Try` monad.  However, the `Either` monad won't capture exceptions.  `Either` would primarily be used for known error values rather than exceptional ones.
+`Either` has a very close relationship to the `Try` monad (`Left` is `Exception` on the `Try` monad) and the `Option` monad (`Left` is `Nothing`).  However, the `Either` monad won't capture exceptions and can represent a concrete value as an alternative.  `Either` would primarily be used for known errors  rather than exceptional ones.
 
 Once the `Either` monad is in the `Left` state it cancels the monad bind function and returns immediately.
 
@@ -89,12 +89,12 @@ First we set up some methods that return either a `Left` or a `Right`.  In this 
 ```C#    
         public Either<int, string> Two()
         {
-            return Either.Right<int, string>(2);
+            return () => 2;
         }
     
         public Either<int, string> Error()
         {
-            return Either.Left<int, string>("Error!!");
+            return () => "Error!!";
         }
 ```
 
@@ -124,9 +124,9 @@ __Example__
 ```C#
         // Delegate with named properties
         var unit =
-            (from one in Two()
-             from two in Two()
-             select one + two)
+            (from lhs in Two()
+             from rhs in Two()
+             select lhs + rhs)
             .Match(
                 Right: r => Assert.IsTrue(r == 4),
                 Left: l => Assert.IsFalse(true)
@@ -134,9 +134,9 @@ __Example__
             
         // Delegate without named properties
         var unit =
-            (from one in Two()
-             from two in Two()
-             select one + two)
+            (from lhs in Two()
+             from rhs in Two()
+             select lhs + rhs)
             .Match(
                 right => Assert.IsTrue(right == 4),
                 left => Assert.IsFalse(true)
@@ -144,9 +144,9 @@ __Example__
 
         // Projection with named properties
         var result =
-            (from one in Two()
-             from two in Two()
-             select one + two)
+            (from lhs in Two()
+             from rhs in Two()
+             select lhs + rhs)
             .Match(
                 Right: r => r * 2,
                 Left: l => 0
@@ -156,9 +156,9 @@ __Example__
         
         // Projection without named properties
         var result =
-            (from one in Two()
-             from two in Two()
-             select one + two)
+            (from lhs in Two()
+             from rhs in Two()
+             select lhs + rhs)
             .Match(
                 r => r * 2,
                 l => 0
@@ -170,15 +170,14 @@ __Example__
 
 ## IO monad
 
-The IO monad may be seen as unnecessary in C# where everything has side-effects, but it can be useful for chaining IO calls and lazy-loading, however I think it's main benefit is as a programmer warning of the potential non-repeatable nature of a method.
+The IO monad may be seen as unnecessary in C# where everything has side-effects, but it can be useful for chaining IO calls and lazy-loading, however I think its main benefit is as a programmer warning of the potential non-repeatable nature of a method.
 
 __Example__
 
 ```C#
         private static IO<Unit> DeleteFile(string tmpFileName)
         {
-            return () =>
-                Unit.Return( () => File.Delete(tmpFileName) );
+            return () => Unit.Return( () => File.Delete(tmpFileName) );  // Unit.Return is used to wrap the 'void' return
         }
 
         private static IO<string> ReadFile(string tmpFileName)
@@ -188,8 +187,7 @@ __Example__
 
         private static IO<Unit> WriteFile(string tmpFileName, string data)
         {
-            return () =>
-                Unit.Return( () => File.WriteAllText(tmpFileName, data) );
+            return () => Unit.Return( () => File.WriteAllText(tmpFileName, data) );
         }
 
         private static IO<string> GetTempFileName()
@@ -209,7 +207,7 @@ __Example__
 ```
 ## Option monad 
 
-If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit like `Nullable<T>` but it works with reference types too and implements the monad bind function.  The bind is cancelled as soon as `Option<T>.Nothing` is returned by any method.  `Option` is known as the `Maybe` monad.
+If you're thinking of returning `null`, don't.  Use `Option<T>`.  It works a bit like `Nullable<T>` but it works with reference types too and implements the monad bind function.  The bind is cancelled as soon as `Option<T>.Nothing` is returned by any method.  `Option` is also known as the `Maybe` monad.
 ```C#
         result = from o in MaybeGetAnInt()
                  from o2 in Option<int>.Nothing
@@ -218,11 +216,12 @@ If you're thinking of returning null, don't.  Use `Option<T>`.  It works a bit l
 
         public Option<int> MaybeGetAnInt()
         {
-            var rnd = Math.Abs(new Random().Next());
-        
-            return (rnd % 10) > 5
-                ? rnd.ToOption()
-                : Option<int>.Nothing;
+            var rnd = new Random(); 
+            
+            return () =>
+                 (Math.Abs(rnd.Next()_ % 10) > 5
+                        ? rnd.ToOption()
+                        : Option<int>.Nothing;
         }
 ```
 You can check the result by looking at the HasValue() property, however each access to `HasValue()`, `Value()`, etc will re-invoke the option function, so it's best to match on the result, or call `GetValueOrDefault`.
@@ -243,6 +242,9 @@ __Roadmap for this feature__:
 * Speed improvements
 * Floating point number parsers
 * Implement the rest of the usefel parsers from the Parsec lib
+
+
+__Example__
 
 
 ```C#
@@ -331,8 +333,6 @@ __Roadmap for this feature__:
 
 For the full version of this, including the definition of the operator table, see LexerTests.cs in the UnitTest project.
 
-
-
 ## Reader
 
 The `Reader<E,T>` monad is for passing an initial 'environment' state through the bind function,  Each stage will recieve the same `E` environment reference (ideally you should make it immutable to be pure - it's not supposed to be a state monad).
@@ -381,9 +381,9 @@ __Documentation coming soon__
 
 ## Try monad
 
-Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure. Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
+Used for computations which may fail or throw exceptions.  Failure records information about the cause/location of the failure (in the `Exception` property).  Failure values bypass the bound function.  Useful for building computations from sequences of functions that may fail or using exception handling to structure error handling.
 
-Use `()` or '.Invoke()' at the end of an expression to invoke the bind function.  You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from the invocation (or by using the `Match` methods), the Exception property will hold the thrown exception.
+You can check if an exception was thrown by testing `IsFaulted` on the `ErrorResult<T>` returned from the invocation (or by using the `Match` methods).
 
 __Example__
 
