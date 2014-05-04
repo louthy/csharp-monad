@@ -378,7 +378,7 @@ Note how the `person` is passed to the reader at the end.  That invokes the bind
 
 Pass in some initial state which can be 'mutated' through the bind function.  In reality the state isn't mutated, as each stage returns a new instance.  A `Tuple` is used to facilitate the passing of state and the underlying monad value.  `Item1` is the state, `Item2` is the monadic value.  
 
-If you take a look at the example below, `w`, `x` and `y` in the LINQ expression hold `0`, `1` and `2` respectivly.  
+If you take a look at the example below, you should see that both the underlying `int` value and the `string` state are being manipulated in the same expression.  
 
 ```C#
             var first  = State.Return<string,int>(10);
