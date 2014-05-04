@@ -23,21 +23,46 @@
 // 
 
 using System;
+using Monad.Utility;
 
 namespace Monad
 {
     public delegate Tuple<S,A> State<S,A>(S state);
 
-    public class State
+    public static class State
     {
-        public static State<S,A> Return<S,A>(A value)
+        public static State<S,A> Return<S,A>(A value = default(A))
         {
             return (S state) => new Tuple<S,A>(state, value);
+        }
+
+        public static State<S,S> Get<S>( Func<S,S> f )
+        {
+            return (S state) => Tuple.Create<S,S>( state, f(state) );
+        }
+
+        public static State<S,S> Get<S>()
+        {
+            return (S state) => Tuple.Create<S,S>( state, state );
+        }
+
+        public static State<S,Unit> Put<S>( S state )
+        {
+            return _ => Tuple.Create<S,Unit>( state, Unit.Return() );
         }
     }
 
     public static class StateExt
     {
+        public static State<S,A> With<S,A>( this State<S,A> self, Func<S,S> f )
+        {
+            return (S state) =>
+            {
+                var res = self(state);
+                return Tuple.Create<S,A>(f(res.Item1), res.Item2);
+            };
+        }
+
         public static State<S, U> Select<S,T,U>(this State<S,T> self, Func<T,U> map)
         {
             return (S state) =>
