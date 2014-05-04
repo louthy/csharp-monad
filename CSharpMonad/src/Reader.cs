@@ -39,6 +39,27 @@ namespace Monad
     public delegate A Reader<E, A>(E environment);
 
     /// <summary>
+    /// Reader.
+    /// </summary>
+    public static class Reader
+    {
+        public static Reader<E, A> Return<E, A>(A value = default(A))
+        {
+            return (E env) => value;
+        }
+
+        public static Reader<E,E> Ask<E>( Func<E,E> f )
+        {
+            return (E env) => f(env);
+        }
+
+        public static Reader<E,E> Ask<E>()
+        {
+            return (E env) => env;
+        }
+    }
+
+    /// <summary>
     /// Reader monad extensions
     /// </summary>
     public static class ReaderExt

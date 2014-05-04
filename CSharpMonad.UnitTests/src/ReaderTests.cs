@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Monad;
 
-namespace Monad.UnitTests.src
+namespace Monad.UnitTests
 {
     [TestFixture]
     public class ReaderTests
@@ -23,6 +23,49 @@ namespace Monad.UnitTests.src
             Assert.IsTrue(reader(person) == "Joe Bloggs");
 
         }
+
+        [Test]
+        public void ReaderAskTest1()
+        {
+            var person = new Person { Name = "Joe", Surname = "Bloggs" };
+
+            var reader = from p in Reader.Ask<Person>()
+                         select p.Name  + " " + p.Surname;
+
+            Assert.IsTrue(reader(person) == "Joe Bloggs");
+
+        }
+
+        [Test]
+        public void ReaderAskTest2()
+        {
+            var person = new Person { Name = "Joe", Surname = "Bloggs" };
+
+            var reader = from p in Reader.Ask<Person>()
+                         let nl = p.Name.Length
+                         let sl = p.Surname.Length
+                         select nl * sl;
+
+            Assert.IsTrue(reader(person) == 18);
+
+        }
+
+        [Test]
+        public void ReaderAskReturnAndBindTest()
+        {
+            var person = new Person { Name = "Joe", Surname = "Bloggs" };
+
+            var initial = Reader.Return<Person,int>(10);
+
+            var reader = from x in initial
+                         from p in Reader.Ask<Person>()
+                         let nl = p.Name.Length
+                         let sl = p.Surname.Length
+                         select nl * sl * x;
+
+            Assert.IsTrue(reader(person) == 180);
+        }
+
 
         class Person
         {

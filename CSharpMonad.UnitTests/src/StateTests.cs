@@ -96,9 +96,9 @@ namespace Monad.UnitTests
         [Test]
         public void StateTest6()
         {            
-            var first = State.Return<string,int>(10);
+            var first  = State.Return<string,int>(10);
             var second = State.Return<string,int>(3);
-            var third = State.Return<string,int>(5);
+            var third  = State.Return<string,int>(5);
             var fourth = State.Return<string,int>(100);
 
             var sm = from x in first
@@ -111,7 +111,7 @@ namespace Monad.UnitTests
                      from s2 in State.Put( s1 + " " + (z * w) )
                      select x * y * z * w;
 
-            var res = sm(", World");
+            var res = sm(", World"); // Invoke with the initial state
 
             Assert.IsTrue(res.Item1 == "Hello 30, Worldyyy 500");
             Assert.IsTrue(res.Item2 == 15000);
