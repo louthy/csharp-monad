@@ -393,7 +393,7 @@ Here's another example mixing both the underlying value `10` and the environment
 
 ## State
 
-Pass in some initial state which can be 'mutated' through the bind function.  In reality the state isn't mutated, as each stage returns a new instance.  A `Tuple` is used to facilitate the passing of state and the underlying monad value.  `Item1` is the state, `Item2` is the monadic value.  
+Pass in some initial state which can be 'mutated' through the bind function.  In reality the state isn't mutated, as each stage returns a new instance.  A `StateResult<S,T>` is used to facilitate the passing of state and the underlying monad value.  `Item1` is the state, `Item2` is the monadic value.  
 
 If you take a look at the example below, you should see that both the underlying `int` value and the `string` state are being manipulated in the same expression.  
 
@@ -415,8 +415,8 @@ If you take a look at the example below, you should see that both the underlying
 
             var res = sm(", World"); // Invoke with the initial state
 
-            Assert.IsTrue(res.Item1 == "Hello 30, Worldyyy 500");
-            Assert.IsTrue(res.Item2 == 15000);
+            Assert.IsTrue(res.State == "Hello 30, Worldyyy 500");
+            Assert.IsTrue(res.Value == 15000);
 
 ```
         
