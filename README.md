@@ -12,6 +12,7 @@ Library of monads and a full set of parser combinators based on the Haskell Pars
 * `Reader<E,T>`
 * `State<S,T>`
 * `Try<T>`
+* `Writer<W,T>`
 
 
 The library is stable, functional and pretty well tested.
@@ -474,6 +475,9 @@ You can pattern match on the result to make it simpler:
                         );
 ```
 
+## Writer monad
+
+__Documentation coming soon__
 
 
 
