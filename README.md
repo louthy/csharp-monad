@@ -381,25 +381,26 @@ Pass in some initial state which can be 'mutated' through the bind function.  In
 If you take a look at the example below, `w`, `x` and `y` in the LINQ expression hold `0`, `1` and `2` respectivly.  
 
 ```C#
-        var sm = from w in State.Return<string,int>(0)
-                 from x in DoSomething()
-                 from y in DoSomethingElse()
-                 select x + y;
+            var first  = State.Return<string,int>(10);
+            var second = State.Return<string,int>(3);
+            var third  = State.Return<string,int>(5);
+            var fourth = State.Return<string,int>(100);
 
-        var res = sm("Hello");
+            var sm = from x in first
+                     from t in State.Get<string>( s => s + "yyy" )
+                     from y in second
+                     from s in State.Put("Hello " + (x * y) + t)
+                     from z in third
+                     from w in fourth
+                     from s1 in State.Get<string>()
+                     from s2 in State.Put( s1 + " " + (z * w) )
+                     select x * y * z * w;
 
-        Assert.IsTrue(res.Item1 == "Hello, World");
-        Assert.IsTrue(res.Item2 == 3);
+            var res = sm(", World"); // Invoke with the initial state
 
-        State<string,int> DoSomethingElse()
-        {
-            return state => Tuple.Create(state + "rld", 1);
-        }
+            Assert.IsTrue(res.Item1 == "Hello 30, Worldyyy 500");
+            Assert.IsTrue(res.Item2 == 15000);
 
-        State<string,int> DoSomething()
-        {
-            return state => Tuple.Create(state + ", Wo", 2);
-        }
 ```
         
 
