@@ -55,10 +55,26 @@ namespace Monad.UnitTests
         {
             var person = new Person { Name = "Joe", Surname = "Bloggs" };
 
-            var initial = Reader.Return<Person,int>(10);
+            var env = Reader.Return<Person,int>(10);
 
-            var reader = from x in initial
+            var reader = from x in env
                          from p in Reader.Ask<Person>()
+                         let nl = p.Name.Length
+                         let sl = p.Surname.Length
+                         select nl * sl * x;
+
+            Assert.IsTrue(reader(person) == 180);
+        }
+
+        [Test]
+        public void ReaderAskReturnAndBindTest2()
+        {
+            var person = new Person { Name = "Joe", Surname = "Bloggs" };
+
+            var env = Reader.Return<Person,int>(10);
+
+            var reader = from x in env
+                         from p in env.Ask()
                          let nl = p.Name.Length
                          let sl = p.Surname.Length
                          select nl * sl * x;

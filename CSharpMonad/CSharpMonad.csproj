@@ -50,7 +50,6 @@
     <Compile Include="src\option-strict\Nothing.cs" />
     <Compile Include="src\option-strict\OptionStrict.cs" />
     <Compile Include="src\parsec\ParserException.cs" />
-    <Compile Include="src\parsec\ImmutableList.cs" />
     <Compile Include="src\Try.cs" />
     <Compile Include="src\ext\TupleExt.cs" />
     <Compile Include="src\IAppendable.cs" />
@@ -94,6 +93,8 @@
     <Compile Include="src\utility\Unit.cs" />
     <Compile Include="src\EitherStrict.cs" />
     <Compile Include="src\State.cs" />
+    <Compile Include="src\Writer.cs" />
+    <Compile Include="src\utility\ImmutableList.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

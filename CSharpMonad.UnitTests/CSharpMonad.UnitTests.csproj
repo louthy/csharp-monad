@@ -60,6 +60,7 @@
     <Compile Include="src\Combined.cs" />
     <Compile Include="src\ReaderTests.cs" />
     <Compile Include="src\StateTests.cs" />
+    <Compile Include="src\WriterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharpMonad\CSharpMonad.csproj">

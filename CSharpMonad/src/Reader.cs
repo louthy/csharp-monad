@@ -64,6 +64,16 @@ namespace Monad
     /// </summary>
     public static class ReaderExt
     {
+        public static Reader<E,E> Ask<E,T>(this Reader<E, T> self, Func<E,E> f )
+        {
+            return (E env) => f(env);
+        }
+
+        public static Reader<E,E> Ask<E,T>(this Reader<E, T> self)
+        {
+            return (E env) => env;
+        }
+
         /// <summary>
         /// Select
         /// </summary>
@@ -77,15 +87,15 @@ namespace Monad
         /// </summary>
         public static Reader<E, V> SelectMany<E, T, U, V>(
             this Reader<E, T> self,
-            Func<T, Reader<E, U>> select,
-            Func<T, U, V> bind
+            Func<T, Reader<E, U>> bind,
+            Func<T, U, V> project
             )
         {
             return (E env) =>
                 {
                     var resT = self(env);
-                    var resU = select(resT);
-                    var resV = bind(resT, resU(env));
+                    var resU = bind(resT);
+                    var resV = project(resT, resU(env));
                     return resV;
                 };
         }

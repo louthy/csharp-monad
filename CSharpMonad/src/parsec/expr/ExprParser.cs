@@ -32,6 +32,7 @@ using Monad;
 using Monad.Parsec;
 using Monad.Parsec.Token;
 using Monad.Parsec.Expr;
+using Monad.Utility;
 
 namespace Monad.Parsec.Expr
 {

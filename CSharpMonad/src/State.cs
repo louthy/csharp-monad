@@ -27,28 +27,54 @@ using Monad.Utility;
 
 namespace Monad
 {
-    public delegate Tuple<S,A> State<S,A>(S state);
+    public delegate StateResult<S,A> State<S,A>(S state);
 
     public static class State
     {
         public static State<S,A> Return<S,A>(A value = default(A))
         {
-            return (S state) => new Tuple<S,A>(state, value);
+            return (S state) => new StateResult<S,A>(state, value);
         }
 
         public static State<S,S> Get<S>( Func<S,S> f )
         {
-            return (S state) => Tuple.Create<S,S>( state, f(state) );
+            return (S state) => StateResult.Create<S,S>( state, f(state) );
         }
 
         public static State<S,S> Get<S>()
         {
-            return (S state) => Tuple.Create<S,S>( state, state );
+            return (S state) => StateResult.Create<S,S>( state, state );
         }
 
         public static State<S,Unit> Put<S>( S state )
         {
-            return _ => Tuple.Create<S,Unit>( state, Unit.Return() );
+            return _ => StateResult.Create<S,Unit>( state, Unit.Return() );
+        }
+    }
+
+    /// <summary>
+    /// State result.
+    /// </summary>
+    public class StateResult<S,A> 
+    {
+        public readonly A Value;
+        public readonly S State;
+
+        internal StateResult(S state, A value)
+        {
+            Value = value;
+            State = state;
+        }
+    }
+
+    /// <summary>
+    /// State result factory
+    /// </summary>
+    public class StateResult 
+    {
+        public static StateResult<S,A> Create<S,A>(S state, A value)
+        {
+            return new StateResult<S, A>(state, value);
         }
     }
 
@@ -59,7 +85,7 @@ namespace Monad
             return (S state) =>
             {
                 var res = self(state);
-                return Tuple.Create<S,A>(f(res.Item1), res.Item2);
+                return StateResult.Create<S,A>(f(res.State), res.Value);
             };
         }
 
@@ -68,7 +94,7 @@ namespace Monad
             return (S state) =>
             {
                 var resT = self(state);
-                return Tuple.Create<S,U>( resT.Item1, map(resT.Item2) );
+                return StateResult.Create<S,U>( resT.State, map(resT.Value) );
             };
         }
 
@@ -81,16 +107,16 @@ namespace Monad
             return (S state) =>
             {
                 var resT = self(state);
-                var resU = bind(resT.Item2)(resT.Item1);
-                var resV = project(resT.Item2,resU.Item2);
-                return new Tuple<S,V>(resU.Item1,resV);
+                var resU = bind(resT.Value)(resT.State);
+                var resV = project(resT.Value,resU.Value);
+                return new StateResult<S,V>(resU.State,resV);
             };
         }
 
         /// <summary>
         /// Memoize the result 
         /// </summary>
-        public static Func<Tuple<S,A>> Memo<S, A>(this State<S, A> self, S state)
+        public static Func<StateResult<S,A>> Memo<S, A>(this State<S, A> self, S state)
         {
             var res = self(state);
             return () => res;
