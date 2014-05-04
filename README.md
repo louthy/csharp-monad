@@ -10,6 +10,7 @@ Library of monads and a full set of parser combinators based on the Haskell Pars
 * `OptionStrict<T>`
 * `Parser<T>`
 * `Reader<E,T>`
+* `RWS<R,W,S,T>` - Combined Reader/Writer/State
 * `State<S,T>`
 * `Try<T>`
 * `Writer<W,T>`
@@ -390,6 +391,63 @@ Here's another example mixing both the underlying value `10` and the environment
 
             Assert.IsTrue(reader(person) == 180);
 ```
+
+## RWS
+
+### Reader / Writer / State monad
+
+__Documentation coming soon__
+
+*Quick example below - note the API is likely to change*
+
+```C#
+    public class ReaderWriterStateTests
+    {
+        [Test]
+        public void ReaderWriterStateTest1()
+        {
+            var world = RWS.Return<Env,string,App,int>(0);
+
+            var rws = (from init in world
+                       from app in RWS.Get<Env,string,App>()
+                       from env in world.Ask()
+                       from x in Value(app.UsersLoggedIn, "Users logged in: " + app.UsersLoggedIn)
+                       from y in Value(100, "System folder: " + env.SystemFolder)
+                       from s in RWS.Put<Env,string,App>(new App { UsersLoggedIn = 35 })
+                       from t in RWS.Tell<Env,string,App>("Process complete")
+                       select x * y)
+                      .Memo(new Env(), new App());
+
+            var res = rws(); 
+
+            Assert.IsTrue(res.Value == 3400); 
+            Assert.IsTrue(res.State.UsersLoggedIn == 35); 
+            Assert.IsTrue(res.Output.Count() == 3); 
+            Assert.IsTrue(res.Output.First() == "Users logged in: 34"); 
+            Assert.IsTrue(res.Output.Skip(1).First() == "System folder: C:/Temp"); 
+            Assert.IsTrue(res.Output.Skip(2).First() == "Process complete"); 
+        }
+
+        public static RWS<Env,string,App,int> Value(int val, string log)
+        {
+            return (Env r, App s) => RWS.Tell<string,App,int>(val, log);
+        }
+    }
+
+
+    public class App
+    {
+        public int UsersLoggedIn = 34;
+    }
+
+    public class Env
+    {
+        public string SystemFolder = "C:/Temp";
+    }
+```
+
+
+
 
 ## State
 
