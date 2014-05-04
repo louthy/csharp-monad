@@ -374,6 +374,22 @@ Next see how we can use those methods and the environment class (Person) in a mo
 
 Note how the `person` is passed to the reader at the end.  That invokes the bind function using the environment.
 
+Here's another example mixing both the underlying value `10` and the environment `Person`:
+
+```C#
+            var person = new Person { Name = "Joe", Surname = "Bloggs" };
+
+            var initial = Reader.Return<Person,int>(10);
+
+            var reader = from x in initial
+                         from p in Reader.Ask<Person>()
+                         let nl = p.Name.Length
+                         let sl = p.Surname.Length
+                         select nl * sl * x;
+
+            Assert.IsTrue(reader(person) == 180);
+```
+
 ## State
 
 Pass in some initial state which can be 'mutated' through the bind function.  In reality the state isn't mutated, as each stage returns a new instance.  A `Tuple` is used to facilitate the passing of state and the underlying monad value.  `Item1` is the state, `Item2` is the monadic value.  
