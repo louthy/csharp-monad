@@ -479,5 +479,23 @@ You can pattern match on the result to make it simpler:
 
 __Documentation coming soon__
 
+*Here's a quick example*
+
+```C#
+        var res = (from a in LogNumber(3)
+                   from b in LogNumber(5)
+                   from _ in Writer.Tell("Gonna multiply these two")
+                   select a * b)
+                  .Memo();
+
+        Assert.IsTrue(res().Value == 15 && res().Output.Count() == 3);
+        Assert.IsTrue(res().Output.First() == "Got number: 3");
+        Assert.IsTrue(res().Output.Skip(1).First() == "Got number: 5");
+        Assert.IsTrue(res().Output.Skip(2).First() == "Gonna multiply these two");
 
 
+        private static Writer<string,int> LogNumber(int num)
+        {
+            return () => Writer.Tell(num, "Got number: " + num);
+        }
+```
