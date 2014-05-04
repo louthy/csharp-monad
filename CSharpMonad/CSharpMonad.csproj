@@ -95,6 +95,7 @@
     <Compile Include="src\State.cs" />
     <Compile Include="src\Writer.cs" />
     <Compile Include="src\utility\ImmutableList.cs" />
+    <Compile Include="src\RWS.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
