@@ -173,6 +173,7 @@ namespace Monad
             var res = self();
             return () => res;
         }
+
     }
 
     public static class IO
@@ -183,6 +184,11 @@ namespace Monad
         public static IO<T> Mempty<T>()
         {
             return () => default(T);
+        }
+
+        public static IO<T> Return<T>(IO<T> func)
+        {
+            return func;
         }
     }
 

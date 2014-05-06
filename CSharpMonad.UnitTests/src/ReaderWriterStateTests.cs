@@ -40,13 +40,13 @@ namespace Monad.UnitTests
         {
             var world = RWS.Return<Env,string,App,int>(0);
 
-            var rws = (from init in world
+            var rws = (from _   in world
                        from app in RWS.Get<Env,string,App>()
-                       from env in world.Ask()
-                       from x in Value(app.UsersLoggedIn, "Users logged in: " + app.UsersLoggedIn)
-                       from y in Value(100, "System folder: " + env.SystemFolder)
-                       from s in RWS.Put<Env,string,App>(new App { UsersLoggedIn = 35 })
-                       from t in RWS.Tell<Env,string,App>("Process complete")
+                       from env in RWS.Ask<Env,string,App>()
+                       from x   in Value(app.UsersLoggedIn, "Users logged in: " + app.UsersLoggedIn)
+                       from y   in Value(100, "System folder: " + env.SystemFolder)
+                       from s   in RWS.Put<Env,string,App>(new App { UsersLoggedIn = 35 })
+                       from t   in RWS.Tell<Env,string,App>("Process complete")
                        select x * y)
                       .Memo(new Env(), new App());
 

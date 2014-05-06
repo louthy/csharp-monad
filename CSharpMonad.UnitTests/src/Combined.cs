@@ -108,23 +108,24 @@ namespace Monad.UnitTests
             Assert.IsTrue(rdrT("environ")().Value() == "Hello, World");
         }
 
-        public Try<Option<IO<string>>> OpenFile()
+        public Try<Option<IO<string>>> OpenFile(string fn)
         {
-            return () => Option.Return(() => I.O(() => "Data"));
+            return () => Option.Return(() => IO.Return(() => "Data"+fn));
         }
 
         [Test]
         public void TransTest2()
         {
-            Func<string, string> id = a => a;
-
-            var mon = from ed1 in OpenFile()
-                      from ed2 in OpenFile()
-                      select ed1.LiftM2(id) + ed2.LiftIO(id);
+            var mon = from ed1 in OpenFile("1")
+                      from ed2 in OpenFile("2")
+                      select Lift.M(ed1, ed2, (ioa,iob) => 
+                          Lift.M(ioa, iob, (a,b) => 
+                              a + b
+                             ));
 
             var res = mon();
 
-            Assert.IsTrue(res.Value == "DataData");
+            Assert.IsTrue(res.Value().Value() == "Data1Data2");
         }
     }
 }
