@@ -240,6 +240,7 @@ You can check the result by looking at the HasValue() property, however each acc
 Based on the Haskell Parsec library, this monad allows composition of parsers.  There is a whole library of parsers from reading a single character up to processing expressions and operator associativty.  The library is very stable.  
 
 __Roadmap for this feature__:
+* Error logging is buggy / needs some TLC
 * More unit tests
 * Floating point number parsers
 * Speed improvements (the example below, which is pretty damn complex, can parse 800 lines of source in 750ms - which isn't bad, but can be improved)
