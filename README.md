@@ -452,7 +452,7 @@ __Documentation coming soon__
 
 ## State
 
-Pass in some initial state which can be 'mutated' through the bind function.  In reality the state isn't mutated, as each stage returns a new instance.  A `StateResult<S,T>` is used to facilitate the passing of state and the underlying monad value.  `Item1` is the state, `Item2` is the monadic value.  
+Pass in some initial state which can be 'mutated' through the bind function.  In reality the state isn't mutated, as each stage returns a new instance.  A `StateResult<S,T>` is used to facilitate the passing of state and the underlying monad value.  `State` is the state, `Value` is the monadic value.  
 
 If you take a look at the example below, you should see that both the underlying `int` value and the `string` state are being manipulated in the same expression.  
 
