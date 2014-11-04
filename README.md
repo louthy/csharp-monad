@@ -1,7 +1,7 @@
 csharp-monad
 ============
 
-Library of monads and a full set of parser combinators based on the Haskell Parsec library.
+A C# library of monads and a full set of parser combinators based on the Haskell Parsec library.
 
 * `Either<R,L>`
 * `EitherStrict<R,L>`
@@ -21,7 +21,7 @@ The library is stable, functional and pretty well tested.
 
 ### A note about laziness
 
-All of the monads in this library (except for those ending in `Strict`) are either delegates or they are wrappers for delegates (as in the case of the `Parser<T>`).  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<T>` monad has `Value()` and `HasValue()` extension methods:
+All of the C# monads in this library (except for those ending in `Strict`) are either delegates or they are wrappers for delegates (as in the case of the `Parser<T>`).  They all require invoking in one way or another to get to the underlying value.  This could cause performance problems if you're not careful.  For example, the `Option<T>` monad has `Value()` and `HasValue()` extension methods:
 
 ```C#
         Option<T> option = from x in DoSomething()
