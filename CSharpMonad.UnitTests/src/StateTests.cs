@@ -143,7 +143,7 @@ namespace Monad.UnitTests
 
         static State<Unit, S> Put<S>( S state )
         {
-            return _ => StateResult.Create<Unit,S>( Unit.Return(), state );
+            return _ => StateResult.Create<Unit, S>(Unit.Default, state);
         } 
 
         State<string,int> DoSomethingElse()

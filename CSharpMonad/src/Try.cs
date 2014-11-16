@@ -41,7 +41,7 @@ namespace Monad
     /// If IsFaulted == true then the bind function will be cancelled.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class TryResult<T>
+    public struct TryResult<T>
     {
         public readonly T Value;
         public readonly Exception Exception;
@@ -52,6 +52,7 @@ namespace Monad
         public TryResult(T value)
         {
             Value = value;
+            Exception = null;
         }
 
         /// <summary>
@@ -59,7 +60,8 @@ namespace Monad
         /// </summary>
         public TryResult(Exception e)
         {
-            Exception  = e;
+            Exception = e;
+            Value = default(T);
         }
 
         public static implicit operator TryResult<T>(T value)
@@ -103,7 +105,7 @@ namespace Monad
             {
                 return self();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return new TryResult<T>(e);
             }
@@ -129,7 +131,7 @@ namespace Monad
         {
             var res = self.Try();
             if (res.IsFaulted)
-                throw new InvalidOperationException("The try monad has no value.  It holds an exception of type: "+res.GetType().Name+".");
+                throw new InvalidOperationException("The try monad has no value.  It holds an exception of type: " + res.GetType().Name + ".");
             else
                 return res.Value;
         }
@@ -139,7 +141,7 @@ namespace Monad
         /// </summary>
         public static Try<U> Select<T, U>(this Try<T> self, Func<T, U> select)
         {
-            return new Try<U>( () =>
+            return new Try<U>(() =>
                 {
                     TryResult<T> resT;
                     try
@@ -148,7 +150,7 @@ namespace Monad
                         if (resT.IsFaulted)
                             return new TryResult<U>(resT.Exception);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         return new TryResult<U>(e);
                     }
@@ -183,7 +185,7 @@ namespace Monad
                     try
                     {
                         resT = self();
-                        if( resT.IsFaulted )
+                        if (resT.IsFaulted)
                             return new TryResult<V>(resT.Exception);
                     }
                     catch (Exception e)
@@ -226,8 +228,8 @@ namespace Monad
             var resT = self.Try();
 
             return resT.IsFaulted
-                ? new Try<U>( () => new TryResult<U>(resT.Exception) )
-                : new Try<U>( () => 
+                ? new Try<U>(() => new TryResult<U>(resT.Exception))
+                : new Try<U>(() =>
                     {
                         try
                         {
@@ -351,7 +353,7 @@ namespace Monad
         /// <summary>
         /// Pattern matching
         /// </summary>
-        public static Func<R> Match<T,R>(this Try<T> self, Func<T,R> Success, Func<Exception,R> Fail )
+        public static Func<R> Match<T, R>(this Try<T> self, Func<T, R> Success, Func<Exception, R> Fail)
         {
             return () =>
             {
@@ -390,7 +392,7 @@ namespace Monad
                 else
                     Success(res.Value);
 
-                return Unit.Return();
+                return Unit.Default;
             };
         }
 
@@ -404,7 +406,7 @@ namespace Monad
                 var res = self();
                 if (!res.IsFaulted)
                     Success(res.Value);
-                return Unit.Return();
+                return Unit.Default;
             };
         }
 
@@ -418,7 +420,7 @@ namespace Monad
             {
                 res = self();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 res = new TryResult<T>(e);
             }

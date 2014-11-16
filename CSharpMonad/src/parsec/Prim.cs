@@ -249,20 +249,20 @@ namespace Monad.Parsec
             return new Parser<Unit>(
                 inp =>
                 {
-                    if( inp.IsEmpty ) 
-                        return Prim.Return<Unit>(Unit.Return()).Parse(inp);
+                    if( inp.IsEmpty )
+                        return Prim.Return<Unit>(Unit.Default).Parse(inp);
 
                     do
                     {
                         var resA = skipParser.Parse(inp);
                         if (resA.IsFaulted || resA.Value.IsEmpty)
-                            return Prim.Return<Unit>(Unit.Return()).Parse(inp);
+                            return Prim.Return<Unit>(Unit.Default).Parse(inp);
 
                         inp = resA.Value.Last().Item2;
                     }
                     while (!inp.IsEmpty);
 
-                    return Prim.Return<Unit>(Unit.Return()).Parse(inp);
+                    return Prim.Return<Unit>(Unit.Default).Parse(inp);
                 }
             );
         }

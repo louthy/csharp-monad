@@ -71,7 +71,7 @@ namespace Monad
     /// </summary>
     /// <typeparam name="L"></typeparam>
     /// <typeparam name="R"></typeparam>
-    public class EitherStrict<R, L> : IEquatable<EitherStrict<R, L>>
+    public struct EitherStrict<R, L> : IEquatable<EitherStrict<R, L>>
     {
         static readonly string TypeOfR = typeof(R).ToString();
         static readonly bool IsAppendable = typeof(IAppendable<R>).IsAssignableFrom(typeof(R));
@@ -91,6 +91,7 @@ namespace Monad
         {
             IsLeft = true;
             this.left = left;
+            this.right = default(R);
         }
 
         /// <summary>
@@ -100,6 +101,7 @@ namespace Monad
         {
             IsLeft = false;
             this.right = right;
+            this.left = default(L);
         }
 
         /// <summary>
@@ -149,7 +151,7 @@ namespace Monad
         /// <param name="Right">Action to perform if the monad is in the Right state</param>
         /// <param name="Left">Action to perform if the monad is in the Left state</param>
         /// <returns>T</returns>
-        public T Match<T>(Func<R,T> Right, Func<L,T> Left)
+        public T Match<T>(Func<R, T> Right, Func<L, T> Left)
         {
             return IsLeft
                 ? Left(this.Left)
@@ -188,7 +190,7 @@ namespace Monad
         /// <returns>T</returns>
         public T MatchRight<T>(Func<R, T> right, T defaultValue)
         {
-            if (IsLeft) 
+            if (IsLeft)
                 return defaultValue;
             return right(this.Right);
         }
@@ -215,12 +217,14 @@ namespace Monad
         /// <returns>Unit</returns>
         public Unit Match(Action<R> Right, Action<L> Left)
         {
-            return Unit.Return( () =>
+            var self = this;
+
+            return Unit.Return(() =>
             {
-                if (IsLeft)
-                    Left(this.Left);
+                if (self.IsLeft)
+                    Left(self.Left);
                 else
-                    Right(this.Right);
+                    Right(self.Right);
             });
         }
 
@@ -233,7 +237,8 @@ namespace Monad
         /// <returns>Unit</returns>
         public Unit MatchRight(Action<R> right)
         {
-            return Unit.Return(() => right(this.Right));
+            var self = this;
+            return Unit.Return(() => right(self.Right));
         }
 
         /// <summary>
@@ -245,7 +250,8 @@ namespace Monad
         /// <returns>Unit</returns>
         public Unit MatchLeft(Action<L> left)
         {
-            return Unit.Return(() => left(this.Left));
+            var self = this;
+            return Unit.Return(() => left(self.Left));
         }
 
         /// <summary>
@@ -288,7 +294,7 @@ namespace Monad
         /// Monadic append
         /// If the left-hand side or right-hand side are in a Left state, then Left propagates
         /// </summary>
-        public virtual EitherStrict<R, L> Mappend(EitherStrict<R, L> rhs)
+        public EitherStrict<R, L> Mappend(EitherStrict<R, L> rhs)
         {
             if (IsLeft)
             {
@@ -508,31 +514,31 @@ namespace Monad
         /// Select
         /// </summary>
         public static EitherStrict<UR, L> Select<TR, UR, L>(
-            this EitherStrict<TR, L> self, 
+            this EitherStrict<TR, L> self,
             Func<TR, UR> selector)
         {
-            if (self.IsLeft) 
-                return EitherStrict.Left<UR,L>( self.Left );
+            if (self.IsLeft)
+                return EitherStrict.Left<UR, L>(self.Left);
 
-            return EitherStrict.Right<UR,L>( selector( self.Right ) );
+            return EitherStrict.Right<UR, L>(selector(self.Right));
         }
 
         /// <summary>
         /// SelectMany
         /// </summary>
         public static EitherStrict<VR, L> SelectMany<TR, UR, VR, L>(
-            this EitherStrict<TR, L> self, 
-            Func<TR, EitherStrict<UR, L>> selector, 
-            Func<TR,UR,VR> projector)
+            this EitherStrict<TR, L> self,
+            Func<TR, EitherStrict<UR, L>> selector,
+            Func<TR, UR, VR> projector)
         {
-            if (self.IsLeft) 
-                return EitherStrict.Left<VR,L>(self.Left);
+            if (self.IsLeft)
+                return EitherStrict.Left<VR, L>(self.Left);
 
             var res = selector(self.Right);
-            if (res.IsLeft) 
-                return EitherStrict.Left<VR,L>(res.Left);
+            if (res.IsLeft)
+                return EitherStrict.Left<VR, L>(res.Left);
 
-            return EitherStrict.Right<VR,L>(projector(self.Right, res.Right));
+            return EitherStrict.Right<VR, L>(projector(self.Right, res.Right));
         }
 
         /// <summary>
@@ -553,4 +559,3 @@ namespace Monad
         }
     }
 }
-

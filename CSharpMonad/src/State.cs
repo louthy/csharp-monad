@@ -27,35 +27,35 @@ using Monad.Utility;
 
 namespace Monad
 {
-    public delegate StateResult<S,A> State<S,A>(S state);
+    public delegate StateResult<S, A> State<S, A>(S state);
 
     public static class State
     {
-        public static State<S,A> Return<S,A>(A value = default(A))
+        public static State<S, A> Return<S, A>(A value = default(A))
         {
-            return (S state) => new StateResult<S,A>(state, value);
+            return (S state) => new StateResult<S, A>(state, value);
         }
 
-        public static State<S,S> Get<S>( Func<S,S> f )
+        public static State<S, S> Get<S>(Func<S, S> f)
         {
-            return (S state) => StateResult.Create<S,S>( state, f(state) );
+            return (S state) => StateResult.Create<S, S>(state, f(state));
         }
 
-        public static State<S,S> Get<S>()
+        public static State<S, S> Get<S>()
         {
-            return (S state) => StateResult.Create<S,S>( state, state );
+            return (S state) => StateResult.Create<S, S>(state, state);
         }
 
-        public static State<S,Unit> Put<S>( S state )
+        public static State<S, Unit> Put<S>(S state)
         {
-            return _ => StateResult.Create<S,Unit>( state, Unit.Return() );
+            return _ => StateResult.Create<S, Unit>(state, Unit.Default);
         }
     }
 
     /// <summary>
     /// State result.
     /// </summary>
-    public class StateResult<S,A> 
+    public struct StateResult<S, A>
     {
         public readonly A Value;
         public readonly S State;
@@ -70,9 +70,9 @@ namespace Monad
     /// <summary>
     /// State result factory
     /// </summary>
-    public class StateResult 
+    public static class StateResult
     {
-        public static StateResult<S,A> Create<S,A>(S state, A value)
+        public static StateResult<S, A> Create<S, A>(S state, A value)
         {
             return new StateResult<S, A>(state, value);
         }
@@ -80,47 +80,46 @@ namespace Monad
 
     public static class StateExt
     {
-        public static State<S,A> With<S,A>( this State<S,A> self, Func<S,S> f )
+        public static State<S, A> With<S, A>(this State<S, A> self, Func<S, S> f)
         {
             return (S state) =>
             {
                 var res = self(state);
-                return StateResult.Create<S,A>(f(res.State), res.Value);
+                return StateResult.Create<S, A>(f(res.State), res.Value);
             };
         }
 
-        public static State<S, U> Select<S,T,U>(this State<S,T> self, Func<T,U> map)
+        public static State<S, U> Select<S, T, U>(this State<S, T> self, Func<T, U> map)
         {
             return (S state) =>
             {
                 var resT = self(state);
-                return StateResult.Create<S,U>( resT.State, map(resT.Value) );
+                return StateResult.Create<S, U>(resT.State, map(resT.Value));
             };
         }
 
-        public static State<S, V> SelectMany<S,T,U,V>(
-            this State<S,T> self,
-            Func<T,State<S,U>> bind,
-            Func<T,U,V> project
-        )
+        public static State<S, V> SelectMany<S, T, U, V>(
+            this State<S, T> self,
+            Func<T, State<S, U>> bind,
+            Func<T, U, V> project 
+            )
         {
             return (S state) =>
             {
                 var resT = self(state);
                 var resU = bind(resT.Value)(resT.State);
-                var resV = project(resT.Value,resU.Value);
-                return new StateResult<S,V>(resU.State,resV);
+                var resV = project(resT.Value, resU.Value);
+                return new StateResult<S, V>(resU.State, resV);
             };
         }
 
         /// <summary>
         /// Memoize the result 
         /// </summary>
-        public static Func<StateResult<S,A>> Memo<S, A>(this State<S, A> self, S state)
+        public static Func<StateResult<S, A>> Memo<S, A>(this State<S, A> self, S state)
         {
             var res = self(state);
             return () => res;
-        } 
-    } 
+        }
+    }
 }
-

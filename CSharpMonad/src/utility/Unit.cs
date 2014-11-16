@@ -34,28 +34,13 @@ namespace Monad.Utility
     /// A type with only one value, itself.
     /// This is the functional world's equivalent of Void.
     /// </summary>
-    public class Unit
+    public struct Unit
     {
         /// <summary>
         /// Use a singleton so that ref equality works and to reduce any unnecessary
         /// thrashing of the GC from creating an object which is always the same.
         /// </summary>
-        private static Unit singleton = new Unit();
-
-        /// <summary>
-        /// Private ctor
-        /// </summary>
-        private Unit()
-        {
-        }
-
-        /// <summary>
-        /// Return
-        /// </summary>
-        public static Unit Return()
-        {
-            return singleton;
-        }
+        public static readonly Unit Default = new Unit();
 
         /// <summary>
         /// Performs an action which instead of returning void will return Unit
@@ -65,7 +50,7 @@ namespace Monad.Utility
         public static Unit Return(Action action)
         {
             action();
-            return Return();
+            return Default;
         }
     }
 }

@@ -34,12 +34,12 @@ namespace Monad
     /// <summary>
     /// The Reader Writer State monad
     /// </summary>
-    public delegate RWSResult<W,S,A> RWS<R, W, S, A>(R r, S s);
+    public delegate RWSResult<W, S, A> RWS<R, W, S, A>(R r, S s);
 
     /// <summary>
     /// RWS result.
     /// </summary>
-    public class RWSResult<W,S,A> 
+    public struct RWSResult<W, S, A>
     {
         public readonly A Value;
         public readonly IEnumerable<W> Output;
@@ -56,9 +56,9 @@ namespace Monad
     /// <summary>
     /// RWSResult factory
     /// </summary>
-    public class RWSResult 
+    public static class RWSResult
     {
-        public static RWSResult<W,S,A> Create<W,S,A>(A value, IEnumerable<W> output, S state)
+        public static RWSResult<W, S, A> Create<W, S, A>(A value, IEnumerable<W> output, S state)
         {
             return new RWSResult<W, S, A>(value, output, state);
         }
@@ -69,49 +69,49 @@ namespace Monad
     /// </summary>
     public static class RWS
     {
-        public static RWS<R,W,S,A> Return<R,W,S,A>(A a)
+        public static RWS<R, W, S, A> Return<R, W, S, A>(A a)
         {
-            return (R r, S s) => RWSResult.Create<W,S,A>(a, new W[0], s);
+            return (R r, S s) => RWSResult.Create<W, S, A>(a, new W[0], s);
         }
 
-        public static RWSResult<W,S,A> Tell<W,S,A>(A a, W w)
+        public static RWSResult<W, S, A> Tell<W, S, A>(A a, W w)
         {
-            return RWSResult.Create<W,S,A>(a, new W[1]{ w }, default(S));
+            return RWSResult.Create<W, S, A>(a, new W[1] { w }, default(S));
         }
 
-        public static RWSResult<W,S,A> Tell<W,S,A>(A a, IEnumerable<W> ws)
+        public static RWSResult<W, S, A> Tell<W, S, A>(A a, IEnumerable<W> ws)
         {
-            return RWSResult.Create<W,S,A>(a, ws, default(S));
+            return RWSResult.Create<W, S, A>(a, ws, default(S));
         }
 
-        public static RWS<R,W,S,Unit> Tell<R,W,S>(W value)
+        public static RWS<R, W, S, Unit> Tell<R, W, S>(W value)
         {
-            return (R r, S s) => RWSResult.Create<W,S,Unit>(Unit.Return(), new W[1]{ value }, s);
+            return (R r, S s) => RWSResult.Create<W, S, Unit>(Unit.Default, new W[1] { value }, s);
         }
 
-        public static RWS<R,W,S,R> Ask<R,W,S>( Func<R,R> f )
+        public static RWS<R, W, S, R> Ask<R, W, S>(Func<R, R> f)
         {
             return (R r, S s) => RWSResult.Create(f(r), new W[0], s);
         }
 
-        public static RWS<R,W,S,R> Ask<R,W,S>()
+        public static RWS<R, W, S, R> Ask<R, W, S>()
         {
             return (R r, S s) => RWSResult.Create(r, new W[0], s);
         }
 
-        public static RWS<R,W,S,S> Get<R,W,S>( Func<S,S> f )
+        public static RWS<R, W, S, S> Get<R, W, S>(Func<S, S> f)
         {
-            return (R r, S s) => RWSResult.Create<W,S,S>( s, new W[0], f(s) );
+            return (R r, S s) => RWSResult.Create<W, S, S>(s, new W[0], f(s));
         }
 
-        public static RWS<R,W,S,S> Get<R,W,S>()
+        public static RWS<R, W, S, S> Get<R, W, S>()
         {
-            return (R r, S s) => RWSResult.Create<W,S,S>( s, new W[0], s );
+            return (R r, S s) => RWSResult.Create<W, S, S>(s, new W[0], s);
         }
 
-        public static RWS<R,W,S,Unit> Put<R,W,S>( S state )
+        public static RWS<R, W, S, Unit> Put<R, W, S>(S state)
         {
-            return (R r, S s) => RWSResult.Create<W,S,Unit>( Unit.Return(), new W[0], state );
+            return (R r, S s) => RWSResult.Create<W, S, Unit>(Unit.Default, new W[0], state);
         }
 
     }
@@ -121,12 +121,12 @@ namespace Monad
     /// </summary>
     public static class RWSExt
     {
-        public static RWS<R,W,S,R> Ask<R,W,S,T>( this RWS<R, W, S, T> self, Func<R,R> f )
+        public static RWS<R, W, S, R> Ask<R, W, S, T>(this RWS<R, W, S, T> self, Func<R, R> f)
         {
             return (R r, S s) => RWSResult.Create(f(r), new W[0], s);
         }
 
-        public static RWS<R,W,S,R> Ask<R,W,S,T>(this RWS<R, W, S, T> self)
+        public static RWS<R, W, S, R> Ask<R, W, S, T>(this RWS<R, W, S, T> self)
         {
             return (R r, S s) => RWSResult.Create(r, new W[0], s);
         }
@@ -139,7 +139,7 @@ namespace Monad
         {
             return (R r, S s) =>
             {
-                var resT = self(r,s);
+                var resT = self(r, s);
                 var resU = select(resT.Value);
                 return RWSResult.Create<W, S, U>(resU, resT.Output, resT.State ?? s);
             };
@@ -157,9 +157,9 @@ namespace Monad
         {
             return (R r, S s) =>
             {
-                var resT = self(r,s);
-                var resU = bind(resT.Value).Invoke(r,resT.State ?? s);
-                var resV = project(resT.Value,resU.Value);
+                var resT = self(r, s);
+                var resU = bind(resT.Value).Invoke(r, resT.State ?? s);
+                var resV = project(resT.Value, resU.Value);
 
                 return RWSResult.Create<W, S, V>(resV, resT.Output.Concat(resU.Output), resU.State ?? resT.State ?? s);
             };
@@ -170,7 +170,7 @@ namespace Monad
         /// </summary>
         public static Func<RWSResult<W, S, T>> Memo<R, W, S, T>(this RWS<R, W, S, T> self, R r, S s)
         {
-            var res = self(r,s);
+            var res = self(r, s);
             return () => res;
         }
     }

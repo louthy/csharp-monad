@@ -417,7 +417,7 @@ namespace Monad.Parsec
                     var res = (from c in parser select c).Parse(inp);
                     if( res.IsFaulted )
                     {
-                        return Tuple.Create( Unit.Return(), inp ).Cons().Success();
+                        return Tuple.Create(Unit.Default, inp).Cons().Success();
                     }
                     else
                     {

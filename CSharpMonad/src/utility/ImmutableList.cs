@@ -46,6 +46,7 @@ namespace Monad.Utility
 
     /// <summary>
     /// Thread-safe immutable list implementation
+    /// TODO: This can definitely be optimised.
     /// </summary>
     public class ImmutableList<T> : IEnumerable<T>
     {
@@ -54,7 +55,7 @@ namespace Monad.Utility
         private readonly T[] source;
         private readonly int length;
         private readonly int sourceLength;
-        private readonly int totalLength; 
+        private readonly int totalLength;
         private readonly ImmutableList<T> next;
         private readonly int pos;
         private readonly int depth;
@@ -74,7 +75,7 @@ namespace Monad.Utility
                 int index = source.Length;
                 Array.Copy(source, ts, source.Length);
 
-                while(next != null)
+                while (next != null)
                 {
                     Array.Copy(next.source, next.pos, ts, index, next.length);
                     index += next.length;
@@ -160,7 +161,7 @@ namespace Monad.Utility
             {
                 if (next == null)
                 {
-                    return new ImmutableList<T>(source, pos + 1, next, next == null ? 0 : next.depth+1);
+                    return new ImmutableList<T>(source, pos + 1, next, next == null ? 0 : next.depth + 1);
                 }
                 else
                 {
@@ -171,7 +172,7 @@ namespace Monad.Utility
             {
                 throw new ParserException("Nothing left to parse (tail access)");
             }
-            return new ImmutableList<T>(source, pos+1, next, next == null ? 0 : next.depth+1);
+            return new ImmutableList<T>(source, pos + 1, next, next == null ? 0 : next.depth + 1);
         }
 
         public bool IsEmpty

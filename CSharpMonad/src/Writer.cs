@@ -34,12 +34,12 @@ namespace Monad
     /// <summary>
     /// The writer monad
     /// </summary>
-    public delegate WriterResult<W,A> Writer<W, A>();
+    public delegate WriterResult<W, A> Writer<W, A>();
 
     /// <summary>
     /// Writer result.
     /// </summary>
-    public class WriterResult<W,A> 
+    public struct WriterResult<W, A>
     {
         public readonly A Value;
         public readonly IEnumerable<W> Output;
@@ -54,9 +54,9 @@ namespace Monad
     /// <summary>
     /// Writer result factory
     /// </summary>
-    public class WriterResult 
+    public static class WriterResult
     {
-        public static WriterResult<W,A> Create<W,A>(A value, IEnumerable<W> output)
+        public static WriterResult<W, A> Create<W, A>(A value, IEnumerable<W> output)
         {
             return new WriterResult<W, A>(value, output);
         }
@@ -67,24 +67,24 @@ namespace Monad
     /// </summary>
     public static class Writer
     {
-        public static Writer<W,A> Return<W,A>(A a)
+        public static Writer<W, A> Return<W, A>(A a)
         {
-            return () => WriterResult.Create<W,A>(a, new W[0]);
+            return () => WriterResult.Create<W, A>(a, new W[0]);
         }
 
-        public static WriterResult<W,A> Tell<W,A>(A a, W w)
+        public static WriterResult<W, A> Tell<W, A>(A a, W w)
         {
-            return WriterResult.Create<W,A>(a, new W[1]{ w });
+            return WriterResult.Create<W, A>(a, new W[1] { w });
         }
 
-        public static WriterResult<W,A> Tell<W,A>(A a, IEnumerable<W> ws)
+        public static WriterResult<W, A> Tell<W, A>(A a, IEnumerable<W> ws)
         {
-            return WriterResult.Create<W,A>(a, ws);
+            return WriterResult.Create<W, A>(a, ws);
         }
 
-        public static Writer<W,Unit> Tell<W>(W value)
+        public static Writer<W, Unit> Tell<W>(W value)
         {
-            return () => WriterResult.Create<W,Unit>(Unit.Return(), new W[1]{ value });
+            return () => WriterResult.Create<W, Unit>(Unit.Default, new W[1] { value });
         }
     }
 
@@ -119,20 +119,19 @@ namespace Monad
             {
                 var resT = self();
                 var resU = bind(resT.Value).Invoke();
-                var resV = project(resT.Value,resU.Value);
+                var resV = project(resT.Value, resU.Value);
 
-                return WriterResult.Create<W,V>(resV, resT.Output.Concat(resU.Output));
+                return WriterResult.Create<W, V>(resV, resT.Output.Concat(resU.Output));
             };
         }
 
         /// <summary>
         /// Memoize the result 
         /// </summary>
-        public static Func<WriterResult<W,T>> Memo<W, T>(this Writer<W, T> self)
+        public static Func<WriterResult<W, T>> Memo<W, T>(this Writer<W, T> self)
         {
             var res = self();
             return () => res;
         }
     }
 }
-

@@ -48,12 +48,12 @@ namespace Monad
             return (E env) => value;
         }
 
-        public static Reader<E,E> Ask<E>( Func<E,E> f )
+        public static Reader<E, E> Ask<E>(Func<E, E> f)
         {
             return (E env) => f(env);
         }
 
-        public static Reader<E,E> Ask<E>()
+        public static Reader<E, E> Ask<E>()
         {
             return (E env) => env;
         }
@@ -64,12 +64,12 @@ namespace Monad
     /// </summary>
     public static class ReaderExt
     {
-        public static Reader<E,E> Ask<E,T>(this Reader<E, T> self, Func<E,E> f )
+        public static Reader<E, E> Ask<E, T>(this Reader<E, T> self, Func<E, E> f)
         {
             return (E env) => f(env);
         }
 
-        public static Reader<E,E> Ask<E,T>(this Reader<E, T> self)
+        public static Reader<E, E> Ask<E, T>(this Reader<E, T> self)
         {
             return (E env) => env;
         }

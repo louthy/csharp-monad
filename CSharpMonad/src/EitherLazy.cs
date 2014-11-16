@@ -31,9 +31,9 @@ namespace Monad
     /// <summary>
     /// Either monad
     /// </summary>
-    public delegate EitherPair<R,L> Either<R,L>();
+    public delegate EitherPair<R, L> Either<R, L>();
 
-    public class EitherPair<R, L>
+    public struct EitherPair<R, L>
     {
         public readonly R Right;
         public readonly L Left;
@@ -43,23 +43,27 @@ namespace Monad
         public EitherPair(R r)
         {
             Right = r;
+            Left = default(L);
             IsRight = true;
+            IsLeft = false;
         }
 
         public EitherPair(L l)
         {
             Left = l;
+            Right = default(R);
             IsLeft = true;
+            IsRight = false;
         }
 
-        public static implicit operator EitherPair<R,L>(L value)
+        public static implicit operator EitherPair<R, L>(L value)
         {
-            return new EitherPair<R,L>(value);
+            return new EitherPair<R, L>(value);
         }
 
         public static implicit operator EitherPair<R, L>(R value)
         {
-            return new EitherPair<R,L>(value);
+            return new EitherPair<R, L>(value);
         }
     }
 
@@ -73,7 +77,7 @@ namespace Monad
         /// </summary>
         public static Either<R, L> Left<R, L>(Func<L> left)
         {
-            return () => new EitherPair<R, L>( left() );
+            return () => new EitherPair<R, L>(left());
         }
 
         /// <summary>
@@ -81,13 +85,13 @@ namespace Monad
         /// </summary>
         public static Either<R, L> Right<R, L>(Func<R> right)
         {
-            return () => new EitherPair<R, L>( right() );
+            return () => new EitherPair<R, L>(right());
         }
 
         /// <summary>
         /// Construct an either Left or Right
         /// </summary>
-        public static Either<R, L> Return<R, L>(Func<EitherPair<R,L>> either)
+        public static Either<R, L> Return<R, L>(Func<EitherPair<R, L>> either)
         {
             return () => either();
         }
@@ -117,7 +121,7 @@ namespace Monad
         /// <summary>
         /// Returns true if the monad object is in the Right state
         /// </summary>
-        public static bool IsRight<R,L>(this Either<R,L> m)
+        public static bool IsRight<R, L>(this Either<R, L> m)
         {
             return m().IsRight;
         }
@@ -127,7 +131,7 @@ namespace Monad
         /// NOTE: This throws an InvalidOperationException if the object is in the 
         /// Right state
         /// </summary>
-        public static bool IsLeft<R,L>(this Either<R,L> m)
+        public static bool IsLeft<R, L>(this Either<R, L> m)
         {
             return m().IsLeft;
         }
@@ -137,7 +141,7 @@ namespace Monad
         /// NOTE: This throws an InvalidOperationException if the object is in the 
         /// Left state
         /// </summary>
-        public static R Right<R,L>(this Either<R,L> m)
+        public static R Right<R, L>(this Either<R, L> m)
         {
             var res = m();
             if (res.IsLeft)
@@ -150,7 +154,7 @@ namespace Monad
         /// NOTE: This throws an InvalidOperationException if the object is in the 
         /// Right state
         /// </summary>
-        public static L Left<R,L>(this Either<R,L> m)
+        public static L Left<R, L>(this Either<R, L> m)
         {
             var res = m();
             if (res.IsRight)
@@ -164,7 +168,7 @@ namespace Monad
         /// <param name="Right">Action to perform if the monad is in the Right state</param>
         /// <param name="Left">Action to perform if the monad is in the Left state</param>
         /// <returns>T</returns>
-        public static Func<T> Match<R,L,T>(this Either<R,L> m, Func<R,T> Right, Func<L,T> Left)
+        public static Func<T> Match<R, L, T>(this Either<R, L> m, Func<R, T> Right, Func<L, T> Left)
         {
             return () =>
             {
@@ -254,7 +258,7 @@ namespace Monad
                     Left(res.Left);
                 else
                     Right(res.Right);
-                return Unit.Return();
+                return Unit.Default;
             };
         }
 
@@ -270,7 +274,7 @@ namespace Monad
             return () =>
             {
                 right(m.Right());
-                return Unit.Return();
+                return Unit.Default;
             };
         }
 
@@ -286,7 +290,7 @@ namespace Monad
             return () =>
             {
                 left(m.Left());
-                return Unit.Return();
+                return Unit.Default;
             };
         }
 
@@ -294,7 +298,7 @@ namespace Monad
         /// Monadic append
         /// If the left-hand side or right-hand side are in a Left state, then Left propagates
         /// </summary>
-        public static Either<R, L> Mappend<R, L>(this Either<R,L> lhs, Either<R, L> rhs)
+        public static Either<R, L> Mappend<R, L>(this Either<R, L> lhs, Either<R, L> rhs)
         {
             return () =>
             {
@@ -391,16 +395,16 @@ namespace Monad
         /// Select
         /// </summary>
         public static Either<UR, L> Select<TR, UR, L>(
-            this Either<TR, L> self, 
+            this Either<TR, L> self,
             Func<TR, UR> selector)
         {
             return () =>
             {
                 var resT = self();
                 if (resT.IsLeft)
-                    return new EitherPair<UR,L>(resT.Left);
+                    return new EitherPair<UR, L>(resT.Left);
 
-                return new EitherPair<UR,L>( selector(resT.Right) );
+                return new EitherPair<UR, L>(selector(resT.Right));
             };
         }
 
@@ -408,9 +412,9 @@ namespace Monad
         /// SelectMany
         /// </summary>
         public static Either<VR, L> SelectMany<TR, UR, VR, L>(
-            this Either<TR, L> self, 
-            Func<TR, Either<UR, L>> selector, 
-            Func<TR,UR,VR> projector)
+            this Either<TR, L> self,
+            Func<TR, Either<UR, L>> selector,
+            Func<TR, UR, VR> projector)
         {
             return () =>
             {
@@ -451,11 +455,10 @@ namespace Monad
         /// <summary>
         /// Memoize the result 
         /// </summary>
-        public static Func<EitherPair<R,L>> Memo<R, L>(this Either<R, L> self)
+        public static Func<EitherPair<R, L>> Memo<R, L>(this Either<R, L> self)
         {
             var res = self();
             return () => res;
         }
     }
 }
-

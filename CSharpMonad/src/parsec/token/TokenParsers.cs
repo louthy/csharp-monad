@@ -66,7 +66,7 @@ namespace Monad.Parsec.Token
             base(
                 inp => (from t in Prim.String(def.CommentLine)
                         from d in Prim.Many(Prim.Satisfy(ch => ch != '\n', "anything but a newline"))
-                        select Unit.Return())
+                        select Unit.Default)
                        .Parse(inp)
             )
         {
@@ -123,7 +123,7 @@ namespace Monad.Parsec.Token
                         }
                         inp = resU.Value.Head().Item2;
                     }
-                    return Prim.Return<Unit>(Unit.Return()).Parse(inp);
+                    return Prim.Return<Unit>(Unit.Default).Parse(inp);
                 })
         {
         }
@@ -141,7 +141,7 @@ namespace Monad.Parsec.Token
                     var res = Prim.String(def.CommentEnd).Parse(inp);
                     if (!res.IsFaulted)
                     {
-                        return Prim.Return<Unit>(Unit.Return()).Parse(res.Value.Head().Item2);
+                        return Prim.Return<Unit>(Unit.Default).Parse(res.Value.Head().Item2);
                     }
 
                     var resU = Prim.SkipMany(Prim.NoneOf(def.CommentStartEndDistinctChars.Value)).Parse(inp);

@@ -37,25 +37,25 @@ namespace Monad.Parsec
     {
     }
 
-	public class Parser<A> : IParser<A>
-	{
+    public class Parser<A> : IParser<A>
+    {
         public readonly Func<ImmutableList<ParserChar>, ParserResult<A>> Value;
 
         public Parser(Func<ImmutableList<ParserChar>, ParserResult<A>> func)
-		{
+        {
             if (func == null) throw new ArgumentNullException("func");
 
             // This memoization will only work if the exact same reference
             // is passed to Parse.  We could obviously hash the entire enumerable
             // but I suspect that would negate any benefits from the memoization.
             this.Value = func.Memo();
-		}
+        }
 
         public ParserResult<A> Parse(ImmutableList<ParserChar> input)
-		{
+        {
             if (input == null) throw new ArgumentNullException("input");
-             return Value(input);
-		}
+            return Value(input);
+        }
 
         public ParserResult<A> Parse(IEnumerable<char> input)
         {
@@ -64,10 +64,10 @@ namespace Monad.Parsec
         }
 
         public static Parser<A> Create(Func<ImmutableList<ParserChar>, ParserResult<A>> func)
-		{
+        {
             if (func == null) throw new ArgumentNullException("func");
             return new Parser<A>(func);
-		}
+        }
 
         public static implicit operator Parser<A>(Func<ImmutableList<ParserChar>, ParserResult<A>> func)
         {
@@ -82,7 +82,7 @@ namespace Monad.Parsec
                    select p;
         }
 
-        public static Parser<A> operator |(Parser<A> lhs, Parser<A> rhs) 
+        public static Parser<A> operator |(Parser<A> lhs, Parser<A> rhs)
         {
             if (lhs == null) throw new ArgumentNullException("LHS of |");
             if (rhs == null) throw new ArgumentNullException("RHS of |");
@@ -120,7 +120,7 @@ namespace Monad.Parsec
                             last = res.Value.Last().Item2;
                     }
 
-                    return new ParserResult<ImmutableList<A>>( Tuple.Create(final, last).Cons() );
+                    return new ParserResult<ImmutableList<A>>(Tuple.Create(final, last).Cons());
                 });
         }
 

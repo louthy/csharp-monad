@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Monad.Parsec
 {
-    public class ParserChar
+    public struct ParserChar
     {
         public readonly char Value;
         public readonly SrcLoc Location;
