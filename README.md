@@ -1,3 +1,5 @@
+![csharp-monad](http://www.4four.org/images/csharp-monad-logo.png)
+
 csharp-monad
 ============
 
