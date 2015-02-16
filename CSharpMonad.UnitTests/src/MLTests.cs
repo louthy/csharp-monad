@@ -22,7 +22,7 @@
 // SOFTWARE.
 // 
 
-﻿using NUnit.Framework;
+﻿using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,8 +38,7 @@ namespace Monad.UnitTests.ML
     //
     // Inspired by http://blogs.msdn.com/b/lukeh/archive/2007/08/19/monadic-parser-combinators-using-c-3-0.aspx
     //
-
-    [TestFixture]
+	
     public class MLTests
     {
         Parser<ImmutableList<ParserChar>> Id;
@@ -50,7 +49,7 @@ namespace Monad.UnitTests.ML
         Parser<Term> Term1;
         Parser<Term> Parser;
 
-        [Test]
+        [Fact]
         public void BuildMLParser()
         {
             var ws = Prim.WhiteSpace();// | New.Return(new ParserChar(' '));
@@ -100,78 +99,78 @@ namespace Monad.UnitTests.ML
                      select t;
         }
 
-        [Test]
+        [Fact]
         public void TestIdParser()
         {
             BuildMLParser();
 
             var r = Id.Parse("Testing123");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item1.AsString() == "Testing123");
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.First().Item1.AsString() == "Testing123");
 
             r = Id.Parse("    Testing123   ");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item1.AsString() == "Testing123");
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.First().Item1.AsString() == "Testing123");
 
             r = Id.Parse("   1Testing123   ");
-            Assert.IsTrue(r.IsFaulted);
-            Assert.IsTrue(r.Errors.First().Location.Column == 4);
+            Assert.True(r.IsFaulted);
+            Assert.True(r.Errors.First().Location.Column == 4);
         }
 
-        [Test]
+        [Fact]
         public void TestTerm1Parser()
         {
             BuildMLParser();
 
             var r = Term1.Parse("fred");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item1.GetType().Name.Contains("VarTerm"));
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.First().Item1.GetType().Name.Contains("VarTerm"));
+            Assert.True(r.Value.First().Item2.IsEmpty);
         }
 
-        [Test]
+        [Fact]
         public void TestApplTermParser()
         {
             BuildMLParser();
 
             var r = Term.Parse("add x y z w");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.First().Item2.IsEmpty);
         }
 
-        [Test]
+        [Fact]
         public void TestLetTermParser()
         {
             BuildMLParser();
 
             var r = Term.Parse("let add = x in y");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.First().Item2.IsEmpty);
         }
 
-        [Test]
+        [Fact]
         public void TestLetIdParser()
         {
             BuildMLParser();
 
             var r = LetId.Parse("let");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item1.AsString() == "let");
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.First().Item1.AsString() == "let");
+            Assert.True(r.Value.First().Item2.IsEmpty);
         }
 
-        [Test]
+        [Fact]
         public void TestInIdParser()
         {
             BuildMLParser();
 
             var r = InId.Parse("in");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item1.AsString() == "in");
-            Assert.IsTrue(r.Value.First().Item2.IsEmpty);
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.First().Item1.AsString() == "in");
+            Assert.True(r.Value.First().Item2.IsEmpty);
         }
 
-        [Test]
+        [Fact]
         public void RunMLParser()
         {
             BuildMLParser();
@@ -183,8 +182,8 @@ namespace Monad.UnitTests.ML
 
             var result = Parser.Parse(input);
 
-            Assert.IsTrue(!result.IsFaulted);
-            Assert.IsTrue(result.Value.First().Item2.IsEmpty);
+            Assert.True(!result.IsFaulted);
+            Assert.True(result.Value.First().Item2.IsEmpty);
 
             Term ast = result.Value.Single().Item1;
 

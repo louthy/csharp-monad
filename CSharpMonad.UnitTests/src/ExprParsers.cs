@@ -22,7 +22,7 @@
 // SOFTWARE.
 // 
 
-using NUnit.Framework;
+using Xunit;
 using Monad.Parsec;
 using System;
 using System.Collections.Generic;
@@ -32,19 +32,18 @@ using System.Threading.Tasks;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class TestExpr
     {
-        [Test]
+        [Fact]
         public void ExpressionTests()
         {
             var ten = Eval("2*3+4");
 
-            Assert.IsTrue(ten == 10);
+            Assert.True(ten == 10);
 
             var fourteen = Eval("2*(3+4)");
 
-            Assert.IsTrue(fourteen == 14);
+            Assert.True(fourteen == 14);
         }
 
 

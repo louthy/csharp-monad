@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class MemoizationTests
     {
         int breakIt = 0;
 
-        [Test]
+        [Fact]
         public void MemoizationTest1()
         {
             var mon = (from one in One()
@@ -22,11 +21,11 @@ namespace Monad.UnitTests
                       .Memo();
 
             var res = mon();
-            Assert.IsTrue(res == 6);
+            Assert.True(res == 6);
             breakIt++;
 
             res = mon();
-            Assert.IsTrue(res == 6);
+            Assert.True(res == 6);
         }
 
         public Monad<int> One()

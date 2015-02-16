@@ -111,7 +111,7 @@ Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is retu
             from rhs in Two()
             select lhs+rhs;
     
-        Assert.IsTrue(r.IsRight() && r.Right() == 4);
+        Assert.True(r.IsRight() && r.Right() == 4);
 
         var r =
             from lhs in Two()
@@ -119,7 +119,7 @@ Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is retu
             from rhs in Two()
             select lhs+mid+rhs;
             
-        Assert.IsTrue(r.IsLeft() && r.Left() == "Error!!");
+        Assert.True(r.IsLeft() && r.Left() == "Error!!");
 ```
 
 You can also use the pattern matching methods to project the either value or to delegate to handlers.
@@ -133,8 +133,8 @@ __Example__
              from rhs in Two()
              select lhs + rhs)
             .Match(
-                Right: r => Assert.IsTrue(r == 4),
-                Left: l => Assert.IsFalse(true)
+                Right: r => Assert.True(r == 4),
+                Left: l => Assert.False(true)
             );
             
         // Delegate without named properties
@@ -143,8 +143,8 @@ __Example__
              from rhs in Two()
              select lhs + rhs)
             .Match(
-                right => Assert.IsTrue(right == 4),
-                left => Assert.IsFalse(true)
+                right => Assert.True(right == 4),
+                left => Assert.False(true)
             );        
 
         // Projection with named properties
@@ -157,7 +157,7 @@ __Example__
                 Left: l => 0
             );
             
-        Assert.IsTrue(result == 8);
+        Assert.True(result == 8);
         
         // Projection without named properties
         var result =
@@ -169,7 +169,7 @@ __Example__
                 l => 0
             );
             
-        Assert.IsTrue(result == 8);
+        Assert.True(result == 8);
 ```
 
 
@@ -208,7 +208,7 @@ __Example__
                      from __            in DeleteFile(tmpFileName)
                      select dataFromFile;
 
-        Assert.IsTrue(result.Invoke() == "Testing 123");
+        Assert.True(result.Invoke() == "Testing 123");
 ```
 ## Option monad 
 
@@ -375,7 +375,7 @@ Next see how we can use those methods and the environment class (Person) in a mo
                     from s in Surname()
                     select n + " " + s;
 
-       Assert.IsTrue(reader(person) == "Joe Bloggs");
+       Assert.True(reader(person) == "Joe Bloggs");
 ```
 
 Note how the `person` is passed to the reader at the end.  That invokes the bind function using the environment.
@@ -393,7 +393,7 @@ Here's another example mixing both the underlying value `10` and the environment
                          let sl = p.Surname.Length
                          select nl * sl * x;
 
-            Assert.IsTrue(reader(person) == 180);
+            Assert.True(reader(person) == 180);
 ```
 
 ## RWS
@@ -407,7 +407,7 @@ __Documentation coming soon__
 ```C#
     public class ReaderWriterStateTests
     {
-        [Test]
+        [Fact]
         public void ReaderWriterStateTest1()
         {
             var world = RWS.Return<Env,string,App,int>(0);
@@ -424,12 +424,12 @@ __Documentation coming soon__
 
             var res = rws(); 
 
-            Assert.IsTrue(res.Value == 3400); 
-            Assert.IsTrue(res.State.UsersLoggedIn == 35); 
-            Assert.IsTrue(res.Output.Count() == 3); 
-            Assert.IsTrue(res.Output.First() == "Users logged in: 34"); 
-            Assert.IsTrue(res.Output.Skip(1).First() == "System folder: C:/Temp"); 
-            Assert.IsTrue(res.Output.Skip(2).First() == "Process complete"); 
+            Assert.True(res.Value == 3400); 
+            Assert.True(res.State.UsersLoggedIn == 35); 
+            Assert.True(res.Output.Count() == 3); 
+            Assert.True(res.Output.First() == "Users logged in: 34"); 
+            Assert.True(res.Output.Skip(1).First() == "System folder: C:/Temp"); 
+            Assert.True(res.Output.Skip(2).First() == "Process complete"); 
         }
 
         public static RWS<Env,string,App,int> Value(int val, string log)
@@ -477,8 +477,8 @@ If you take a look at the example below, you should see that both the underlying
 
             var res = sm(", World"); // Invoke with the initial state
 
-            Assert.IsTrue(res.State == "Hello 30, Worldyyy 500");
-            Assert.IsTrue(res.Value == 15000);
+            Assert.True(res.State == "Hello 30, Worldyyy 500");
+            Assert.True(res.Value == 15000);
 
 ```
         
@@ -550,10 +550,10 @@ __Documentation coming soon__
                    select a * b)
                   .Memo();
 
-        Assert.IsTrue(res().Value == 15 && res().Output.Count() == 3);
-        Assert.IsTrue(res().Output.First() == "Got number: 3");
-        Assert.IsTrue(res().Output.Skip(1).First() == "Got number: 5");
-        Assert.IsTrue(res().Output.Skip(2).First() == "Gonna multiply these two");
+        Assert.True(res().Value == 15 && res().Output.Count() == 3);
+        Assert.True(res().Output.First() == "Got number: 3");
+        Assert.True(res().Output.Skip(1).First() == "Got number: 5");
+        Assert.True(res().Output.Skip(2).First() == "Gonna multiply these two");
 
 
         private static Writer<string,int> LogNumber(int num)

@@ -22,7 +22,7 @@
 // SOFTWARE.
 // 
 
-using NUnit.Framework;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,10 +33,9 @@ using Monad.Utility;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class OptionTests
     {
-        [Test]
+        [Fact]
         public void TestBinding()
         {
             Option<int> option = () => 1000.ToOption();
@@ -45,23 +44,23 @@ namespace Monad.UnitTests
             var result = from o in option
                          select o;
 
-            Assert.IsTrue(result.HasValue() && result.Value() == 1000);
-            Assert.IsTrue(result.Match(Just: () => true, Nothing: () => false)());
-            Assert.IsTrue(result.Match(Just: () => true, Nothing: false)());
+            Assert.True(result.HasValue() && result.Value() == 1000);
+            Assert.True(result.Match(Just: () => true, Nothing: () => false)());
+            Assert.True(result.Match(Just: () => true, Nothing: false)());
 
             result = from o in option
                      from o2 in option2
                      select o2;
 
-            Assert.IsTrue(result.HasValue() && result.Value() == 2000);
-            Assert.IsTrue(result.Match(Just: () => true, Nothing: () => false)());
-            Assert.IsTrue(result.Match(Just: () => true, Nothing: false)());
+            Assert.True(result.HasValue() && result.Value() == 2000);
+            Assert.True(result.Match(Just: () => true, Nothing: () => false)());
+            Assert.True(result.Match(Just: () => true, Nothing: false)());
 
             result = from o in option
                      from o2 in Nothing()
                      select o2;
 
-            Assert.IsTrue(result.HasValue() == false);
+            Assert.True(result.HasValue() == false);
         }
 
         public Option<int> Nothing()

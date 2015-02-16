@@ -27,15 +27,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using Xunit;
 using Monad;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class ReaderTests
     {
-        [Test]
+        [Fact]
         public void ReaderBindTest1()
         {
             var person = new Person { Name = "Joe", Surname = "Bloggs" };
@@ -44,11 +43,11 @@ namespace Monad.UnitTests
                          from s in Surname()
                          select n + " " + s;
 
-            Assert.IsTrue(reader(person) == "Joe Bloggs");
+            Assert.True(reader(person) == "Joe Bloggs");
 
         }
 
-        [Test]
+        [Fact]
         public void ReaderAskTest1()
         {
             var person = new Person { Name = "Joe", Surname = "Bloggs" };
@@ -56,11 +55,11 @@ namespace Monad.UnitTests
             var reader = from p in Reader.Ask<Person>()
                          select p.Name  + " " + p.Surname;
 
-            Assert.IsTrue(reader(person) == "Joe Bloggs");
+            Assert.True(reader(person) == "Joe Bloggs");
 
         }
 
-        [Test]
+        [Fact]
         public void ReaderAskTest2()
         {
             var person = new Person { Name = "Joe", Surname = "Bloggs" };
@@ -70,11 +69,11 @@ namespace Monad.UnitTests
                          let sl = p.Surname.Length
                          select nl * sl;
 
-            Assert.IsTrue(reader(person) == 18);
+            Assert.True(reader(person) == 18);
 
         }
 
-        [Test]
+        [Fact]
         public void ReaderAskReturnAndBindTest()
         {
             var person = new Person { Name = "Joe", Surname = "Bloggs" };
@@ -87,10 +86,10 @@ namespace Monad.UnitTests
                          let sl = p.Surname.Length
                          select nl * sl * x;
 
-            Assert.IsTrue(reader(person) == 180);
+            Assert.True(reader(person) == 180);
         }
 
-        [Test]
+        [Fact]
         public void ReaderAskReturnAndBindTest2()
         {
             var person = new Person { Name = "Joe", Surname = "Bloggs" };
@@ -103,7 +102,7 @@ namespace Monad.UnitTests
                          let sl = p.Surname.Length
                          select nl * sl * x;
 
-            Assert.IsTrue(reader(person) == 180);
+            Assert.True(reader(person) == 180);
         }
 
 
