@@ -26,15 +26,14 @@ using System;
 using System.Linq;
 
 using Monad;
-using NUnit.Framework;
+using Xunit;
 using System.Reflection;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class Combined
     {
-        [Test]
+        [Fact]
         public void Combined1()
         {
             var t1 = ErrIO(() => 1);
@@ -46,10 +45,10 @@ namespace Monad.UnitTests
                       from thr in t3
                       select one + two + thr;
 
-            Assert.IsTrue(res().Value == 6);
+            Assert.True(res().Value == 6);
         }
 
-        [Test]
+        [Fact]
         public void Combined2()
         {
 
@@ -67,7 +66,7 @@ namespace Monad.UnitTests
                       from err in fail
                       select one + two + thr + err;
 
-            Assert.IsTrue(res().IsFaulted);
+            Assert.True(res().IsFaulted);
         }
 
         private Try<T> ErrIO<T>(IO<T> fn)
@@ -96,7 +95,7 @@ namespace Monad.UnitTests
         }
 
         // Messing
-        [Test]
+        [Fact]
         public void TransTest()
         {
             var errT = Trans<string>(from h in Hello()
@@ -105,7 +104,7 @@ namespace Monad.UnitTests
 
             var rdrT = Trans<string, IO<string>>(errT);
 
-            Assert.IsTrue(rdrT("environ")().Value() == "Hello, World");
+            Assert.True(rdrT("environ")().Value() == "Hello, World");
         }
 
         public Try<Option<IO<string>>> OpenFile(string fn)
@@ -113,7 +112,7 @@ namespace Monad.UnitTests
             return () => Option.Return(() => IO.Return(() => "Data"+fn));
         }
 
-        [Test]
+        [Fact]
         public void TransTest2()
         {
             var mon = from ed1 in OpenFile("1")
@@ -125,7 +124,7 @@ namespace Monad.UnitTests
 
             var res = mon();
 
-            Assert.IsTrue(res.Value().Value() == "Data1Data2");
+            Assert.True(res.Value().Value() == "Data1Data2");
         }
     }
 }

@@ -22,7 +22,7 @@
 // SOFTWARE.
 // 
 
-using NUnit.Framework;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +39,6 @@ using System.Diagnostics;
 
 namespace Monad.UnitTests.Lex
 {
-    [TestFixture]
     public class LexerTests
     {
         private static string TestData1 =
@@ -57,7 +56,7 @@ namespace Monad.UnitTests.Lex
         /// <summary>
         /// Fully working language lexer and parser
         /// </summary>
-        [Test]
+        [Fact]
         public void LexerTest()
         {
             Parser<Term> exprlazy = null;
@@ -158,8 +157,8 @@ namespace Monad.UnitTests.Lex
             var resu = result.Value.First().Item1;
             var left = result.Value.First().Item2.AsString();
 
-            Assert.IsTrue(left.Length == 0);
-            Assert.IsTrue(!result.IsFaulted);
+            Assert.True(left.Length == 0);
+            Assert.True(!result.IsFaulted);
         }
 
         class Lang : EmptyDef

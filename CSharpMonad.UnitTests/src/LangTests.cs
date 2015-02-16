@@ -22,7 +22,7 @@
 // SOFTWARE.
 // 
 
-using NUnit.Framework;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,6 @@ using Monad.Utility;
 
 namespace Monad.UnitTests.Lang
 {
-    [TestFixture]
     public class LangTests
     {
         Parser<ImmutableList<ParserChar>> Id;
@@ -51,7 +50,7 @@ namespace Monad.UnitTests.Lang
         Parser<Term> Term1;
         Parser<Term> Parser;
 
-        [Test]
+        [Fact]
         public void BuildLangParser()
         {
             var opChars = ";.,<>?/\\|\"':=+-_*&^%$£@!".AsEnumerable();
@@ -139,7 +138,7 @@ namespace Monad.UnitTests.Lang
         }
 
 
-        [Test]
+        [Fact]
         public void RunLangParser()
         {
             BuildLangParser();
@@ -164,8 +163,8 @@ namespace Monad.UnitTests.Lang
                 Console.WriteLine(errs);
             }
 
-            Assert.IsTrue(!result.IsFaulted);
-            Assert.IsTrue(result.Value.First().Item2.IsEmpty);
+            Assert.True(!result.IsFaulted);
+            Assert.True(result.Value.First().Item2.IsEmpty);
 
             Term ast = result.Value.Single().Item1;
 

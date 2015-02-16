@@ -28,17 +28,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Monad;
-using NUnit.Framework;
+using Xunit;
 using System.Reflection;
 using System.IO;
 using Monad.Utility;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class IOTests
     {
-        [Test]
+        [Fact]
 		public void TestIOMonadLazyLoading()
         {
             var m = I.O(() =>
@@ -48,7 +47,7 @@ namespace Monad.UnitTests
 			m ();
         }
 
-        [Test]
+        [Fact]
         public void TestIOMonadBinding()
         {
             string data = "Testing 123";
@@ -59,10 +58,10 @@ namespace Monad.UnitTests
                          from __            in DeleteFile(tmpFileName)
                          select dataFromFile;
 
-            Assert.IsTrue(result.Invoke() == "Testing 123");
+            Assert.True(result.Invoke() == "Testing 123");
         }
 
-        [Test]
+        [Fact]
         public void TestIOMonadBindingFluent()
         {
             string data = "Testing 123";
@@ -72,7 +71,7 @@ namespace Monad.UnitTests
                             .Then( tmpFileName  => { return new { tmpFileName, data = ReadFile(tmpFileName)() }; })
                             .Then( context      => { DeleteFile(context.tmpFileName)(); return context.data; } );
 
-            Assert.IsTrue(result.Invoke() == "Testing 123");
+            Assert.True(result.Invoke() == "Testing 123");
         }
 
         private static IO<Unit> DeleteFile(string tmpFileName)
