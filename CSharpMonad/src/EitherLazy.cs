@@ -31,9 +31,9 @@ namespace Monad
     /// <summary>
     /// Either monad
     /// </summary>
-    public delegate EitherPair<R, L> Either<R, L>();
+    public delegate EitherPair<L, R> Either<L, R>();
 
-    public struct EitherPair<R, L>
+    public struct EitherPair<L, R>
     {
         public readonly R Right;
         public readonly L Left;
@@ -56,14 +56,14 @@ namespace Monad
             IsRight = false;
         }
 
-        public static implicit operator EitherPair<R, L>(L value)
+        public static implicit operator EitherPair<L, R>(L value)
         {
-            return new EitherPair<R, L>(value);
+            return new EitherPair<L, R>(value);
         }
 
-        public static implicit operator EitherPair<R, L>(R value)
+        public static implicit operator EitherPair<L, R>(R value)
         {
-            return new EitherPair<R, L>(value);
+            return new EitherPair<L, R>(value);
         }
     }
 
@@ -75,23 +75,23 @@ namespace Monad
         /// <summary>
         /// Construct an Either Left monad
         /// </summary>
-        public static Either<R, L> Left<R, L>(Func<L> left)
+        public static Either<L, R> Left<L, R>(Func<L> left)
         {
-            return () => new EitherPair<R, L>(left());
+            return () => new EitherPair<L, R>(left());
         }
 
         /// <summary>
         /// Construct an Either Right monad
         /// </summary>
-        public static Either<R, L> Right<R, L>(Func<R> right)
+        public static Either<L, R> Right<L, R>(Func<R> right)
         {
-            return () => new EitherPair<R, L>(right());
+            return () => new EitherPair<L, R>(right());
         }
 
         /// <summary>
         /// Construct an either Left or Right
         /// </summary>
-        public static Either<R, L> Return<R, L>(Func<EitherPair<R, L>> either)
+        public static Either<L, R> Return<L, R>(Func<EitherPair<L, R>> either)
         {
             return () => either();
         }
@@ -99,9 +99,9 @@ namespace Monad
         /// <summary>
         /// Monadic zero
         /// </summary>
-        public static Either<R, L> Mempty<R, L>()
+        public static Either<L, R> Mempty<L, R>()
         {
-            return () => new EitherPair<R, L>(default(R));
+            return () => new EitherPair<L, R>(default(R));
         }
     }
 
@@ -121,7 +121,7 @@ namespace Monad
         /// <summary>
         /// Returns true if the monad object is in the Right state
         /// </summary>
-        public static bool IsRight<R, L>(this Either<R, L> m)
+        public static bool IsRight<L, R>(this Either<L, R> m)
         {
             return m().IsRight;
         }
@@ -131,7 +131,7 @@ namespace Monad
         /// NOTE: This throws an InvalidOperationException if the object is in the 
         /// Right state
         /// </summary>
-        public static bool IsLeft<R, L>(this Either<R, L> m)
+        public static bool IsLeft<L, R>(this Either<L, R> m)
         {
             return m().IsLeft;
         }
@@ -141,7 +141,7 @@ namespace Monad
         /// NOTE: This throws an InvalidOperationException if the object is in the 
         /// Left state
         /// </summary>
-        public static R Right<R, L>(this Either<R, L> m)
+        public static R Right<L, R>(this Either<L, R> m)
         {
             var res = m();
             if (res.IsLeft)
@@ -154,7 +154,7 @@ namespace Monad
         /// NOTE: This throws an InvalidOperationException if the object is in the 
         /// Right state
         /// </summary>
-        public static L Left<R, L>(this Either<R, L> m)
+        public static L Left<L, R>(this Either<L, R> m)
         {
             var res = m();
             if (res.IsRight)
@@ -168,7 +168,7 @@ namespace Monad
         /// <param name="Right">Action to perform if the monad is in the Right state</param>
         /// <param name="Left">Action to perform if the monad is in the Left state</param>
         /// <returns>T</returns>
-        public static Func<T> Match<R, L, T>(this Either<R, L> m, Func<R, T> Right, Func<L, T> Left)
+        public static Func<T> Match<R, L, T>(this Either<L, R> m, Func<R, T> Right, Func<L, T> Left)
         {
             return () =>
             {
@@ -186,7 +186,7 @@ namespace Monad
         /// </summary>
         /// <param name="right">Action to perform if the monad is in the Right state</param>
         /// <returns>T</returns>
-        public static Func<T> MatchRight<R, L, T>(this Either<R, L> m, Func<R, T> right)
+        public static Func<T> MatchRight<R, L, T>(this Either<L, R> m, Func<R, T> right)
         {
             return () =>
             {
@@ -201,7 +201,7 @@ namespace Monad
         /// </summary>
         /// <param name="left">Action to perform if the monad is in the Left state</param>
         /// <returns>T</returns>
-        public static Func<T> MatchLeft<R, L, T>(this Either<R, L> m, Func<L, T> left)
+        public static Func<T> MatchLeft<R, L, T>(this Either<L, R> m, Func<L, T> left)
         {
             return () =>
             {
@@ -215,7 +215,7 @@ namespace Monad
         /// </summary>
         /// <param name="right">Action to perform if the monad is in the Right state</param>
         /// <returns>T</returns>
-        public static Func<T> MatchRight<R, L, T>(this Either<R, L> m, Func<R, T> right, T defaultValue)
+        public static Func<T> MatchRight<R, L, T>(this Either<L, R> m, Func<R, T> right, T defaultValue)
         {
             return () =>
             {
@@ -232,7 +232,7 @@ namespace Monad
         /// </summary>
         /// <param name="left">Action to perform if the monad is in the Left state</param>
         /// <returns>T</returns>
-        public static Func<T> MatchLeft<R, L, T>(this Either<R, L> m, Func<L, T> left, T defaultValue)
+        public static Func<T> MatchLeft<R, L, T>(this Either<L, R> m, Func<L, T> left, T defaultValue)
         {
             return () =>
             {
@@ -249,7 +249,7 @@ namespace Monad
         /// <param name="Right">Action to perform if the monad is in the Right state</param>
         /// <param name="Left">Action to perform if the monad is in the Left state</param>
         /// <returns>Unit</returns>
-        public static Func<Unit> Match<R, L>(this Either<R, L> m, Action<R> Right, Action<L> Left)
+        public static Func<Unit> Match<L, R>(this Either<L, R> m, Action<R> Right, Action<L> Left)
         {
             return () =>
             {
@@ -269,7 +269,7 @@ namespace Monad
         /// </summary>
         /// <param name="right">Action to perform if the monad is in the Right state</param>
         /// <returns>Unit</returns>
-        public static Func<Unit> MatchRight<R, L>(this Either<R, L> m, Action<R> right)
+        public static Func<Unit> MatchRight<L, R>(this Either<L, R> m, Action<R> right)
         {
             return () =>
             {
@@ -285,7 +285,7 @@ namespace Monad
         /// </summary>
         /// <param name="left">Action to perform if the monad is in the Left state</param>
         /// <returns>Unit</returns>
-        public static Func<Unit> MatchLeft<R, L>(this Either<R, L> m, Action<L> left)
+        public static Func<Unit> MatchLeft<L, R>(this Either<L, R> m, Action<L> left)
         {
             return () =>
             {
@@ -298,7 +298,7 @@ namespace Monad
         /// Monadic append
         /// If the left-hand side or right-hand side are in a Left state, then Left propagates
         /// </summary>
-        public static Either<R, L> Mappend<R, L>(this Either<R, L> lhs, Either<R, L> rhs)
+        public static Either<L, R> Mappend<L, R>(this Either<L, R> lhs, Either<L, R> rhs)
         {
             return () =>
             {
@@ -319,7 +319,7 @@ namespace Monad
                         if (lhsV.Right is IAppendable<R>)
                         {
                             var lhsApp = lhsV.Right as IAppendable<R>;
-                            return new EitherPair<R, L>(lhsApp.Append(rhsV.Right));
+                            return new EitherPair<L, R>(lhsApp.Append(rhsV.Right));
                         }
                         else
                         {
@@ -327,29 +327,29 @@ namespace Monad
                             switch (typeof(R).ToString())
                             {
                                 case "System.Int64":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToInt64(lhsV.Right) + Convert.ToInt64(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToInt64(lhsV.Right) + Convert.ToInt64(rhsV.Right)), typeof(R)));
                                 case "System.UInt64":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToUInt64(lhsV.Right) + Convert.ToUInt64(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToUInt64(lhsV.Right) + Convert.ToUInt64(rhsV.Right)), typeof(R)));
                                 case "System.Int32":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToInt32(lhsV.Right) + Convert.ToInt32(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToInt32(lhsV.Right) + Convert.ToInt32(rhsV.Right)), typeof(R)));
                                 case "System.UInt32":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToUInt32(lhsV.Right) + Convert.ToUInt32(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToUInt32(lhsV.Right) + Convert.ToUInt32(rhsV.Right)), typeof(R)));
                                 case "System.Int16":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToInt16(lhsV.Right) + Convert.ToInt16(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToInt16(lhsV.Right) + Convert.ToInt16(rhsV.Right)), typeof(R)));
                                 case "System.UInt16":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToUInt16(lhsV.Right) + Convert.ToUInt16(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToUInt16(lhsV.Right) + Convert.ToUInt16(rhsV.Right)), typeof(R)));
                                 case "System.Decimal":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToDecimal(lhsV.Right) + Convert.ToDecimal(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToDecimal(lhsV.Right) + Convert.ToDecimal(rhsV.Right)), typeof(R)));
                                 case "System.Double":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToDouble(lhsV.Right) + Convert.ToDouble(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToDouble(lhsV.Right) + Convert.ToDouble(rhsV.Right)), typeof(R)));
                                 case "System.Single":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToSingle(lhsV.Right) + Convert.ToSingle(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToSingle(lhsV.Right) + Convert.ToSingle(rhsV.Right)), typeof(R)));
                                 case "System.Char":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToChar(lhsV.Right) + Convert.ToChar(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToChar(lhsV.Right) + Convert.ToChar(rhsV.Right)), typeof(R)));
                                 case "System.Byte":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToByte(lhsV.Right) + Convert.ToByte(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToByte(lhsV.Right) + Convert.ToByte(rhsV.Right)), typeof(R)));
                                 case "System.String":
-                                    return new EitherPair<R, L>((R)Convert.ChangeType((Convert.ToString(lhsV.Right) + Convert.ToString(rhsV.Right)), typeof(R)));
+                                    return new EitherPair<L, R>((R)Convert.ChangeType((Convert.ToString(lhsV.Right) + Convert.ToString(rhsV.Right)), typeof(R)));
                                 default:
                                     throw new InvalidOperationException("Type " + typeof(R).Name + " is not appendable.  Consider implementing the IAppendable interface.");
                             }
@@ -366,7 +366,7 @@ namespace Monad
         /// Right: A list with one R in
         /// Left: An empty list
         /// </returns>
-        public static IEnumerable<R> AsEnumerable<R, L>(this Either<R, L> self)
+        public static IEnumerable<R> AsEnumerable<L, R>(this Either<L, R> self)
         {
             var res = self();
             if (res.IsRight)
@@ -382,7 +382,7 @@ namespace Monad
         /// Just: An infinite list of R
         /// Nothing: An empty list
         /// </returns>
-        public static IEnumerable<R> AsEnumerableInfinte<R, L>(this Either<R, L> self)
+        public static IEnumerable<R> AsEnumerableInfinte<L, R>(this Either<L, R> self)
         {
             var res = self();
             if (res.IsRight)
@@ -394,26 +394,26 @@ namespace Monad
         /// <summary>
         /// Select
         /// </summary>
-        public static Either<UR, L> Select<TR, UR, L>(
-            this Either<TR, L> self,
+        public static Either<L, UR> Select<L, TR, UR>(
+            this Either<L, TR> self,
             Func<TR, UR> selector)
         {
             return () =>
             {
                 var resT = self();
                 if (resT.IsLeft)
-                    return new EitherPair<UR, L>(resT.Left);
+                    return new EitherPair<L, UR>(resT.Left);
 
-                return new EitherPair<UR, L>(selector(resT.Right));
+                return new EitherPair<L, UR>(selector(resT.Right));
             };
         }
 
         /// <summary>
         /// SelectMany
         /// </summary>
-        public static Either<VR, L> SelectMany<TR, UR, VR, L>(
-            this Either<TR, L> self,
-            Func<TR, Either<UR, L>> selector,
+        public static Either<L, VR> SelectMany<L, TR, UR, VR>(
+            this Either<L, TR> self,
+            Func<TR, Either<L, UR>> selector,
             Func<TR, UR, VR> projector)
         {
             return () =>
@@ -421,20 +421,20 @@ namespace Monad
                 var resT = self();
 
                 if (resT.IsLeft)
-                    return new EitherPair<VR, L>(resT.Left);
+                    return new EitherPair<L, VR>(resT.Left);
 
                 var resU = selector(resT.Right)();
                 if (resU.IsLeft)
-                    return new EitherPair<VR, L>(resU.Left);
+                    return new EitherPair<L, VR>(resU.Left);
 
-                return new EitherPair<VR, L>(projector(resT.Right, resU.Right));
+                return new EitherPair<L, VR>(projector(resT.Right, resU.Right));
             };
         }
 
         /// <summary>
         /// Mconcat
         /// </summary>
-        public static Either<R, L> Mconcat<R, L>(this IEnumerable<Either<R, L>> ms)
+        public static Either<L, R> Mconcat<L, R>(this IEnumerable<Either<L, R>> ms)
         {
             return () =>
             {
@@ -455,7 +455,7 @@ namespace Monad
         /// <summary>
         /// Memoize the result 
         /// </summary>
-        public static Func<EitherPair<R, L>> Memo<R, L>(this Either<R, L> self)
+        public static Func<EitherPair<L, R>> Memo<L, R>(this Either<L, R> self)
         {
             var res = self();
             return () => res;

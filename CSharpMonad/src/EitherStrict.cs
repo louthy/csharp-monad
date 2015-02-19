@@ -36,25 +36,25 @@ namespace Monad
         /// <summary>
         /// Construct an Either Left monad
         /// </summary>
-        public static EitherStrict<R, L> Left<R, L>(L left)
+        public static EitherStrict<L, R> Left<L, R>(L left)
         {
-            return new EitherStrict<R, L>(left);
+            return new EitherStrict<L, R>(left);
         }
 
         /// <summary>
         /// Construct an Either Right monad
         /// </summary>
-        public static EitherStrict<R, L> Right<R, L>(R right)
+        public static EitherStrict<L, R> Right<L, R>(R right)
         {
-            return new EitherStrict<R, L>(right);
+            return new EitherStrict<L, R>(right);
         }
 
         /// <summary>
         /// Monadic zero
         /// </summary>
-        public static EitherStrict<R, L> Mempty<R, L>()
+        public static EitherStrict<L, R> Mempty<L, R>()
         {
-            return new EitherStrict<R, L>(default(R));
+            return new EitherStrict<L, R>(default(R));
         }
     }
 
@@ -71,7 +71,7 @@ namespace Monad
     /// </summary>
     /// <typeparam name="L"></typeparam>
     /// <typeparam name="R"></typeparam>
-    public struct EitherStrict<R, L> : IEquatable<EitherStrict<R, L>>
+    public struct EitherStrict<L, R> : IEquatable<EitherStrict<L, R>>
     {
         static readonly string TypeOfR = typeof(R).ToString();
         static readonly bool IsAppendable = typeof(IAppendable<R>).IsAssignableFrom(typeof(R));
@@ -258,7 +258,7 @@ namespace Monad
         /// Monadic append
         /// If the left-hand side or right-hand side are in a Left state, then Left propogates
         /// </summary>
-        public static EitherStrict<R, L> operator +(EitherStrict<R, L> lhs, EitherStrict<R, L> rhs)
+        public static EitherStrict<L, R> operator +(EitherStrict<L, R> lhs, EitherStrict<L, R> rhs)
         {
             return lhs.Mappend(rhs);
         }
@@ -268,7 +268,7 @@ namespace Monad
         /// Returns the left-hand operand if the operand is not Left; otherwise it returns the right hand operand.
         /// In other words it returns the first valid option in the operand sequence.
         /// </summary>
-        public static EitherStrict<R, L> operator |(EitherStrict<R, L> lhs, EitherStrict<R, L> rhs)
+        public static EitherStrict<L, R> operator |(EitherStrict<L, R> lhs, EitherStrict<L, R> rhs)
         {
             return lhs.IsRight
                 ? lhs
@@ -281,7 +281,7 @@ namespace Monad
         /// In the case where all operands return Left, then the last operand will provide
         /// its value.
         /// </summary>
-        public static EitherStrict<R, L> operator &(EitherStrict<R, L> lhs, EitherStrict<R, L> rhs)
+        public static EitherStrict<L, R> operator &(EitherStrict<L, R> lhs, EitherStrict<L, R> rhs)
         {
             return lhs.IsRight && rhs.IsRight
                 ? rhs
@@ -294,7 +294,7 @@ namespace Monad
         /// Monadic append
         /// If the left-hand side or right-hand side are in a Left state, then Left propagates
         /// </summary>
-        public EitherStrict<R, L> Mappend(EitherStrict<R, L> rhs)
+        public EitherStrict<L, R> Mappend(EitherStrict<L, R> rhs)
         {
             if (IsLeft)
             {
@@ -311,7 +311,7 @@ namespace Monad
                     if (IsAppendable)
                     {
                         var lhs = this.Right as IAppendable<R>;
-                        return new EitherStrict<R, L>(lhs.Append(rhs.Right));
+                        return new EitherStrict<L, R>(lhs.Append(rhs.Right));
                     }
                     else
                     {
@@ -319,29 +319,29 @@ namespace Monad
                         switch (TypeOfR)
                         {
                             case "System.Int64":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToInt64(right) + Convert.ToInt64(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToInt64(right) + Convert.ToInt64(rhs.right)), typeof(R)));
                             case "System.UInt64":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToUInt64(right) + Convert.ToUInt64(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToUInt64(right) + Convert.ToUInt64(rhs.right)), typeof(R)));
                             case "System.Int32":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToInt32(right) + Convert.ToInt32(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToInt32(right) + Convert.ToInt32(rhs.right)), typeof(R)));
                             case "System.UInt32":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToUInt32(right) + Convert.ToUInt32(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToUInt32(right) + Convert.ToUInt32(rhs.right)), typeof(R)));
                             case "System.Int16":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToInt16(right) + Convert.ToInt16(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToInt16(right) + Convert.ToInt16(rhs.right)), typeof(R)));
                             case "System.UInt16":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToUInt16(right) + Convert.ToUInt16(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToUInt16(right) + Convert.ToUInt16(rhs.right)), typeof(R)));
                             case "System.Decimal":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToDecimal(right) + Convert.ToDecimal(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToDecimal(right) + Convert.ToDecimal(rhs.right)), typeof(R)));
                             case "System.Double":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToDouble(right) + Convert.ToDouble(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToDouble(right) + Convert.ToDouble(rhs.right)), typeof(R)));
                             case "System.Single":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToSingle(right) + Convert.ToSingle(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToSingle(right) + Convert.ToSingle(rhs.right)), typeof(R)));
                             case "System.Char":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToChar(right) + Convert.ToChar(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToChar(right) + Convert.ToChar(rhs.right)), typeof(R)));
                             case "System.Byte":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToByte(right) + Convert.ToByte(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToByte(right) + Convert.ToByte(rhs.right)), typeof(R)));
                             case "System.String":
-                                return new EitherStrict<R, L>((R)Convert.ChangeType((Convert.ToString(right) + Convert.ToString(rhs.right)), typeof(R)));
+                                return new EitherStrict<L, R>((R)Convert.ChangeType((Convert.ToString(right) + Convert.ToString(rhs.right)), typeof(R)));
                             default:
                                 throw new InvalidOperationException("Type " + typeof(R).Name + " is not appendable.  Consider implementing the IAppendable interface.");
                         }
@@ -383,7 +383,7 @@ namespace Monad
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator ==(EitherStrict<R, L> lhs, EitherStrict<R, L> rhs)
+        public static bool operator ==(EitherStrict<L, R> lhs, EitherStrict<L, R> rhs)
         {
             return lhs.Equals(rhs);
         }
@@ -391,7 +391,7 @@ namespace Monad
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator !=(EitherStrict<R, L> lhs, EitherStrict<R, L> rhs)
+        public static bool operator !=(EitherStrict<L, R> lhs, EitherStrict<L, R> rhs)
         {
             return !lhs.Equals(rhs);
         }
@@ -399,49 +399,49 @@ namespace Monad
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator ==(EitherStrict<R, L> lhs, L rhs)
+        public static bool operator ==(EitherStrict<L, R> lhs, L rhs)
         {
-            return lhs.Equals(new EitherStrict<R, L>(rhs));
+            return lhs.Equals(new EitherStrict<L, R>(rhs));
         }
 
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator !=(EitherStrict<R, L> lhs, L rhs)
+        public static bool operator !=(EitherStrict<L, R> lhs, L rhs)
         {
-            return !lhs.Equals(new EitherStrict<R, L>(rhs));
+            return !lhs.Equals(new EitherStrict<L, R>(rhs));
         }
 
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator ==(EitherStrict<R, L> lhs, R rhs)
+        public static bool operator ==(EitherStrict<L, R> lhs, R rhs)
         {
-            return lhs.Equals(new EitherStrict<R, L>(rhs));
+            return lhs.Equals(new EitherStrict<L, R>(rhs));
         }
 
         /// <summary>
         /// Monadic equality
         /// </summary>
-        public static bool operator !=(EitherStrict<R, L> lhs, R rhs)
+        public static bool operator !=(EitherStrict<L, R> lhs, R rhs)
         {
-            return !lhs.Equals(new EitherStrict<R, L>(rhs));
+            return !lhs.Equals(new EitherStrict<L, R>(rhs));
         }
 
         /// <summary>
         /// Implicit left operator conversion
         /// </summary>
-        public static implicit operator EitherStrict<R, L>(L left)
+        public static implicit operator EitherStrict<L, R>(L left)
         {
-            return new EitherStrict<R, L>(left);
+            return new EitherStrict<L, R>(left);
         }
 
         /// <summary>
         /// Implicit right operator conversion
         /// </summary>
-        public static implicit operator EitherStrict<R, L>(R right)
+        public static implicit operator EitherStrict<L, R>(R right)
         {
-            return new EitherStrict<R, L>(right);
+            return new EitherStrict<L, R>(right);
         }
 
         public override int GetHashCode()
@@ -459,9 +459,9 @@ namespace Monad
             }
             else
             {
-                if (obj is EitherStrict<R, L>)
+                if (obj is EitherStrict<L, R>)
                 {
-                    var rhs = (EitherStrict<R, L>)obj;
+                    var rhs = (EitherStrict<L, R>)obj;
                     return IsRight && rhs.IsRight
                         ? Right.Equals(rhs.Right)
                         : IsLeft && rhs.IsLeft
@@ -489,7 +489,7 @@ namespace Monad
             }
         }
 
-        public bool Equals(EitherStrict<R, L> rhs)
+        public bool Equals(EitherStrict<L, R> rhs)
         {
             return Equals((object)rhs);
         }
@@ -513,38 +513,38 @@ namespace Monad
         /// <summary>
         /// Select
         /// </summary>
-        public static EitherStrict<UR, L> Select<TR, UR, L>(
-            this EitherStrict<TR, L> self,
+        public static EitherStrict<L, UR> Select<L, TR, UR>(
+            this EitherStrict<L, TR> self,
             Func<TR, UR> selector)
         {
             if (self.IsLeft)
-                return EitherStrict.Left<UR, L>(self.Left);
+                return EitherStrict.Left<L, UR>(self.Left);
 
-            return EitherStrict.Right<UR, L>(selector(self.Right));
+            return EitherStrict.Right<L, UR>(selector(self.Right));
         }
 
         /// <summary>
         /// SelectMany
         /// </summary>
-        public static EitherStrict<VR, L> SelectMany<TR, UR, VR, L>(
-            this EitherStrict<TR, L> self,
-            Func<TR, EitherStrict<UR, L>> selector,
+        public static EitherStrict<L, VR> SelectMany<L, TR, UR, VR>(
+            this EitherStrict<L, TR> self,
+            Func<TR, EitherStrict<L, UR>> selector,
             Func<TR, UR, VR> projector)
         {
             if (self.IsLeft)
-                return EitherStrict.Left<VR, L>(self.Left);
+                return EitherStrict.Left<L, VR>(self.Left);
 
             var res = selector(self.Right);
             if (res.IsLeft)
-                return EitherStrict.Left<VR, L>(res.Left);
+                return EitherStrict.Left<L, VR>(res.Left);
 
-            return EitherStrict.Right<VR, L>(projector(self.Right, res.Right));
+            return EitherStrict.Right<L, VR>(projector(self.Right, res.Right));
         }
 
         /// <summary>
         /// Mconcat
         /// </summary>
-        public static EitherStrict<R, L> Mconcat<R, L>(this IEnumerable<EitherStrict<R, L>> ms)
+        public static EitherStrict<L, R> Mconcat<L, R>(this IEnumerable<EitherStrict<L, R>> ms)
         {
             var value = ms.Head();
 

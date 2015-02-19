@@ -49,11 +49,11 @@ namespace Monad
         {
             return from v in m select liftFn(v);
         }
-        public static Either<U, L> M<R, L, U>(Either<R, L> m, Func<R, U> liftFn)
+        public static Either<L, U> M<L, R, U>(Either<L, R> m, Func<R, U> liftFn)
         {
             return from v in m select liftFn(v);
         }
-        public static EitherStrict<U, L> M<R, L, U>(EitherStrict<R, L> m, Func<R, U> liftFn)
+        public static EitherStrict<L, U> M<L, R, U>(EitherStrict<L, R> m, Func<R, U> liftFn)
         {
             return from v in m select liftFn(v);
         }
@@ -102,13 +102,13 @@ namespace Monad
                    from b in mb
                    select liftFn(a, b);
         }
-        public static Either<C, L> M<A, B, C, L>(Either<A, L> ma, Either<B, L> mb, Func<A, B, C> liftFn)
+        public static Either<L, C> M<L, A, B, C>(Either<L, A> ma, Either<L, B> mb, Func<A, B, C> liftFn)
         {
             return from a in ma
                    from b in mb
                    select liftFn(a, b);
         }
-        public static EitherStrict<C, L> M<A, B, C, L>(EitherStrict<A, L> ma, EitherStrict<B, L> mb, Func<A, B, C> liftFn)
+        public static EitherStrict<L, C> M<L, A, B, C>(EitherStrict<L, A> ma, EitherStrict<L, B> mb, Func<A, B, C> liftFn)
         {
             return from a in ma
                    from b in mb
@@ -175,14 +175,14 @@ namespace Monad
                    from c in mc
                    select liftFn(a, b, c);
         }
-        public static Either<D, L> M<A, B, C, D, L>(Either<A, L> ma, Either<B, L> mb, Either<C, L> mc, Func<A, B, C, D> liftFn)
+        public static Either<L, D> M<L, A, B, C, D>(Either<L, A> ma, Either<L, B> mb, Either<L, C> mc, Func<A, B, C, D> liftFn)
         {
             return from a in ma
                    from b in mb
                    from c in mc
                    select liftFn(a, b, c);
         }
-        public static EitherStrict<D, L> M<A, B, C, D, L>(EitherStrict<A, L> ma, EitherStrict<B, L> mb, EitherStrict<C, L> mc, Func<A, B, C, D> liftFn)
+        public static EitherStrict<L, D> M<L, A, B, C, D>(EitherStrict<L, A> ma, EitherStrict<L, B> mb, EitherStrict<L, C> mc, Func<A, B, C, D> liftFn)
         {
             return from a in ma
                    from b in mb
@@ -249,7 +249,7 @@ namespace Monad
             return from v in m select Lift.M(v, liftFn);
         }
 
-        public static Either<IO<U>, L> IO<R, L, U>(Either<IO<R>, L> m, Func<R, U> liftFn)
+        public static Either<L, IO<U>> IO<R, L, U>(Either<L, IO<R>> m, Func<R, U> liftFn)
         {
             return from v in m select Lift.M(v, liftFn);
         }
