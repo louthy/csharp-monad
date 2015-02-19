@@ -38,31 +38,31 @@ namespace Monad.UnitTests
         [Test]
         public void ReaderWriterStateTest1()
         {
-            var world = RWS.Return<Env,string,App,int>(0);
+            var world = RWS.Return<Env, string, App, int>(0);
 
-            var rws = (from _   in world
-                       from app in RWS.Get<Env,string,App>()
-                       from env in RWS.Ask<Env,string,App>()
-                       from x   in Value(app.UsersLoggedIn, "Users logged in: " + app.UsersLoggedIn)
-                       from y   in Value(100, "System folder: " + env.SystemFolder)
-                       from s   in RWS.Put<Env,string,App>(new App { UsersLoggedIn = 35 })
-                       from t   in RWS.Tell<Env,string,App>("Process complete")
+            var rws = (from _ in world
+                       from app in RWS.Get<Env, string, App>()
+                       from env in RWS.Ask<Env, string, App>()
+                       from x in Value(app.UsersLoggedIn, "Users logged in: " + app.UsersLoggedIn)
+                       from y in Value(100, "System folder: " + env.SystemFolder)
+                       from s in RWS.Put<Env, string, App>(new App { UsersLoggedIn = 35 })
+                       from t in RWS.Tell<Env, string, App>("Process complete")
                        select x * y)
                       .Memo(new Env(), new App());
 
-            var res = rws(); 
+            var res = rws();
 
-            Assert.IsTrue(res.Value == 3400); 
-            Assert.IsTrue(res.State.UsersLoggedIn == 35); 
-            Assert.IsTrue(res.Output.Count() == 3); 
-            Assert.IsTrue(res.Output.First() == "Users logged in: 34"); 
-            Assert.IsTrue(res.Output.Skip(1).First() == "System folder: C:/Temp"); 
-            Assert.IsTrue(res.Output.Skip(2).First() == "Process complete"); 
+            Assert.IsTrue(res.Value == 3400);
+            Assert.IsTrue(res.State.UsersLoggedIn == 35);
+            Assert.IsTrue(res.Output.Count() == 3);
+            Assert.IsTrue(res.Output.First() == "Users logged in: 34");
+            Assert.IsTrue(res.Output.Skip(1).First() == "System folder: C:/Temp");
+            Assert.IsTrue(res.Output.Skip(2).First() == "Process complete");
         }
 
-        public static RWS<Env,string,App,int> Value(int val, string log)
+        public static RWS<Env, string, App, int> Value(int val, string log)
         {
-            return (Env r, App s) => RWS.Tell<string,App,int>(val, log);
+            return (Env r, App s) => RWS.Tell<string, App, int>(val, log);
         }
     }
 
@@ -77,4 +77,3 @@ namespace Monad.UnitTests
         public string SystemFolder = "C:/Temp";
     }
 }
-

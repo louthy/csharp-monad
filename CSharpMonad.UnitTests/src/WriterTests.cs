@@ -63,10 +63,9 @@ namespace Monad.UnitTests
             Assert.IsTrue(memo().Output.Skip(2).First() == "Gonna multiply these two");
         }
 
-        private static Writer<string,int> LogNumber(int num)
+        private static Writer<string, int> LogNumber(int num)
         {
             return () => Writer.Tell(num, "Got number: " + num);
         }
     }
 }
-
