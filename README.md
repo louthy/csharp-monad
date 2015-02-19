@@ -1,3 +1,5 @@
+![csharp-monad](http://www.4four.org/images/csharp-monad-logo.png)
+
 csharp-monad
 ============
 
@@ -18,6 +20,7 @@ A C# library of monads and a full set of parser combinators based on the Haskell
 
 The library is stable, functional and pretty well tested.
 
+__NuGet__ https://www.nuget.org/packages/csharp-monad/
 
 ### A note about laziness
 

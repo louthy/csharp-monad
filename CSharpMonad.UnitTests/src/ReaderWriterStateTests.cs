@@ -50,14 +50,14 @@ namespace Monad.UnitTests
                        select x * y)
                       .Memo(new Env(), new App());
 
-            var res = rws();
+            var res = rws(); 
 
-            Assert.IsTrue(res.Value == 3400);
-            Assert.IsTrue(res.State.UsersLoggedIn == 35);
-            Assert.IsTrue(res.Output.Count() == 3);
-            Assert.IsTrue(res.Output.First() == "Users logged in: 34");
-            Assert.IsTrue(res.Output.Skip(1).First() == "System folder: C:/Temp");
-            Assert.IsTrue(res.Output.Skip(2).First() == "Process complete");
+            Assert.IsTrue(res.Value == 3400); 
+            Assert.IsTrue(res.State.UsersLoggedIn == 35); 
+            Assert.IsTrue(res.Output.Count() == 3); 
+            Assert.IsTrue(res.Output.First() == "Users logged in: 34"); 
+            Assert.IsTrue(res.Output.Skip(1).First() == "System folder: C:/Temp"); 
+            Assert.IsTrue(res.Output.Skip(2).First() == "Process complete"); 
         }
 
         public static RWS<Env, string, App, int> Value(int val, string log)
