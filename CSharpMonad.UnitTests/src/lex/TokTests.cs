@@ -23,30 +23,29 @@
 //
 
 using System;
-using NUnit.Framework;
+using Xunit;
 using Monad.Parsec;
 using Monad.Parsec.Language;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class TokTests
     {
-        [Test]
+        [Fact]
         public void LexemeTest()
         {
             var lex = from l in Tok.Lexeme<ParserChar>(Prim.Character('A'))
                                select l;
 
             var res = lex.Parse("A");
-            Assert.IsTrue(!res.IsFaulted);
+            Assert.True(!res.IsFaulted);
 
             res = lex.Parse("A   ");
-            Assert.IsTrue(!res.IsFaulted);
+            Assert.True(!res.IsFaulted);
                                     
         }
 
-        [Test]
+        [Fact]
         public void SymbolTest()
         {
             var sym = from s in Tok.Symbol("***")
@@ -54,10 +53,10 @@ namespace Monad.UnitTests
 
             var res = sym.Parse("***   ");
 
-            Assert.IsTrue(!res.IsFaulted);
+            Assert.True(!res.IsFaulted);
         }
 
-        [Test]
+        [Fact]
         public void OneLineComment()
         {
             var p = from v in Tok.OneLineComment(new HaskellDef())
@@ -65,11 +64,11 @@ namespace Monad.UnitTests
 
             var res = p.Parse("-- This whole line is a comment");
 
-            Assert.IsTrue(!res.IsFaulted);
+            Assert.True(!res.IsFaulted);
         }
 
 
-        [Test]
+        [Fact]
         public void MultiLineComment()
         {
             var p = from v in Tok.MultiLineComment(new HaskellDef())
@@ -82,10 +81,10 @@ namespace Monad.UnitTests
 
             var left = res.Value.Head().Item2.AsString();
 
-            Assert.IsTrue(!res.IsFaulted &&  left == "  let x=1");
+            Assert.True(!res.IsFaulted &&  left == "  let x=1");
         }
 
-        [Test]
+        [Fact]
         public void WhiteSpaceTest()
         {
             var p = from v in Tok.WhiteSpace(new HaskellDef())
@@ -98,10 +97,10 @@ namespace Monad.UnitTests
 
             var left = res.Value.Head().Item2.AsString();
 
-            Assert.IsTrue(!res.IsFaulted && left == "let x=1");
+            Assert.True(!res.IsFaulted && left == "let x=1");
         }
 
-        [Test]
+        [Fact]
         public void CharLiteralTest()
         {
             var p = from v in Tok.Chars.CharLiteral()
@@ -110,14 +109,14 @@ namespace Monad.UnitTests
             var res = p.Parse("'a'  abc");
             var left = res.Value.Head().Item2.AsString();
 
-            Assert.IsTrue(!res.IsFaulted && left == "abc");
-            Assert.IsTrue(res.Value.Head().Item1.Value.Value == 'a');
+            Assert.True(!res.IsFaulted && left == "abc");
+            Assert.True(res.Value.Head().Item1.Value.Value == 'a');
 
             res = p.Parse("'\\n'  abc");
-            Assert.IsTrue(res.Value.Head().Item1.Value.Value == '\n');
+            Assert.True(res.Value.Head().Item1.Value.Value == '\n');
         }
 
-        [Test]
+        [Fact]
         public void StringLiteralTest()
         {
             var p = from v in Tok.Strings.StringLiteral()
@@ -126,15 +125,15 @@ namespace Monad.UnitTests
             var res = p.Parse("\"abc\"  def");
             var left = res.Value.Head().Item2.AsString();
 
-            Assert.IsTrue(!res.IsFaulted && left == "def");
-            Assert.IsTrue(res.Value.Head().Item1.Value.AsString() == "abc");
+            Assert.True(!res.IsFaulted && left == "def");
+            Assert.True(res.Value.Head().Item1.Value.AsString() == "abc");
 
             res = p.Parse("\"ab\\t\\nc\"  def");
-            Assert.IsTrue(res.Value.Head().Item1.Value.AsString() == "ab\t\nc");
+            Assert.True(res.Value.Head().Item1.Value.AsString() == "ab\t\nc");
         }
 
 
-        [Test]
+        [Fact]
         public void NumbersIntegerTest()
         {
             var p = from v in Tok.Numbers.Integer()
@@ -143,11 +142,11 @@ namespace Monad.UnitTests
             var res = p.Parse("1234  def");
             var left = res.Value.Head().Item2.AsString();
 
-            Assert.IsTrue(!res.IsFaulted && left == "def");
-            Assert.IsTrue(res.Value.Head().Item1.Value == 1234);
+            Assert.True(!res.IsFaulted && left == "def");
+            Assert.True(res.Value.Head().Item1.Value == 1234);
         }
 
-        [Test]
+        [Fact]
         public void NumbersHexTest()
         {
             var p = from v in Tok.Numbers.Hexadecimal()
@@ -156,11 +155,11 @@ namespace Monad.UnitTests
             var res = p.Parse("xAB34");
             var left = res.Value.Head().Item2.AsString();
 
-            Assert.IsTrue(!res.IsFaulted);
-            Assert.IsTrue(res.Value.Head().Item1.Value == 0xAB34);
+            Assert.True(!res.IsFaulted);
+            Assert.True(res.Value.Head().Item1.Value == 0xAB34);
         }
 
-        [Test]
+        [Fact]
         public void NumbersOctalTest()
         {
             var p = from v in Tok.Numbers.Octal()
@@ -169,75 +168,75 @@ namespace Monad.UnitTests
             var res = p.Parse("o777");
             var left = res.Value.Head().Item2.AsString();
 
-            Assert.IsTrue(!res.IsFaulted);
-            Assert.IsTrue(res.Value.Head().Item1.Value == 511);
+            Assert.True(!res.IsFaulted);
+            Assert.True(res.Value.Head().Item1.Value == 511);
         }
 
-        [Test]
+        [Fact]
         public void TestParens()
         {
             var r = Tok.Bracketing.Parens(Tok.Chars.CharLiteral()).Parse("( 'a' )");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.Head().Item1.Value.Value == 'a');
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.Head().Item1.Value.Value == 'a');
         }
 
-        [Test]
+        [Fact]
         public void TestBraces()
         {
             var r = Tok.Bracketing.Braces(Tok.Chars.CharLiteral()).Parse("{ 'a' }");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.Head().Item1.Value.Value == 'a');
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.Head().Item1.Value.Value == 'a');
         }
 
-        [Test]
+        [Fact]
         public void TestBrackets()
         {
             var r = Tok.Bracketing.Brackets(Tok.Chars.CharLiteral()).Parse("[ 'a' ]");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.Head().Item1.Value.Value == 'a');
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.Head().Item1.Value.Value == 'a');
         }
 
-        [Test]
+        [Fact]
         public void TestAngles()
         {
             var r = Tok.Bracketing.Angles(Tok.Chars.CharLiteral()).Parse("< 'a' >");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.Head().Item1.Value.Value == 'a');
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.Head().Item1.Value.Value == 'a');
         }
 
-        [Test]
+        [Fact]
         public void TestIdentifier()
         {
             var r = Tok.Id.Identifier(new HaskellDef()).Parse("onetWothree123  ");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.Head().Item1.Value.AsString() == "onetWothree123");
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.Head().Item1.Value.AsString() == "onetWothree123");
         }
 
-        [Test]
+        [Fact]
         public void TestReserved()
         {
             var def = new HaskellDef();
             var r = Tok.Id.Reserved(def.ReservedNames.Head(), def).Parse(def.ReservedNames.Head() + "  ");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.Head().Item1.Value.AsString() == def.ReservedNames.Head());
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.Head().Item1.Value.AsString() == def.ReservedNames.Head());
         }
 
-        [Test]
+        [Fact]
         public void TestOperator()
         {
             var def = new HaskellDef();
             var r = Tok.Ops.Operator(def).Parse("&&*  ");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.Head().Item1.Value.AsString() == "&&*");
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.Head().Item1.Value.AsString() == "&&*");
         }
 
-        [Test]
+        [Fact]
         public void TestReservedOperator()
         {
             var def = new HaskellDef();
             var r = Tok.Ops.ReservedOp("=>",def).Parse("=>  ");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.Head().Item1.Value.AsString() == "=>");
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.Head().Item1.Value.AsString() == "=>");
         }
     }
 }

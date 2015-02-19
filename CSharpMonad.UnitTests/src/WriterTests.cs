@@ -24,16 +24,15 @@
 
 using System;
 using System.Linq;
-using NUnit.Framework;
+using Xunit;
 using Monad.Utility;
 using Monad;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class WriterTests
     {
-        [Test]
+        [Fact]
         public void Binding1()
         {
             var res = from a in LogNumber(3)
@@ -42,12 +41,12 @@ namespace Monad.UnitTests
 
             var memo = res.Memo();
 
-            Assert.IsTrue(memo().Value == 15 && memo().Output.Count() == 2);
-            Assert.IsTrue(memo().Output.First() == "Got number: 3");
-            Assert.IsTrue(memo().Output.Skip(1).First() == "Got number: 5");
+            Assert.True(memo().Value == 15 && memo().Output.Count() == 2);
+            Assert.True(memo().Output.First() == "Got number: 3");
+            Assert.True(memo().Output.Skip(1).First() == "Got number: 5");
         }
 
-        [Test]
+        [Fact]
         public void Binding2()
         {
             var res = from a in LogNumber(3)
@@ -57,10 +56,10 @@ namespace Monad.UnitTests
 
             var memo = res.Memo();
 
-            Assert.IsTrue(memo().Value == 15 && memo().Output.Count() == 3);
-            Assert.IsTrue(memo().Output.First() == "Got number: 3");
-            Assert.IsTrue(memo().Output.Skip(1).First() == "Got number: 5");
-            Assert.IsTrue(memo().Output.Skip(2).First() == "Gonna multiply these two");
+            Assert.True(memo().Value == 15 && memo().Output.Count() == 3);
+            Assert.True(memo().Output.First() == "Got number: 3");
+            Assert.True(memo().Output.Skip(1).First() == "Got number: 5");
+            Assert.True(memo().Output.Skip(2).First() == "Gonna multiply these two");
         }
 
         private static Writer<string, int> LogNumber(int num)

@@ -27,15 +27,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using Xunit;
 using Monad;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class ReaderWriterStateTests
     {
-        [Test]
+        [Fact]
         public void ReaderWriterStateTest1()
         {
             var world = RWS.Return<Env, string, App, int>(0);
@@ -52,12 +51,12 @@ namespace Monad.UnitTests
 
             var res = rws(); 
 
-            Assert.IsTrue(res.Value == 3400); 
-            Assert.IsTrue(res.State.UsersLoggedIn == 35); 
-            Assert.IsTrue(res.Output.Count() == 3); 
-            Assert.IsTrue(res.Output.First() == "Users logged in: 34"); 
-            Assert.IsTrue(res.Output.Skip(1).First() == "System folder: C:/Temp"); 
-            Assert.IsTrue(res.Output.Skip(2).First() == "Process complete"); 
+            Assert.True(res.Value == 3400); 
+            Assert.True(res.State.UsersLoggedIn == 35); 
+            Assert.True(res.Output.Count() == 3); 
+            Assert.True(res.Output.First() == "Users logged in: 34"); 
+            Assert.True(res.Output.Skip(1).First() == "System folder: C:/Temp"); 
+            Assert.True(res.Output.Skip(2).First() == "Process complete"); 
         }
 
         public static RWS<Env, string, App, int> Value(int val, string log)

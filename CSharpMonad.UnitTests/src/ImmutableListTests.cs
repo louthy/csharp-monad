@@ -1,5 +1,5 @@
 ﻿using Monad.Parsec;
-using NUnit.Framework;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +10,9 @@ using Monad.Utility;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class ImmutableListTests
     {
-        [Test]
+        [Fact]
         public void EnumeratorTest1()
         {
             var list1 = new ImmutableList<int>(new int[] { 0, 1, 2 });
@@ -21,13 +20,13 @@ namespace Monad.UnitTests
             int index = 0;
             foreach (var item in list1)
             {
-                Assert.IsTrue(item == index);
+                Assert.True(item == index);
                 index++;
             }
-            Assert.IsTrue(index == 3);
+            Assert.True(index == 3);
         }
 
-        [Test]
+        [Fact]
         public void EnumeratorTest2()
         {
             var list1 = new ImmutableList<int>(new int[] { 0, 1, 2 });
@@ -38,14 +37,14 @@ namespace Monad.UnitTests
             int index = 0;
             foreach (var item in list)
             {
-                Assert.IsTrue(item == index);
+                Assert.True(item == index);
                 index++;
             }
 
-            Assert.IsTrue(index == 6);
+            Assert.True(index == 6);
         }
 
-        [Test]
+        [Fact]
         public void EnumeratorTest3()
         {
             var list1 = new ImmutableList<int>(new int[] { 1, 2, 3 });
@@ -56,14 +55,14 @@ namespace Monad.UnitTests
             int index = 0;
             foreach (var item in list)
             {
-                Assert.IsTrue(item == index);
+                Assert.True(item == index);
                 index++;
             }
 
-            Assert.IsTrue(index == 7);
+            Assert.True(index == 7);
         }
 
-        [Test]
+        [Fact]
         public void EnumeratorLengthTest1()
         {
             var list1 = new ImmutableList<int>(new int[] { 0, 1, 2 });
@@ -71,30 +70,23 @@ namespace Monad.UnitTests
 
             var list = list1.Concat(list2);
 
-            Assert.IsTrue(list.Length == 6);
+            Assert.True(list.Length == 6);
 
             list = list.Tail();
-            Assert.IsTrue(list.Length == 5);
+            Assert.True(list.Length == 5);
 
             list = list.Tail();
             list = list.Tail();
             list = list.Tail();
             list = list.Tail();
 
-            Assert.IsTrue(list.Length == 1);
-            Assert.IsTrue(list.IsAlmostEmpty);
+            Assert.True(list.Length == 1);
+            Assert.True(list.IsAlmostEmpty);
 
             list = list.Tail();
-            Assert.IsTrue(list.IsEmpty);
+            Assert.True(list.IsEmpty);
 
-            try
-            {
-                list = list.Tail();
-                Assert.Fail("Should have exceptioned");
-            }
-            catch
-            {
-            }
+			Assert.Throws<ParserException>(() => list.Tail());
         }
     }
 }

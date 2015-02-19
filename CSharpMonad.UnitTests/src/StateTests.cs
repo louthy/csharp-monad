@@ -24,15 +24,14 @@
 
 using System;
 using Monad;
-using NUnit.Framework;
+using Xunit;
 using Monad.Utility;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class StateTests
     {
-        [Test]
+        [Fact]
         public void StateTest1()
         {
             var state = State.Return<string,int>();
@@ -45,11 +44,11 @@ namespace Monad.UnitTests
             var res = sm("Hello");
 
 
-            Assert.IsTrue(res.State == "Hello, World");
-            Assert.IsTrue(res.Value == 3);
+            Assert.True(res.State == "Hello, World");
+            Assert.True(res.Value == 3);
         }
 
-        [Test]
+        [Fact]
         public void StateTest2()
         {
             var sm = from x in State.Get<string>()
@@ -58,10 +57,10 @@ namespace Monad.UnitTests
 
             var res = sm(", World");
 
-            Assert.IsTrue(res.State == "Hello, World");
+            Assert.True(res.State == "Hello, World");
         }
 
-        [Test]
+        [Fact]
         public void StateTest3()
         {
             var initial = State.Return<string,int>(10);
@@ -73,10 +72,10 @@ namespace Monad.UnitTests
 
             var res = sm(", World");
 
-            Assert.IsTrue(res.State == "Hello 100, World");
+            Assert.True(res.State == "Hello 100, World");
         }
 
-        [Test]
+        [Fact]
         public void StateTest4()
         {
             var first = State.Return<string,int>(10);
@@ -90,10 +89,10 @@ namespace Monad.UnitTests
 
             var res = sm(", World");
 
-            Assert.IsTrue(res.State == "Hello 30, World");
+            Assert.True(res.State == "Hello 30, World");
         }
 
-        [Test]
+        [Fact]
         public void StateTest5()
         {
             var first = State.Return<string,int>(10);
@@ -113,11 +112,11 @@ namespace Monad.UnitTests
 
             var res = sm(", World");
 
-            Assert.IsTrue(res.State == "Hello 30, World 500");
-            Assert.IsTrue(res.Value == 15000);
+            Assert.True(res.State == "Hello 30, World 500");
+            Assert.True(res.Value == 15000);
         }
 
-        [Test]
+        [Fact]
         public void StateTest6()
         {            
             var first  = State.Return<string,int>(10);
@@ -137,8 +136,8 @@ namespace Monad.UnitTests
 
             var res = sm(", World"); // Invoke with the initial state
 
-            Assert.IsTrue(res.State == "Hello 30, Worldyyy 500");
-            Assert.IsTrue(res.Value == 15000);
+            Assert.True(res.State == "Hello 30, Worldyyy 500");
+            Assert.True(res.Value == 15000);
         }
 
         static State<Unit, S> Put<S>( S state )

@@ -22,7 +22,7 @@
 // SOFTWARE.
 // 
 
-using NUnit.Framework;
+using Xunit;
 using Monad;
 using Monad.Parsec;
 using System;
@@ -33,10 +33,9 @@ using System.Threading.Tasks;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class ParsecTests
     {
-		[Test]
+		[Fact]
 		public void TestOR()
 		{
 			var p = 
@@ -50,16 +49,16 @@ namespace Monad.UnitTests
 				        select fth);
 
 			var r = p.Parse("robert");
-			Assert.IsTrue(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("robert"));
+			Assert.True(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("robert"));
 			r = p.Parse("jimmy");
-			Assert.IsTrue(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("jimmy"));
+			Assert.True(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("jimmy"));
 			r = p.Parse("john paul");
-			Assert.IsTrue(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("john paul"));
+			Assert.True(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("john paul"));
 			r = p.Parse("john");
-			Assert.IsTrue(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("john"));
+			Assert.True(!r.IsFaulted && r.Value.Single().Item1.IsEqualTo("john"));
 		}
 
-        [Test]
+        [Fact]
         public void TestBinding()
         {
             var p = from x in Prim.Item()
@@ -69,35 +68,35 @@ namespace Monad.UnitTests
 
             var res = p.Parse("abcdef").Value.Single();
 
-            Assert.IsTrue(res.Item1.First().Value == 'a' &&
+            Assert.True(res.Item1.First().Value == 'a' &&
                           res.Item1.Second().Value == 'c');
 
-            Assert.IsTrue(res.Item1.First().Location.Line == 1);
-            Assert.IsTrue(res.Item1.First().Location.Column == 1);
+            Assert.True(res.Item1.First().Location.Line == 1);
+            Assert.True(res.Item1.First().Location.Column == 1);
 
-            Assert.IsTrue(res.Item1.Second().Location.Line == 1);
-            Assert.IsTrue(res.Item1.Second().Location.Column == 3);
+            Assert.True(res.Item1.Second().Location.Line == 1);
+            Assert.True(res.Item1.Second().Location.Column == 3);
 
             bool found = p.Parse("ab").Value.IsEmpty;
 
-            Assert.IsTrue(found);
+            Assert.True(found);
 
         }
 
-        [Test]
+        [Fact]
         public void TestInteger()
         {
             var p = Prim.Integer();
 
-            Assert.IsTrue(!p.Parse("123").IsFaulted && p.Parse("123").Value.Single().Item1 == 123);
-            Assert.IsTrue(!p.Parse("-123").IsFaulted && p.Parse("-123").Value.Single().Item1 == -123);
-            Assert.IsTrue(!p.Parse(int.MaxValue.ToString()).IsFaulted && p.Parse(int.MaxValue.ToString()).Value.Single().Item1 == int.MaxValue);
+            Assert.True(!p.Parse("123").IsFaulted && p.Parse("123").Value.Single().Item1 == 123);
+            Assert.True(!p.Parse("-123").IsFaulted && p.Parse("-123").Value.Single().Item1 == -123);
+            Assert.True(!p.Parse(int.MaxValue.ToString()).IsFaulted && p.Parse(int.MaxValue.ToString()).Value.Single().Item1 == int.MaxValue);
 
             // Bug here in both .NET and Mono, neither can parse an Int32.MinValue, overflow exception is thrown.
-            //Assert.IsTrue(!p.Parse(int.MinValue.ToString()).IsFaulted && p.Parse(int.MinValue.ToString()).Value.Single().Item1 == int.MinValue);
+            //Assert.True(!p.Parse(int.MinValue.ToString()).IsFaulted && p.Parse(int.MinValue.ToString()).Value.Single().Item1 == int.MinValue);
         }
 
-        [Test]
+        [Fact]
         public void TestDigitList()
         {
             var p = from open in Prim.Character('[')
@@ -113,156 +112,156 @@ namespace Monad.UnitTests
 
             var r = p.Parse("[1,2,3,4]").Value.Single();
 
-            Assert.IsTrue(r.Item1.First().Value == '1');
-            Assert.IsTrue(r.Item1.Skip(1).First().Value == '2');
-            Assert.IsTrue(r.Item1.Skip(2).First().Value == '3');
-            Assert.IsTrue(r.Item1.Skip(3).First().Value == '4');
+            Assert.True(r.Item1.First().Value == '1');
+            Assert.True(r.Item1.Skip(1).First().Value == '2');
+            Assert.True(r.Item1.Skip(2).First().Value == '3');
+            Assert.True(r.Item1.Skip(3).First().Value == '4');
 
             var r2 = p.Parse("[1,2,3,4");
-            Assert.IsTrue(r2.IsFaulted);
-            Assert.IsTrue(r2.Errors.First().Expected == "']'");
-            Assert.IsTrue(r2.Errors.First().Input.IsEmpty);
+            Assert.True(r2.IsFaulted);
+            Assert.True(r2.Errors.First().Expected == "']'");
+            Assert.True(r2.Errors.First().Input.IsEmpty);
 
             var r3 = p.Parse("[1,2,3,4*");
-            Assert.IsTrue(r3.IsFaulted);
-            Assert.IsTrue(r3.Errors.First().Expected == "']'");
-            Assert.IsTrue(r3.Errors.First().Location.Line == 1);
-            Assert.IsTrue(r3.Errors.First().Location.Column == 9);
+            Assert.True(r3.IsFaulted);
+            Assert.True(r3.Errors.First().Expected == "']'");
+            Assert.True(r3.Errors.First().Location.Line == 1);
+            Assert.True(r3.Errors.First().Location.Column == 9);
 
         }
 
-        [Test]
+        [Fact]
         public void TestString()
         {
             var r = Prim.String("he").Parse("hell").Value.Single();
-            Assert.IsTrue(r.Item1.AsString() == "he");
-            Assert.IsTrue(r.Item2.AsString() == "ll");
+            Assert.True(r.Item1.AsString() == "he");
+            Assert.True(r.Item2.AsString() == "ll");
 
             r = Prim.String("hello").Parse("hello, world").Value.Single();
-            Assert.IsTrue(r.Item1.AsString() == "hello");
-            Assert.IsTrue(r.Item2.AsString() == ", world");
+            Assert.True(r.Item1.AsString() == "hello");
+            Assert.True(r.Item2.AsString() == ", world");
         }
 
-        [Test]
+        [Fact]
         public void TestMany()
         {
             var r = Prim.Many(Prim.Character('a')).Parse("aaabcde").Value.Single();
-            Assert.IsTrue(r.Item1.AsString() == "aaa");
-            Assert.IsTrue(r.Item2.AsString() == "bcde");
+            Assert.True(r.Item1.AsString() == "aaa");
+            Assert.True(r.Item2.AsString() == "bcde");
         }
 
-        [Test]
+        [Fact]
         public void TestMany1()
         {
             var r = Prim.Many1(Prim.Character('a')).Parse("aaabcde").Value.Single();
-            Assert.IsTrue(r.Item1.AsString() == "aaa");
-            Assert.IsTrue(r.Item2.AsString() == "bcde");
+            Assert.True(r.Item1.AsString() == "aaa");
+            Assert.True(r.Item2.AsString() == "bcde");
 
             var r2 = Prim.Many1(Prim.Character('a')).Parse("bcde");
-            Assert.IsTrue(r2.Value.IsEmpty);
+            Assert.True(r2.Value.IsEmpty);
         }
 
-        [Test]
+        [Fact]
         public void TestSkipMany1()
         {
             var p = Prim.SkipMany1(Prim.Character('*'));
 
             var r = p.Parse("****hello, world");
-            Assert.IsTrue(!r.IsFaulted);
+            Assert.True(!r.IsFaulted);
             var after = r.Value.Head().Item2.AsString();
-            Assert.IsTrue(after == "hello, world");
+            Assert.True(after == "hello, world");
 
             r = p.Parse("*hello, world");
-            Assert.IsTrue(!r.IsFaulted);
+            Assert.True(!r.IsFaulted);
             after = r.Value.Head().Item2.AsString();
-            Assert.IsTrue(after == "hello, world");
+            Assert.True(after == "hello, world");
 
             r = p.Parse("hello, world");
-            Assert.IsTrue(r.IsFaulted);
+            Assert.True(r.IsFaulted);
         }
 
-        [Test]
+        [Fact]
         public void TestSkipMany()
         {
             var p = Prim.SkipMany(Prim.Character('*'));
 
             var r = p.Parse("****hello, world");
-            Assert.IsTrue(!r.IsFaulted);
+            Assert.True(!r.IsFaulted);
             var after = r.Value.Head().Item2.AsString();
-            Assert.IsTrue(after == "hello, world");
+            Assert.True(after == "hello, world");
 
             r = p.Parse("*hello, world");
-            Assert.IsTrue(!r.IsFaulted);
+            Assert.True(!r.IsFaulted);
             after = r.Value.Head().Item2.AsString();
-            Assert.IsTrue(after == "hello, world");
+            Assert.True(after == "hello, world");
 
             r = p.Parse("hello, world");
-            Assert.IsTrue(!r.IsFaulted);
+            Assert.True(!r.IsFaulted);
             after = r.Value.Head().Item2.AsString();
-            Assert.IsTrue(after == "hello, world");
+            Assert.True(after == "hello, world");
         }
 
-        [Test]
+        [Fact]
         public void TestOneOf()
         {
             var p = Prim.OneOf("xyz");
             var r = p.Parse("zzz");
-            Assert.IsTrue(!r.IsFaulted && r.Value.Head().Item1.Value == 'z');
+            Assert.True(!r.IsFaulted && r.Value.Head().Item1.Value == 'z');
             r = p.Parse("xxx");
-            Assert.IsTrue(!r.IsFaulted && r.Value.Head().Item1.Value == 'x');
+            Assert.True(!r.IsFaulted && r.Value.Head().Item1.Value == 'x');
             r = p.Parse("www");
-            Assert.IsTrue(r.IsFaulted);
+            Assert.True(r.IsFaulted);
         }
 
-        [Test]
+        [Fact]
         public void TestNoneOf()
         {
             var p = Prim.NoneOf("xyz");
             var r = p.Parse("zzz");
-            Assert.IsTrue(r.IsFaulted);
+            Assert.True(r.IsFaulted);
             r = p.Parse("xxx");
-            Assert.IsTrue(r.IsFaulted);
+            Assert.True(r.IsFaulted);
             r = p.Parse("www");
-            Assert.IsTrue(!r.IsFaulted && r.Value.Head().Item1.Value == 'w' && r.Value.Head().Item2.AsString() == "ww");
+            Assert.True(!r.IsFaulted && r.Value.Head().Item1.Value == 'w' && r.Value.Head().Item2.AsString() == "ww");
         }
 
-        [Test]
+        [Fact]
         public void TestDigit()
         {
             var r = Prim.Digit().Parse("1").Value.Single();
-            Assert.IsTrue(r.Item1.Value == '1');
+            Assert.True(r.Item1.Value == '1');
         }
 
-        [Test]
+        [Fact]
         public void TestChar()
         {
             var r = Prim.Character('X').Parse("X").Value.Single();
-            Assert.IsTrue(r.Item1.Value == 'X');
+            Assert.True(r.Item1.Value == 'X');
         }
 
-        [Test]
+        [Fact]
         public void TestSatisfy()
         {
             var r = Prim.Satisfy(c => c == 'x', "'x'").Parse("xbxcxdxe").Value.Single();
-            Assert.IsTrue(r.Item1.Value == 'x');
-            Assert.IsTrue(r.Item2.AsString() == "bxcxdxe");
+            Assert.True(r.Item1.Value == 'x');
+            Assert.True(r.Item2.AsString() == "bxcxdxe");
         }
 
-        [Test]
+        [Fact]
         public void TestItem()
         {
-            Assert.IsTrue(
+            Assert.True(
                 Prim.Item().Parse("").Value.IsEmpty
                 );
 
             var r = Prim.Item().Parse("abc").Value.Single();
-            Assert.IsTrue(
+            Assert.True(
                 r.Item1.Value == 'a' &&
                 r.Item2.AsString() == "bc"
                 );
         }
 
-        [Test]
+        [Fact]
         public void TestFailure()
         {
             var inp = "abc".ToParserChar();
@@ -271,24 +270,24 @@ namespace Monad.UnitTests
 
             var result = parser.Parse(inp);
 
-            Assert.IsTrue( result.Value.IsEmpty );
+            Assert.True( result.Value.IsEmpty );
         }
 
-        [Test]
+        [Fact]
         public void TestReturn()
         {
             var r = Prim.Return(1).Parse("abc").Value.Single();
-            Assert.IsTrue(
+            Assert.True(
                 r.Item1 == 1 &&
                 r.Item2.AsString() == "abc"
                 );
         }
 
-        [Test]
+        [Fact]
         public void TestChoice()
         {
             var r = Prim.Choice(Prim.Item(), Prim.Return(Prim.ParserChar('d'))).Parse("abc").Value.Single();
-            Assert.IsTrue(
+            Assert.True(
                 r.Item1.Value == 'a' &&
                 r.Item2.AsString() == "bc"
                 );
@@ -303,39 +302,39 @@ namespace Monad.UnitTests
 
             r = parser.Value.Single();
 
-            Assert.IsTrue(
+            Assert.True(
                 r.Item1.Value == 'd' &&
                 r.Item2.AsString() == "abc"
                 );
         }
 
-        [Test]
+        [Fact]
         public void TestWhiteSpace()
         {
             var r = Prim.WhiteSpace().Parse(" ");
-            Assert.IsFalse(r.IsFaulted);
-            Assert.IsTrue(r.Value.Count() == 1);
+            Assert.False(r.IsFaulted);
+            Assert.True(r.Value.Count() == 1);
 
         }
 
-        [Test]
+        [Fact]
         public void TestWhiteSpace2()
         {
             var r = Prim.WhiteSpace().Parse("a");
-            Assert.IsFalse(r.IsFaulted);
-            Assert.IsTrue(r.Value.Count() == 1);
+            Assert.False(r.IsFaulted);
+            Assert.True(r.Value.Count() == 1);
 
             var empty = r.Value.Count() == 1;
-            Assert.IsTrue(empty);
-            Assert.IsTrue(r.Value.Single().Item2.AsString() == "a");
+            Assert.True(empty);
+            Assert.True(r.Value.Single().Item2.AsString() == "a");
         }
 
-        [Test]
+        [Fact]
         public void TestBetween()
         {
             var r = Prim.Between(Prim.Character('['), Prim.Character(']'), Prim.String("abc")).Parse("[abc]");
-            Assert.IsTrue(!r.IsFaulted);
-            Assert.IsTrue(r.Value.First().Item1.AsString() == "abc");
+            Assert.True(!r.IsFaulted);
+            Assert.True(r.Value.First().Item1.AsString() == "abc");
         }
     }
 

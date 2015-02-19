@@ -23,25 +23,24 @@
 // 
 
 using System;
-using NUnit.Framework;
+using Xunit;
 using Monad;
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class EitherTests
     {
-        [Test]
+        [Fact]
         public void TestEitherBinding1()
         {
             var r = from lhs in Two()
                     from rhs in Two()
                     select lhs+rhs;
 
-            Assert.IsTrue(r.IsRight() && r.Right() == 4);
+            Assert.True(r.IsRight() && r.Right() == 4);
         }
 
-        [Test]
+        [Fact]
         public void TestEitherBinding2()
         {
             var r = (from lhs in Two()
@@ -49,31 +48,31 @@ namespace Monad.UnitTests
                      select lhs + rhs)
                     .Memo();
 
-            Assert.IsTrue(r().IsLeft && r().Left == "Error!!");
+            Assert.True(r().IsLeft && r().Left == "Error!!");
         }
 
 
-        [Test]
+        [Fact]
         public void TestEitherBinding3()
         {
             var r = 
                 from lhs in Two()
                 select lhs;
 
-            Assert.IsTrue(r.IsRight() && r.Right() == 2);
+            Assert.True(r.IsRight() && r.Right() == 2);
         }    
 
-        [Test]
+        [Fact]
         public void TestEitherBinding4()
         {
             var r = 
                 from lhs in Error()
                 select lhs;
 
-            Assert.IsTrue(r.IsLeft() && r.Left() == "Error!!");
+            Assert.True(r.IsLeft() && r.Left() == "Error!!");
         }
 
-        [Test]
+        [Fact]
         public void TestEitherBinding5()
         {
             var r =
@@ -82,10 +81,10 @@ namespace Monad.UnitTests
                 from thr in Two()
                 select one + two + thr;
 
-            Assert.IsTrue(r.IsLeft() && r.Left() == "Error!!");
+            Assert.True(r.IsLeft() && r.Left() == "Error!!");
         }
 
-        [Test]
+        [Fact]
         public void TestEitherMatch1()
         {
             var unit =
@@ -94,14 +93,14 @@ namespace Monad.UnitTests
                  from thr in Two()
                  select one + two + thr)
                 .Match(
-                    Right: r => Assert.IsTrue(false),
-                    Left: l => Assert.IsTrue(l == "Error!!")
+                    Right: r => Assert.True(false),
+                    Left: l => Assert.True(l == "Error!!")
                 );
 
             Console.WriteLine(unit.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestEitherMatch2()
         {
             var unit =
@@ -110,13 +109,13 @@ namespace Monad.UnitTests
                  from thr in Two()
                  select one + two + thr)
                 .Match(
-                    right => Assert.IsFalse(true),
-                    left => Assert.IsTrue(left == "Error!!")
+                    right => Assert.False(true),
+                    left => Assert.True(left == "Error!!")
                 );
             Console.WriteLine(unit.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestEitherMatch3()
         {
             var unit =
@@ -124,13 +123,13 @@ namespace Monad.UnitTests
                  from two in Two()
                  select one + two)
                 .Match(
-                    Right: r => Assert.IsTrue(r == 4),
-                    Left: l => Assert.IsFalse(true)
+                    Right: r => Assert.True(r == 4),
+                    Left: l => Assert.False(true)
                 );
             Console.WriteLine(unit.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestEitherMatch4()
         {
             var unit =
@@ -138,13 +137,13 @@ namespace Monad.UnitTests
                  from two in Two()
                  select one + two)
                 .Match(
-                    right => Assert.IsTrue(right == 4),
-                    left => Assert.IsFalse(true)
+                    right => Assert.True(right == 4),
+                    left => Assert.False(true)
                 );
             Console.WriteLine(unit.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestEitherMatch5()
         {
             var result =
@@ -156,10 +155,10 @@ namespace Monad.UnitTests
                     Left: l => 0
                 );
 
-            Assert.IsTrue(result() == 8);
+            Assert.True(result() == 8);
         }
 
-        [Test]
+        [Fact]
         public void TestEitherMatch6()
         {
             var result =
@@ -172,7 +171,7 @@ namespace Monad.UnitTests
                     Left: l => 0
                 );
 
-            Assert.IsTrue(result() == 0);
+            Assert.True(result() == 0);
         }
 
         public Either<string, int> Two()

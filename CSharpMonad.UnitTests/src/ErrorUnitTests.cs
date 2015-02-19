@@ -28,12 +28,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Monad;
-using NUnit.Framework;
+using Xunit;
 
 
 namespace Monad.UnitTests
 {
-    [TestFixture]
     public class ErrorTests
     {
 
@@ -65,7 +64,7 @@ namespace Monad.UnitTests
             return () => 10000;
         }
 
-        [Test]
+        [Fact]
         public void TestWithoutRunTry()
         {
             var t = from v in DoSomethingError(10)
@@ -83,7 +82,7 @@ namespace Monad.UnitTests
         }
 
 
-        [Test]
+        [Fact]
         public void TestErrorMonadLaws()
         {
             var value = 1000;
@@ -91,14 +90,14 @@ namespace Monad.UnitTests
             // Return
             Try<int> errorM = () => value;
 
-            Assert.IsTrue(
+            Assert.True(
                 errorM.Try().Value == 1000 &&
                 errorM.Try().IsFaulted == false
                 );
 
 
             errorM = DoSomethingError(0);
-            Assert.IsTrue(
+            Assert.True(
                 errorM.Try().IsFaulted == true &&
                 errorM.Try().Exception != null
                 );
@@ -110,14 +109,14 @@ namespace Monad.UnitTests
                          .Try();
 
             // Value
-            Assert.IsTrue(
+            Assert.True(
                 boundM.IsFaulted == true &&
                 boundM.Exception != null
                 );
 
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMonadSuccess()
         {
             var result = (from val1 in DoSomething(10)
@@ -125,11 +124,11 @@ namespace Monad.UnitTests
                           select val2)
                          .Try();
 
-            Assert.IsTrue(result.IsFaulted == false, "Should have succeeded");
-            Assert.IsTrue(result.Value == 21, "Value should be 21");
+            Assert.True(result.IsFaulted == false, "Should have succeeded");
+            Assert.True(result.Value == 21, "Value should be 21");
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMonadFail()
         {
             var result = (from val1 in DoSomething(10)
@@ -138,22 +137,22 @@ namespace Monad.UnitTests
                           select val3)
                          .Try();
 
-            Assert.IsTrue(result.Value != 10000, "Entered the function: DoNotEverEnterThisFunction()");
-            Assert.IsTrue(result.IsFaulted == true, "Should throw an error");
+            Assert.True(result.Value != 10000, "Entered the function: DoNotEverEnterThisFunction()");
+            Assert.True(result.IsFaulted == true, "Should throw an error");
 
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMonadSuccessFluent()
         {
             var result = DoSomething(10).Then(val2 => val2 + 10).Try();
 
-            Assert.IsTrue(result.IsFaulted == false, "Should have succeeded");
-            Assert.IsTrue(result.Value == 21, "Value should be 21");
+            Assert.True(result.IsFaulted == false, "Should have succeeded");
+            Assert.True(result.Value == 21, "Value should be 21");
 
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMonadFailFluent()
         {
             var result = DoSomething(10)
@@ -161,8 +160,8 @@ namespace Monad.UnitTests
                             .Then(_ => 10000)
                             .Try();
 
-            Assert.IsTrue(result.Value != 10000, "Entered the function: DoNotEverEnterThisFunction()");
-            Assert.IsTrue(result.IsFaulted == true, "Should throw an error");
+            Assert.True(result.Value != 10000, "Entered the function: DoNotEverEnterThisFunction()");
+            Assert.True(result.IsFaulted == true, "Should throw an error");
 
         }
 
@@ -181,7 +180,7 @@ namespace Monad.UnitTests
             return () => { throw new Exception("Error!!"); };
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMatch1()
         {
            (from one in One()
@@ -189,12 +188,12 @@ namespace Monad.UnitTests
             from two in Two()
             select one + two + err)
            .Match(
-               Success: v => Assert.IsTrue(false),
-               Fail:    e => Assert.IsTrue(e.Message == "Error!!")
+               Success: v => Assert.True(false),
+               Fail:    e => Assert.True(e.Message == "Error!!")
             );
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMatch2()
         {
             var unit =
@@ -203,26 +202,26 @@ namespace Monad.UnitTests
                  from two in Two()
                  select one + two + err)
                 .Match(
-                    val => Assert.IsFalse(false),
-                    err => Assert.IsTrue(err.Message == "Error!!")
+                    val => Assert.False(false),
+                    err => Assert.True(err.Message == "Error!!")
                 );
 
             Console.WriteLine(unit.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMatch3()
         {
             (from one in One()
              from two in Two()
              select one + two)
             .Match(
-                Success: v => Assert.IsTrue(v == 3),
-                Fail: e => Assert.IsTrue(false)
+                Success: v => Assert.True(v == 3),
+                Fail: e => Assert.True(false)
             );
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMatch4()
         {
             var unit =
@@ -230,8 +229,8 @@ namespace Monad.UnitTests
                  from two in Two()
                  select one + two)
                 .Match(
-                    val => Assert.IsTrue(val == 3),
-                    err => Assert.IsTrue(false)
+                    val => Assert.True(val == 3),
+                    err => Assert.True(false)
                 );
 
             Console.WriteLine(unit.ToString());
