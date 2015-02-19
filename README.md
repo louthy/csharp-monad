@@ -5,8 +5,8 @@ csharp-monad
 
 A C# library of monads and a full set of parser combinators based on the Haskell Parsec library.
 
-* `Either<R,L>`
-* `EitherStrict<R,L>`
+* `Either<L, R>`
+* `EitherStrict<L, R>`
 * `IO<T>`
 * `Option<T>`
 * `OptionStrict<T>`
@@ -92,18 +92,18 @@ __Example__
 First we set up some methods that return either a `Left` or a `Right`.  In this case `Two()` returns a `Right`, and `Error()` returns a `Left`.
 
 ```C#    
-        public Either<int, string> Two()
+        public Either<string, int> Two()
         {
             return () => 2;
         }
     
-        public Either<int, string> Error()
+        public Either<string, int> Error()
         {
             return () => "Error!!";
         }
 ```
 
-Below are some examples of using `Either<R,L>`.  Note, whenever a `Left` is returned it cancels the entire bind operation, so any functions after the `Left` will not be processed.
+Below are some examples of using `Either<L, R>`.  Note, whenever a `Left` is returned it cancels the entire bind operation, so any functions after the `Left` will not be processed.
     
 ```C#            
         var r =
