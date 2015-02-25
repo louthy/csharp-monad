@@ -77,6 +77,7 @@ namespace Monad
         /// </summary>
         public static Either<L, R> Left<L, R>(Func<L> left)
         {
+            if (left == null) throw new ArgumentNullException("left");
             return () => new EitherPair<L, R>(left());
         }
 
@@ -85,6 +86,7 @@ namespace Monad
         /// </summary>
         public static Either<L, R> Right<L, R>(Func<R> right)
         {
+            if (right == null) throw new ArgumentNullException("right");
             return () => new EitherPair<L, R>(right());
         }
 
@@ -93,6 +95,7 @@ namespace Monad
         /// </summary>
         public static Either<L, R> Return<L, R>(Func<EitherPair<L, R>> either)
         {
+            if (either == null) throw new ArgumentNullException("either");
             return () => either();
         }
 

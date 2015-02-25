@@ -153,6 +153,8 @@ namespace Monad
         /// <returns>T</returns>
         public T Match<T>(Func<R, T> Right, Func<L, T> Left)
         {
+            if (Right == null) throw new ArgumentNullException("Right");
+            if (Left == null) throw new ArgumentNullException("Left");
             return IsLeft
                 ? Left(this.Left)
                 : Right(this.Right);
@@ -167,6 +169,7 @@ namespace Monad
         /// <returns>T</returns>
         public T MatchRight<T>(Func<R, T> right)
         {
+            if (right == null) throw new ArgumentNullException("right");
             return right(this.Right);
         }
 
@@ -179,6 +182,7 @@ namespace Monad
         /// <returns>T</returns>
         public T MatchLeft<T>(Func<L, T> left)
         {
+            if (left == null) throw new ArgumentNullException("left");
             return left(this.Left);
         }
 
@@ -190,6 +194,7 @@ namespace Monad
         /// <returns>T</returns>
         public T MatchRight<T>(Func<R, T> right, T defaultValue)
         {
+            if (right == null) throw new ArgumentNullException("right");
             if (IsLeft)
                 return defaultValue;
             return right(this.Right);
@@ -203,6 +208,7 @@ namespace Monad
         /// <returns>T</returns>
         public T MatchLeft<T>(Func<L, T> left, T defaultValue)
         {
+            if (left == null) throw new ArgumentNullException("left");
             if (IsRight)
                 return defaultValue;
             return left(this.Left);
@@ -217,6 +223,9 @@ namespace Monad
         /// <returns>Unit</returns>
         public Unit Match(Action<R> Right, Action<L> Left)
         {
+            if (Right == null) throw new ArgumentNullException("Right");
+            if (Left == null) throw new ArgumentNullException("Left");
+
             var self = this;
 
             return Unit.Return(() =>
@@ -237,6 +246,7 @@ namespace Monad
         /// <returns>Unit</returns>
         public Unit MatchRight(Action<R> right)
         {
+            if (right == null) throw new ArgumentNullException("right");
             var self = this;
             return Unit.Return(() => right(self.Right));
         }
@@ -250,6 +260,7 @@ namespace Monad
         /// <returns>Unit</returns>
         public Unit MatchLeft(Action<L> left)
         {
+            if (left == null) throw new ArgumentNullException("left");
             var self = this;
             return Unit.Return(() => left(self.Left));
         }
