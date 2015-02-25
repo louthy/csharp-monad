@@ -64,6 +64,7 @@ namespace Monad
         /// </summary>
         public override OptionResult<T> Mappend(OptionResult<T> rhs)
         {
+            if (rhs == null) throw new ArgumentNullException("rhs");
             return this;
         }
     }

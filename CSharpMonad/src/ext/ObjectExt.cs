@@ -34,21 +34,9 @@ namespace Monad
 {
     public static class ObjectExt
     {
-        /*
-        public static IEnumerable<T> Cons<T>(this T x, IEnumerable<T> xs)
-        {
-            yield return x;
-            foreach (var item in xs) yield return item;
-        }
-
-        public static IEnumerable<T> Cons<T>(this T x)
-        {
-            yield return x;
-        }
-         */
-
         public static ImmutableList<T> Cons<T>(this T x, ImmutableList<T> xs)
         {
+            if (xs == null) throw new ArgumentNullException("xs");
             return xs.InsertAtHead(x);
         }
 

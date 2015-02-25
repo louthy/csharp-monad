@@ -18,6 +18,7 @@ namespace Monad.Utility
         /// </summary>
         public static Memo<T> ize<T>(Func<T> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             return new Memo<T>(func);
         }
     }
@@ -39,6 +40,7 @@ namespace Monad.Utility
         /// <param name="func">Function to invoke to get the value when needed</param>
         public Memo(Func<T> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             this.func = func;
         }
 
@@ -97,6 +99,7 @@ namespace Monad.Utility
         /// </summary>
         public static Func<T, R> Memo<T, R>(this Func<T, R> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             Dictionary<T, R> cache = new Dictionary<T, R>();
             return t => cache.ContainsKey(t)
                 ? cache[t]
@@ -108,6 +111,7 @@ namespace Monad.Utility
         /// </summary>
         public static Func<T1, T2, R> Memo<T1, T2, R>(this Func<T1, T2, R> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             Func<T1, Func<T2, R>> del = (T1 t1) => (T2 t2) => f(t1, t2);
             del = del.Memo();
             return (T1 t1, T2 t2) => del(t1)(t2);
@@ -118,6 +122,7 @@ namespace Monad.Utility
         /// </summary>
         public static Func<T1, T2, T3, R> Memo<T1, T2, T3, R>(this Func<T1, T2, T3, R> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             Func<T1, Func<T2, Func<T3, R>>> del = (T1 t1) => (T2 t2) => (T3 t3) => f(t1, t2, t3);
             del = del.Memo();
             return (T1 t1, T2 t2, T3 t3) => del(t1)(t2)(t3);

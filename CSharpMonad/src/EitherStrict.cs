@@ -528,6 +528,8 @@ namespace Monad
             this EitherStrict<L, TR> self,
             Func<TR, UR> selector)
         {
+            if (selector == null) throw new ArgumentNullException("selector");
+
             if (self.IsLeft)
                 return EitherStrict.Left<L, UR>(self.Left);
 
@@ -542,6 +544,9 @@ namespace Monad
             Func<TR, EitherStrict<L, UR>> selector,
             Func<TR, UR, VR> projector)
         {
+            if (selector == null) throw new ArgumentNullException("selector");
+            if (projector == null) throw new ArgumentNullException("projector");
+
             if (self.IsLeft)
                 return EitherStrict.Left<L, VR>(self.Left);
 

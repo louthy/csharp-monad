@@ -60,6 +60,7 @@ namespace Monad
         /// </summary>
         public TryResult(Exception e)
         {
+            if (e == null) throw new ArgumentNullException("e");
             Exception = e;
             Value = default(T);
         }
@@ -141,6 +142,8 @@ namespace Monad
         /// </summary>
         public static Try<U> Select<T, U>(this Try<T> self, Func<T, U> select)
         {
+            if (select == null) throw new ArgumentNullException("select");
+
             return new Try<U>(() =>
                 {
                     TryResult<T> resT;
@@ -178,6 +181,9 @@ namespace Monad
             Func<T, U, V> bind
             )
         {
+            if (select == null) throw new ArgumentNullException("select");
+            if (bind == null) throw new ArgumentNullException("bind");
+
             return new Try<V>(
                 () =>
                 {
@@ -225,6 +231,8 @@ namespace Monad
         /// </summary>
         public static Try<U> Then<T, U>(this Try<T> self, Func<T, U> getValue)
         {
+            if (getValue == null) throw new ArgumentNullException("getValue");
+
             var resT = self.Try();
 
             return resT.IsFaulted
@@ -280,6 +288,8 @@ namespace Monad
         /// </summary>
         public static Try<T> Mappend<T>(this Try<T> lhs, Try<T> rhs)
         {
+            if (rhs == null) throw new ArgumentNullException("rhs");
+
             return () =>
             {
                 var lhsValue = lhs();
@@ -355,6 +365,9 @@ namespace Monad
         /// </summary>
         public static Func<R> Match<T, R>(this Try<T> self, Func<T, R> Success, Func<Exception, R> Fail)
         {
+            if (Success == null) throw new ArgumentNullException("Success");
+            if (Fail == null) throw new ArgumentNullException("Fail");
+
             return () =>
             {
                 var res = self();
@@ -369,6 +382,8 @@ namespace Monad
         /// </summary>
         public static Func<R> Match<T, R>(this Try<T> self, Func<T, R> Success)
         {
+            if (Success == null) throw new ArgumentNullException("Success");
+
             return () =>
             {
                 var res = self();
@@ -383,6 +398,9 @@ namespace Monad
         /// </summary>
         public static Func<Unit> Match<T>(this Try<T> self, Action<T> Success, Action<Exception> Fail)
         {
+            if (Success == null) throw new ArgumentNullException("Success");
+            if (Fail == null) throw new ArgumentNullException("Fail");
+
             return () =>
             {
                 var res = self();
@@ -401,6 +419,8 @@ namespace Monad
         /// </summary>
         public static Func<Unit> Match<T>(this Try<T> self, Action<T> Success)
         {
+            if (Success == null) throw new ArgumentNullException("Success");
+
             return () =>
             {
                 var res = self();

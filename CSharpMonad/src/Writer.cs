@@ -46,6 +46,7 @@ namespace Monad
 
         internal WriterResult(A value, IEnumerable<W> output)
         {
+            if (output == null) throw new ArgumentNullException("output");
             Value = value;
             Output = output;
         }
@@ -58,6 +59,7 @@ namespace Monad
     {
         public static WriterResult<W, A> Create<W, A>(A value, IEnumerable<W> output)
         {
+            if (output == null) throw new ArgumentNullException("output");
             return new WriterResult<W, A>(value, output);
         }
     }
@@ -79,6 +81,7 @@ namespace Monad
 
         public static WriterResult<W, A> Tell<W, A>(A a, IEnumerable<W> ws)
         {
+            if (ws == null) throw new ArgumentNullException("ws");
             return WriterResult.Create<W, A>(a, ws);
         }
 
@@ -98,6 +101,7 @@ namespace Monad
         /// </summary>
         public static Writer<W, U> Select<W, T, U>(this Writer<W, T> self, Func<T, U> select)
         {
+            if (select == null) throw new ArgumentNullException("select");
             return () =>
             {
                 var resT = self();
@@ -115,6 +119,9 @@ namespace Monad
             Func<T, U, V> project
         )
         {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
             return () =>
             {
                 var resT = self();

@@ -38,6 +38,7 @@ namespace Monad
 
         public static State<S, S> Get<S>(Func<S, S> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             return (S state) => StateResult.Create<S, S>(state, f(state));
         }
 
@@ -82,6 +83,7 @@ namespace Monad
     {
         public static State<S, A> With<S, A>(this State<S, A> self, Func<S, S> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             return (S state) =>
             {
                 var res = self(state);
@@ -91,6 +93,7 @@ namespace Monad
 
         public static State<S, U> Select<S, T, U>(this State<S, T> self, Func<T, U> map)
         {
+            if (map == null) throw new ArgumentNullException("map");
             return (S state) =>
             {
                 var resT = self(state);
@@ -104,6 +107,9 @@ namespace Monad
             Func<T, U, V> project 
             )
         {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
             return (S state) =>
             {
                 var resT = self(state);

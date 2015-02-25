@@ -100,6 +100,8 @@ namespace Monad
         /// </summary>
         public static OptionStrict<T> operator +(OptionStrict<T> lhs, OptionStrict<T> rhs)
         {
+            if (lhs == null) throw new ArgumentNullException("lhs");
+            if (rhs == null) throw new ArgumentNullException("rhs");
             return lhs.Mappend(rhs);
         }
 
@@ -110,6 +112,9 @@ namespace Monad
         /// </summary>
         public static OptionStrict<T> operator |(OptionStrict<T> lhs, OptionStrict<T> rhs)
         {
+            if (lhs == null) throw new ArgumentNullException("lhs");
+            if (rhs == null) throw new ArgumentNullException("rhs");
+
             return lhs.HasValue
                 ? lhs
                 : rhs;
@@ -121,6 +126,9 @@ namespace Monad
         /// </summary>
         public static OptionStrict<T> operator &(OptionStrict<T> lhs, OptionStrict<T> rhs)
         {
+            if (lhs == null) throw new ArgumentNullException("lhs");
+            if (rhs == null) throw new ArgumentNullException("rhs");
+
             return lhs.HasValue && rhs.HasValue
                 ? rhs
                 : lhs.HasValue
@@ -134,6 +142,9 @@ namespace Monad
         /// </summary>
         public static bool operator ==(OptionStrict<T> lhs, OptionStrict<T> rhs)
         {
+            if (lhs == null) throw new ArgumentNullException("lhs");
+            if (rhs == null) throw new ArgumentNullException("rhs");
+
             return lhs.Equals(rhs);
         }
 
@@ -143,6 +154,9 @@ namespace Monad
         /// </summary>
         public static bool operator !=(OptionStrict<T> lhs, OptionStrict<T> rhs)
         {
+            if (lhs == null) throw new ArgumentNullException("lhs");
+            if (rhs == null) throw new ArgumentNullException("rhs");
+
             return !lhs.Equals(rhs);
         }
 
@@ -280,6 +294,7 @@ namespace Monad
 
         public static OptionStrict<R> Select<T, R>(this OptionStrict<T> self, Func<T, R> map)
         {
+            if (map == null) throw new ArgumentNullException("map");
             return self.HasValue
                 ? map(self.Value).ToOptionStrict()
                 : OptionStrict<R>.Nothing;
@@ -287,6 +302,8 @@ namespace Monad
 
         public static OptionStrict<U> SelectMany<T, U>(this OptionStrict<T> self, Func<T, OptionStrict<U>> k)
         {
+            if (k == null) throw new ArgumentNullException("k");
+
             return self.HasValue
                 ? k(self.Value)
                 : OptionStrict<U>.Nothing;
@@ -298,6 +315,9 @@ namespace Monad
             Func<T, U, V> project
             )
         {
+            if (select == null) throw new ArgumentNullException("select");
+            if (project == null) throw new ArgumentNullException("project");
+
             if (!self.HasValue)
                 return OptionStrict<V>.Nothing;
 

@@ -49,6 +49,8 @@ namespace Monad.Utility
         /// <returns></returns>
         public static Unit Return(Action action)
         {
+            if (action == null) throw new ArgumentNullException("action");
+
             action();
             return Default;
         }

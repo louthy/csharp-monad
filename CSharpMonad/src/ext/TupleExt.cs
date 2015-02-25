@@ -34,41 +34,49 @@ namespace Monad
     {
         public static R Apply<T1, T2, R>(this Tuple<T1, T2> self, Func<T1, T2, R> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             return func(self.Item1, self.Item2);
         }
 
         public static R Apply<T1, T2, T3, R>(this Tuple<T1, T2, T3> self, Func<T1, T2, T3, R> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             return func(self.Item1, self.Item2, self.Item3);
         }
 
         public static R Apply<T1, T2, T3, T4, R>(this Tuple<T1, T2, T3, T4> self, Func<T1, T2, T3, T4, R> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             return func(self.Item1, self.Item2, self.Item3, self.Item4);
         }
 
         public static R Apply<T1, T2, T3, T4, T5, R>(this Tuple<T1, T2, T3, T4, T5> self, Func<T1, T2, T3, T4, T5, R> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             return func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5);
         }
 
         public static void Apply<T1, T2>(this Tuple<T1, T2> self, Action<T1, T2> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             func(self.Item1, self.Item2);
         }
 
         public static void Apply<T1, T2, T3>(this Tuple<T1, T2, T3> self, Action<T1, T2, T3> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             func(self.Item1, self.Item2, self.Item3);
         }
 
         public static void Apply<T1, T2, T3, T4>(this Tuple<T1, T2, T3, T4> self, Action<T1, T2, T3, T4> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             func(self.Item1, self.Item2, self.Item3, self.Item4);
         }
 
         public static void Apply<T1, T2, T3, T4, T5>(this Tuple<T1, T2, T3, T4, T5> self, Action<T1, T2, T3, T4, T5> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5);
         }
     }

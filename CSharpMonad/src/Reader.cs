@@ -50,6 +50,7 @@ namespace Monad
 
         public static Reader<E, E> Ask<E>(Func<E, E> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             return (E env) => f(env);
         }
 
@@ -66,6 +67,7 @@ namespace Monad
     {
         public static Reader<E, E> Ask<E, T>(this Reader<E, T> self, Func<E, E> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             return (E env) => f(env);
         }
 
@@ -79,6 +81,7 @@ namespace Monad
         /// </summary>
         public static Reader<E, U> Select<E, T, U>(this Reader<E, T> self, Func<T, U> select)
         {
+            if (select == null) throw new ArgumentNullException("select");
             return (E env) => select(self(env));
         }
 
@@ -91,6 +94,8 @@ namespace Monad
             Func<T, U, V> project
             )
         {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
             return (E env) =>
                 {
                     var resT = self(env);

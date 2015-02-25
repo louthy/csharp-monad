@@ -45,6 +45,7 @@ namespace Monad
         /// </summary>
         public static IO<R> SelectMany<T, R>(this IO<T> self, Func<T, IO<R>> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             return func(self());
         }
 
@@ -53,6 +54,7 @@ namespace Monad
         /// </summary>
         public static IO<U> Select<T,U>(this IO<T> self, Func<T,U> select)
         {
+            if (select == null) throw new ArgumentNullException("select");
             return () => select(self());
         }
 
@@ -64,6 +66,8 @@ namespace Monad
             Func<T, IO<U>> select,
             Func<T, U, V> bind)
         {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (select == null) throw new ArgumentNullException("select");
             var resT = self();
             return () => bind(resT, select(resT)());
         }
@@ -73,7 +77,8 @@ namespace Monad
         /// </summary>
         public static IO<U> Then<T, U>(this IO<T> self, Func<T, U> getValue)
         {
-            return () => getValue( self.Invoke() );
+            if (getValue == null) throw new ArgumentNullException("getValue");
+            return () => getValue(self.Invoke());
         }
 
         /// <summary>
@@ -81,6 +86,7 @@ namespace Monad
         /// </summary>
         public static IO<T> Mappend<T>(this IO<T> lhs, IO<T> rhs)
         {
+            if (rhs == null) throw new ArgumentNullException("rhs");
             return () =>
             {
                 var lhsValue = lhs();
@@ -188,6 +194,7 @@ namespace Monad
 
         public static IO<T> Return<T>(IO<T> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             return func;
         }
     }
@@ -202,6 +209,7 @@ namespace Monad
     {
         public static IO<T> O<T>(IO<T> func)
         {
+            if (func == null) throw new ArgumentNullException("func");
             return func;
         }
     }

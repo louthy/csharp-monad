@@ -67,21 +67,27 @@ namespace Monad
 
         public override R Match<R>(Func<R> Just, Func<R> Nothing)
         {
+            if (Just == null) throw new ArgumentNullException("Just");
+            if (Nothing == null) throw new ArgumentNullException("Nothing");
             return Just();
         }
 
         public override R Match<R>(Func<T, R> Just, Func<R> Nothing)
         {
+            if (Just == null) throw new ArgumentNullException("Just");
+            if (Nothing == null) throw new ArgumentNullException("Nothing");
             return Just(Value);
         }
 
         public override R Match<R>(Func<R> Just, R Nothing)
         {
+            if (Just == null) throw new ArgumentNullException("Just");
             return Just();
         }
 
         public override R Match<R>(Func<T, R> Just, R Nothing)
         {
+            if (Just == null) throw new ArgumentNullException("Just");
             return Just(Value);
         }
 
@@ -92,6 +98,7 @@ namespace Monad
         /// </summary>
         public override OptionStrict<T> Mappend(OptionStrict<T> rhs)
         {
+            if (rhs == null) throw new ArgumentNullException("rhs");
             if (!rhs.HasValue)
             {
                 return rhs;

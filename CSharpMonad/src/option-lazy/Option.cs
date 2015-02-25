@@ -141,6 +141,7 @@ namespace Monad
         /// </summary>
         public static Option<R> Select<T, R>(this Option<T> self, Func<T, R> map)
         {
+            if (map == null) throw new ArgumentNullException("map");
             return () =>
             {
                 var resT = self();
@@ -169,6 +170,9 @@ namespace Monad
             Func<T, U, V> project
             )
         {
+            if (select == null) throw new ArgumentNullException("select");
+            if (project == null) throw new ArgumentNullException("project");
+
             return () =>
             {
                 var resT = self();
@@ -239,6 +243,8 @@ namespace Monad
         /// </summary>
         public static Func<R> Match<T,R>(this Option<T> self, Func<R> Just, Func<R> Nothing)
         {
+            if (Just == null) throw new ArgumentNullException("Just");
+            if (Nothing == null) throw new ArgumentNullException("Nothing");
             return () =>
             {
                 var res = self();
@@ -254,6 +260,8 @@ namespace Monad
         /// </summary>
         public static Func<R> Match<T, R>(this Option<T> self, Func<T, R> Just, Func<R> Nothing)
         {
+            if (Just == null) throw new ArgumentNullException("Just");
+            if (Nothing == null) throw new ArgumentNullException("Nothing");
             return () =>
             {
                 var res = self();
@@ -269,6 +277,7 @@ namespace Monad
         /// </summary>
         public static Func<R> Match<T, R>(this Option<T> self, Func<R> Just, R Nothing)
         {
+            if (Just == null) throw new ArgumentNullException("Just");
             return () =>
             {
                 var res = self();
@@ -284,6 +293,7 @@ namespace Monad
         /// </summary>
         public static Func<R> Match<T, R>(this Option<T> self, Func<T, R> Just, R Nothing)
         {
+            if (Just == null) throw new ArgumentNullException("Just");
             return () =>
             {
                 var res = self();
@@ -300,6 +310,7 @@ namespace Monad
         /// </summary>
         public static Option<T> Mappend<T>(this Option<T> self, Option<T> rhs)
         {
+            if (rhs == null) throw new ArgumentNullException("rhs");
             return () => self().Mappend(rhs());
         }
 

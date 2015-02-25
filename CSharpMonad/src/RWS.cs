@@ -60,6 +60,7 @@ namespace Monad
     {
         public static RWSResult<W, S, A> Create<W, S, A>(A value, IEnumerable<W> output, S state)
         {
+            if (output == null) throw new ArgumentNullException("output");
             return new RWSResult<W, S, A>(value, output, state);
         }
     }
@@ -81,6 +82,7 @@ namespace Monad
 
         public static RWSResult<W, S, A> Tell<W, S, A>(A a, IEnumerable<W> ws)
         {
+            if (ws == null) throw new ArgumentNullException("ws");
             return RWSResult.Create<W, S, A>(a, ws, default(S));
         }
 
@@ -91,6 +93,7 @@ namespace Monad
 
         public static RWS<R, W, S, R> Ask<R, W, S>(Func<R, R> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             return (R r, S s) => RWSResult.Create(f(r), new W[0], s);
         }
 
@@ -101,6 +104,7 @@ namespace Monad
 
         public static RWS<R, W, S, S> Get<R, W, S>(Func<S, S> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             return (R r, S s) => RWSResult.Create<W, S, S>(s, new W[0], f(s));
         }
 
@@ -123,6 +127,7 @@ namespace Monad
     {
         public static RWS<R, W, S, R> Ask<R, W, S, T>(this RWS<R, W, S, T> self, Func<R, R> f)
         {
+            if (f == null) throw new ArgumentNullException("f");
             return (R r, S s) => RWSResult.Create(f(r), new W[0], s);
         }
 
@@ -137,6 +142,7 @@ namespace Monad
         public static RWS<R, W, S, U> Select<R, W, S, T, U>(this RWS<R, W, S, T> self, Func<T, U> select)
             where S : class
         {
+            if (select == null) throw new ArgumentNullException("select");
             return (R r, S s) =>
             {
                 var resT = self(r, s);
@@ -155,6 +161,9 @@ namespace Monad
         )
             where S : class
         {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
             return (R r, S s) =>
             {
                 var resT = self(r, s);

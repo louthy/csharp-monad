@@ -173,6 +173,8 @@ namespace Monad
         /// <returns>T</returns>
         public static Func<T> Match<R, L, T>(this Either<L, R> m, Func<R, T> Right, Func<L, T> Left)
         {
+            if (Right == null) throw new ArgumentNullException("Right");
+            if (Left == null) throw new ArgumentNullException("Left");
             return () =>
             {
                 var res = m();
@@ -191,6 +193,7 @@ namespace Monad
         /// <returns>T</returns>
         public static Func<T> MatchRight<R, L, T>(this Either<L, R> m, Func<R, T> right)
         {
+            if (right == null) throw new ArgumentNullException("right");
             return () =>
             {
                 return right(m.Right());
@@ -206,6 +209,8 @@ namespace Monad
         /// <returns>T</returns>
         public static Func<T> MatchLeft<R, L, T>(this Either<L, R> m, Func<L, T> left)
         {
+            if (left == null) throw new ArgumentNullException("left");
+
             return () =>
             {
                 return left(m.Left());
@@ -220,6 +225,8 @@ namespace Monad
         /// <returns>T</returns>
         public static Func<T> MatchRight<R, L, T>(this Either<L, R> m, Func<R, T> right, T defaultValue)
         {
+            if (right == null) throw new ArgumentNullException("right");
+
             return () =>
             {
                 var res = m();
@@ -237,6 +244,8 @@ namespace Monad
         /// <returns>T</returns>
         public static Func<T> MatchLeft<R, L, T>(this Either<L, R> m, Func<L, T> left, T defaultValue)
         {
+            if (left == null) throw new ArgumentNullException("left");
+
             return () =>
             {
                 var res = m();
@@ -254,6 +263,9 @@ namespace Monad
         /// <returns>Unit</returns>
         public static Func<Unit> Match<L, R>(this Either<L, R> m, Action<R> Right, Action<L> Left)
         {
+            if (Left == null) throw new ArgumentNullException("Left");
+            if (Right == null) throw new ArgumentNullException("Right");
+
             return () =>
             {
                 var res = m();
@@ -274,6 +286,8 @@ namespace Monad
         /// <returns>Unit</returns>
         public static Func<Unit> MatchRight<L, R>(this Either<L, R> m, Action<R> right)
         {
+            if (right == null) throw new ArgumentNullException("right");
+
             return () =>
             {
                 right(m.Right());
@@ -290,6 +304,8 @@ namespace Monad
         /// <returns>Unit</returns>
         public static Func<Unit> MatchLeft<L, R>(this Either<L, R> m, Action<L> left)
         {
+            if (left == null) throw new ArgumentNullException("left");
+
             return () =>
             {
                 left(m.Left());
@@ -303,6 +319,8 @@ namespace Monad
         /// </summary>
         public static Either<L, R> Mappend<L, R>(this Either<L, R> lhs, Either<L, R> rhs)
         {
+            if (rhs == null) throw new ArgumentNullException("rhs");
+
             return () =>
             {
                 var lhsV = lhs();
@@ -401,6 +419,8 @@ namespace Monad
             this Either<L, TR> self,
             Func<TR, UR> selector)
         {
+            if (selector == null) throw new ArgumentNullException("selector");
+
             return () =>
             {
                 var resT = self();
@@ -419,6 +439,9 @@ namespace Monad
             Func<TR, Either<L, UR>> selector,
             Func<TR, UR, VR> projector)
         {
+            if (selector == null) throw new ArgumentNullException("selector");
+            if (projector == null) throw new ArgumentNullException("projector");
+
             return () =>
             {
                 var resT = self();
