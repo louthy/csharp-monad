@@ -119,6 +119,11 @@ namespace Monad
         public abstract OptionResult<T> Mappend(OptionResult<T> rhs);
     }
 
+    internal class EmptyArray<T>
+    {
+        internal static readonly T[] Value = new T[0];
+    }
+
     /// <summary>
     /// Option<T> monad extension methods
     /// </summary>
@@ -210,6 +215,57 @@ namespace Monad
                     return NothingResult<V>.Default;
                 }
             };
+        }
+
+        /// <summary>
+        /// If option isn't empty, returns its value; if the option is empty, returns otherwise parameter.
+        /// </summary>
+        public static T Else<T>(this Option<T> option, T otherwise)
+        {
+            if (option.HasValue())
+                return option.Value();
+            return otherwise;
+        }
+
+        /// <summary>
+        /// If option isn't empty, returns its value; if the option is empty, returns the return value of the otherwise parameter.
+        /// </summary>
+        public static T Else<T>(this Option<T> option, Func<T> otherwise)
+        {
+            if (option.HasValue())
+                return option.Value();
+            return otherwise();
+        }
+
+        /// <summary>
+        /// Returns empty if the the key doesn't exist in the dictionary; otherwise returns the value from that key.
+        /// </summary>
+        public static Option<TValue> TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+        {
+            TValue value;
+            if (dictionary.TryGetValue(key, out value))
+                return () => value;
+            return Option.Mempty<TValue>();
+        }
+
+        /// <summary>
+        /// Skips elements that are empty, iterates the values of the elements that are not.
+        /// </summary>
+        public static IEnumerable<T> WhereHasValue<T>(this IEnumerable<Option<T>> enumerable)
+        {
+            return enumerable.Where(opt => opt.HasValue()).Select(opt => opt.Value());
+        }
+
+        /// <summary>
+        /// Returns empty if tin isn't a TOut, otherwise returns an Option[TOut] with tin as its value
+        /// </summary>
+        public static Option<TOut> TryCast<TIn, TOut>(TIn tin)
+            where TIn : class
+            where TOut : class
+        {
+            var tout = tin as TOut;
+            if (tout != null) return () => tout;
+            return Option.Mempty<TOut>();
         }
 
         /// <summary>
