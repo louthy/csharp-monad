@@ -142,8 +142,8 @@ namespace Monad
         /// </summary>
         public static bool operator ==(OptionStrict<T> lhs, OptionStrict<T> rhs)
         {
-            if (lhs == null) throw new ArgumentNullException("lhs");
-            if (rhs == null) throw new ArgumentNullException("rhs");
+            if (ReferenceEquals(null, lhs)) throw new ArgumentNullException("lhs");
+            if (ReferenceEquals(null, rhs)) throw new ArgumentNullException("rhs");
 
             return lhs.Equals(rhs);
         }
