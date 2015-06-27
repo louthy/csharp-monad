@@ -63,6 +63,15 @@ namespace Monad.UnitTests
             Assert.True(result.HasValue() == false);
         }
 
+        [Fact]
+        public void TestEquals()
+        {
+            OptionStrict<int> option = 1000.ToOptionStrict();
+            OptionStrict<int> option2 = 1000.ToOptionStrict();
+
+            Assert.True(option == option2);
+        }
+
         public Option<int> Nothing()
         {
             return Option.Nothing<int>();
