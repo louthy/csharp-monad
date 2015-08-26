@@ -69,6 +69,7 @@
     <Compile Include="src\Combined.cs" />
     <Compile Include="src\ReaderTests.cs" />
     <Compile Include="src\StateTests.cs" />
+    <Compile Include="src\TryTests.cs" />
     <Compile Include="src\WriterTests.cs" />
     <Compile Include="src\ReaderWriterStateTests.cs" />
   </ItemGroup>
@@ -92,7 +93,8 @@
     <Error Condition="!Exists('..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props'))" />
     <Error Condition="!Exists('..\packages\xunit.core.2.0.0-rc1-build2826\build\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.0.0-rc1-build2826\build\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props'))" />
   </Target>
-  <UsingTask AssemblyFile="..\packages\xunit.runners.2.0.0-rc1-build2826\tools\xunit.runner.msbuild.dll" TaskName="Xunit.Runner.MSBuild.xunit"></UsingTask>
+  <UsingTask AssemblyFile="..\packages\xunit.runners.2.0.0-rc1-build2826\tools\xunit.runner.msbuild.dll" TaskName="Xunit.Runner.MSBuild.xunit">
+  </UsingTask>
   <Target Name="Test" DependsOnTargets="Build">
     <xunit Assemblies="$(OutputPath)\$(AssemblyName).dll" />
   </Target>
