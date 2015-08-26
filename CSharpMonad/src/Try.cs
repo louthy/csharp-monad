@@ -1,4 +1,4 @@
-﻿////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 // The MIT License (MIT)
 // 
 // Copyright (c) 2014 Paul Louth
@@ -260,7 +260,7 @@ namespace Monad
         /// </returns>
         public static IEnumerable<T> AsEnumerable<T>(this Try<T> self)
         {
-            var res = self();
+            var res = self.Try();
             if (res.IsFaulted)
                 yield break;
             else
@@ -276,7 +276,7 @@ namespace Monad
         /// </returns>
         public static IEnumerable<T> AsEnumerableInfinite<T>(this Try<T> self)
         {
-            var res = self();
+            var res = self.Try();
             if (res.IsFaulted)
                 yield break;
             else
@@ -370,7 +370,7 @@ namespace Monad
 
             return () =>
             {
-                var res = self();
+                var res = self.Try();
                 return res.IsFaulted
                     ? Fail(res.Exception)
                     : Success(res.Value);
@@ -386,7 +386,7 @@ namespace Monad
 
             return () =>
             {
-                var res = self();
+                var res = self.Try();
                 return res.IsFaulted
                     ? default(R)
                     : Success(res.Value);
@@ -403,7 +403,7 @@ namespace Monad
 
             return () =>
             {
-                var res = self();
+                var res = self.Try();
 
                 if (res.IsFaulted)
                     Fail(res.Exception);
@@ -423,7 +423,7 @@ namespace Monad
 
             return () =>
             {
-                var res = self();
+                var res = self.Try();
                 if (!res.IsFaulted)
                     Success(res.Value);
                 return Unit.Default;
