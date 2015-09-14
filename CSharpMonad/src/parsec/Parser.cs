@@ -94,7 +94,7 @@ namespace Monad.Parsec
         {
             if (lhs == null) throw new ArgumentNullException("lhs of &");
             if (rhs == null) throw new ArgumentNullException("rhs of &");
-            return lhs.Or(rhs);
+            return lhs.And(rhs);
         }
 
         public Parser<ImmutableList<A>> Mconcat(ImmutableList<Parser<A>> parsers)
