@@ -50,7 +50,7 @@ namespace Monad.Utility
     /// </summary>
     public class ImmutableList<T> : IEnumerable<T>
     {
-        const int CollapseAtDepth = 64;
+        const int CollapseAtDepth = 256;
 
         private readonly T[] source;
         private readonly int length;
