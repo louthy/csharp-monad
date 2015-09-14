@@ -403,7 +403,7 @@ namespace Monad
         /// Just: An infinite list of R
         /// Nothing: An empty list
         /// </returns>
-        public static IEnumerable<R> AsEnumerableInfinte<L, R>(this Either<L, R> self)
+        public static IEnumerable<R> AsEnumerableInfinite<L, R>(this Either<L, R> self)
         {
             var res = self();
             if (res.IsRight)

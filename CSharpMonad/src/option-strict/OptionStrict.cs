@@ -188,7 +188,7 @@ namespace Monad
         /// Just: An infinite list of T
         /// Nothing: An empty list
         /// </returns>
-        public IEnumerable<T> AsEnumerableInfinte()
+        public IEnumerable<T> AsEnumerableInfinite()
         {
             if (HasValue)
                 while (true) yield return Value;

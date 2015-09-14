@@ -337,7 +337,7 @@ namespace Monad
         /// Just: An infinite list of T
         /// Nothing: An empty list
         /// </returns>
-        public static IEnumerable<T> AsEnumerableInfinte<T>(this Option<T> self)
+        public static IEnumerable<T> AsEnumerableInfinite<T>(this Option<T> self)
         {
             var res = self();
             if (res.HasValue)

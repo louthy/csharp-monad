@@ -383,7 +383,7 @@ namespace Monad
         /// Just: An infinite list of R
         /// Nothing: An empty list
         /// </returns>
-        public IEnumerable<R> AsEnumerableInfinte()
+        public IEnumerable<R> AsEnumerableInfinite()
         {
             if (IsRight)
                 while (true) yield return Right;
