@@ -21,8 +21,10 @@ The library is stable, functional and pretty well tested.
 
 __NuGet__ https://www.nuget.org/packages/csharp-monad/
 
-__NOTE__ _For a more complete (and more active) functional framework including most of the monads listed above, please check my other project Language-Ext: https://github.com/louthy/language-ext_
 
+### Before going any further
+
+For a more complete (and more active) functional framework including most of the monads listed above, please check my other project: [Language-Ext](https://github.com/louthy/language-ext)
 
 
 ### A note about laziness
