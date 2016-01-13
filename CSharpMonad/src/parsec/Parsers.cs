@@ -162,7 +162,7 @@ namespace Monad.Parsec
     {
         public OneOf(string chars)
             :
-            base(ch => chars.Contains(ch), "one of: " + chars)
+            base(ch => chars.Contains(new string(ch, 1)), "one of: " + chars)
         { }
         public OneOf(IEnumerable<char> chars)
             :
@@ -178,7 +178,7 @@ namespace Monad.Parsec
     {
         public NoneOf(string chars)
             :
-            base(ch => !chars.Contains(ch), "none of: " + chars)
+            base(ch => !chars.Contains(new string(ch, 1)), "none of: " + chars)
         { }
         public NoneOf(IEnumerable<char> chars)
             :
@@ -203,7 +203,7 @@ namespace Monad.Parsec
     {
         public OctalDigit()
             :
-            base(c => "01234567".Contains(c), "an octal-digit")
+            base(c => "01234567".Contains(new string(c, 1)), "an octal-digit")
         {
         }
     }
@@ -212,7 +212,7 @@ namespace Monad.Parsec
     {
         public HexDigit()
             :
-            base(c => Char.IsDigit(c) || "abcdefABCDEF".Contains(c) , "a hex-digit")
+            base(c => Char.IsDigit(c) || "abcdefABCDEF".Contains(new string(c, 1)) , "a hex-digit")
         {
         }
     }
@@ -344,7 +344,7 @@ namespace Monad.Parsec
     {
         public StringParse(string str)
             :
-            this(str as IEnumerable<char>)
+            this(str.Cast<char>())
         {
         }
 
