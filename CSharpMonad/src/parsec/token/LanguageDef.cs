@@ -108,8 +108,8 @@ namespace Monad.Parsec.Token
             {
                 return Memo.ize(() => 
                     Enumerable.Concat(
-                        CommentStart.Cast<char>(), 
-                        CommentEnd.Cast<char>()
+                        CommentStart.AsEnumerable(), 
+                        CommentEnd.AsEnumerable()
                         ).Distinct()
                     );
             }

@@ -124,8 +124,8 @@ namespace Monad.Parsec.Token.Chars
         static CharEsc()
         {
             EscapeMap =
-                "abfnrtv\\\"\'".Cast<char>().Zip(
-                "\a\b\f\n\r\t\v\\\"\'".Cast<char>(),
+                "abfnrtv\\\"\'".Zip(
+                "\a\b\f\n\r\t\v\\\"\'",
                 (l, r) => Tuple.Create(l, r));
         }
 

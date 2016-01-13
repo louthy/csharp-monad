@@ -174,7 +174,7 @@ namespace Monad.Parsec
         {
             return self.Count() != rhs.Length
                 ? false
-                : self.Zip(rhs.Cast<char>(), (left, right) => left.Value == right)
+                : self.Zip(rhs, (left, right) => left.Value == right)
                       .Where(match => match == false)
                       .Count() == 0;
         }
