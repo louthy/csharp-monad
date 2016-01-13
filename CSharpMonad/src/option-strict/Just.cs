@@ -37,7 +37,7 @@ namespace Monad
     public class JustStrict<T> : OptionStrict<T>
     {
         static readonly string TypeOfT = typeof(T).ToString();
-        static readonly bool IsAppendable = typeof(IAppendable<T>).IsAssignableFrom(typeof(T));
+        static readonly bool IsAppendable = typeof(IAppendable<T>).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo());
         private readonly T value;
 
         public JustStrict(T value)

@@ -75,7 +75,7 @@ namespace Monad
     public struct EitherStrict<L, R> : IEquatable<EitherStrict<L, R>>
     {
         static readonly string TypeOfR = typeof(R).ToString();
-        static readonly bool IsAppendable = typeof(IAppendable<R>).IsAssignableFrom(typeof(R));
+        static readonly bool IsAppendable = typeof(IAppendable<R>).GetTypeInfo().IsAssignableFrom(typeof(R).GetTypeInfo());
 
         readonly L left;
         readonly R right;
