@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -92,7 +93,7 @@ namespace Monad
                 var lhsValue = lhs();
                 var rhsValue = rhs();
 
-                bool IsAppendable = typeof(IAppendable<T>).IsAssignableFrom(typeof(T));
+                bool IsAppendable = typeof(IAppendable<T>).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo());
 
                 if (IsAppendable)
                 {

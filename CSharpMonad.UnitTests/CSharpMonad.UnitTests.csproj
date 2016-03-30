@@ -74,16 +74,16 @@
     <Compile Include="src\ReaderWriterStateTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSharpMonad\CSharpMonad.csproj">
-      <Project>{19F700EF-3DE5-4C74-A597-3515C1CD2B01}</Project>
-      <Name>CSharpMonad</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpMonad\CSharpMonad.csproj">
+      <Project>{254abd61-bedb-4478-9708-606e85310fe0}</Project>
+      <Name>CSharpMonad</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
