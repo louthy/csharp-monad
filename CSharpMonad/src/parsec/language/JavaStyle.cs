@@ -22,14 +22,6 @@
 // SOFTWARE.
 // 
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Monad.Parsec.Token;
-using Monad.Parsec;
-
 namespace Monad.Parsec.Language
 {
     /// <summary>

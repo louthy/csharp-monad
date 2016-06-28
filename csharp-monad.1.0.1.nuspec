@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>csharp-monad</id>
+        <version>1.0.1</version>
+        <title>csharp-monad</title>
+        <authors>Paul Louth</authors>
+        <owners>paullouth</owners>
+        <licenseUrl>https://github.com/louthy/csharp-monad/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/louthy/csharp-monad</projectUrl>
+        <iconUrl>http://www.4four.org/images/csharp-monad-logo.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>C# Monad Library</description>
+        <summary>A C# library of monads and a full set of parser combinators based on the Haskell Parsec library.
+Either &lt;L,R&gt;
+EitherStrict &lt;L,R&gt;
+IO &lt;T&gt;
+Option &lt;T&gt;
+OptionStrict &lt;T&gt;
+Parser &lt;T&gt;
+Reader &lt;E,T&gt;
+RWS &lt;R,W,S,T&gt; - Combined Reader/Writer/State
+State &lt;S,T&gt;
+Try&lt;T&gt;
+Writer&lt;W,T&gt;</summary>
+        <releaseNotes />
+        <copyright>Copyright (c) Paul Louth</copyright>
+        <tags>C#,Functional,Monad,Option,Either,Reader,Writer,State</tags>
+        <dependencies>
+            <group targetFramework=".NETCoreApp1.0">
+                <dependency id="System.Runtime.Extensions" version="4.1.0" />
+                <dependency id="System.Collections" version="4.0.11" />
+                <dependency id="System.Reflection" version="4.1.0" />
+                <dependency id="System.Linq" version="4.1.0" />
+            </group>
+            <group targetFramework=".NETFramework4.5" />
+            <group targetFramework=".NETFramework4.6" />
+            <group targetFramework=".NETStandard1.3">
+                <dependency id="System.Runtime.Extensions" version="4.1.0" />
+                <dependency id="System.Collections" version="4.0.11" />
+                <dependency id="System.Reflection" version="4.1.0" />
+                <dependency id="System.Linq" version="4.1.0" />
+            </group>
+        </dependencies>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6" />
+        </frameworkAssemblies>
+    </metadata>
+    <files>
+        <file src="lib\net45\CSharpMonad.dll" target="lib\net45\CSharpMonad.dll" />
+        <file src="lib\net45\CSharpMonad.pdb" target="lib\net45\CSharpMonad.pdb" />
+        <file src="lib\net46\CSharpMonad.dll" target="lib\net46\CSharpMonad.dll" />
+        <file src="lib\net46\CSharpMonad.pdb" target="lib\net46\CSharpMonad.pdb" />
+        <file src="lib\netcoreapp1.0\CSharpMonad.dll" target="lib\netcoreapp1.0\CSharpMonad.dll" />
+        <file src="lib\netcoreapp1.0\CSharpMonad.pdb" target="lib\netcoreapp1.0\CSharpMonad.pdb" />
+        <file src="lib\netstandard1.3\CSharpMonad.dll" target="lib\netstandard1.3\CSharpMonad.dll" />
+        <file src="lib\netstandard1.3\CSharpMonad.pdb" target="lib\netstandard1.3\CSharpMonad.pdb" />
+        <file src="src\Properties\AssemblyInfo.cs" target="src\Properties\AssemblyInfo.cs" />
+        <file src="src\src\ext\EnumerableExt.cs" target="src\src\ext\EnumerableExt.cs" />
+        <file src="src\src\ext\ImmutableListExt.cs" target="src\src\ext\ImmutableListExt.cs" />
+        <file src="src\src\ext\LiftExt.cs" target="src\src\ext\LiftExt.cs" />
+        <file src="src\src\ext\ObjectExt.cs" target="src\src\ext\ObjectExt.cs" />
+        <file src="src\src\ext\TupleExt.cs" target="src\src\ext\TupleExt.cs" />
+        <file src="src\src\option-lazy\Just.cs" target="src\src\option-lazy\Just.cs" />
+        <file src="src\src\option-lazy\Nothing.cs" target="src\src\option-lazy\Nothing.cs" />
+        <file src="src\src\option-lazy\Option.cs" target="src\src\option-lazy\Option.cs" />
+        <file src="src\src\option-strict\Just.cs" target="src\src\option-strict\Just.cs" />
+        <file src="src\src\option-strict\Nothing.cs" target="src\src\option-strict\Nothing.cs" />
+        <file src="src\src\option-strict\OptionStrict.cs" target="src\src\option-strict\OptionStrict.cs" />
+        <file src="src\src\parsec\expr\Assoc.cs" target="src\src\parsec\expr\Assoc.cs" />
+        <file src="src\src\parsec\expr\ExprParser.cs" target="src\src\parsec\expr\ExprParser.cs" />
+        <file src="src\src\parsec\expr\Operator.cs" target="src\src\parsec\expr\Operator.cs" />
+        <file src="src\src\parsec\expr\OperatorTable.cs" target="src\src\parsec\expr\OperatorTable.cs" />
+        <file src="src\src\parsec\language\EmptyDef.cs" target="src\src\parsec\language\EmptyDef.cs" />
+        <file src="src\src\parsec\language\Haskell98Def.cs" target="src\src\parsec\language\Haskell98Def.cs" />
+        <file src="src\src\parsec\language\HaskellDef.cs" target="src\src\parsec\language\HaskellDef.cs" />
+        <file src="src\src\parsec\language\HaskellStyle.cs" target="src\src\parsec\language\HaskellStyle.cs" />
+        <file src="src\src\parsec\language\JavaStyle.cs" target="src\src\parsec\language\JavaStyle.cs" />
+        <file src="src\src\parsec\token\bracketing\Bracketing.cs" target="src\src\parsec\token\bracketing\Bracketing.cs" />
+        <file src="src\src\parsec\token\chars\Chars.cs" target="src\src\parsec\token\chars\Chars.cs" />
+        <file src="src\src\parsec\token\idents\Idents.cs" target="src\src\parsec\token\idents\Idents.cs" />
+        <file src="src\src\parsec\token\numbers\Numbers.cs" target="src\src\parsec\token\numbers\Numbers.cs" />
+        <file src="src\src\parsec\token\ops\Ops.cs" target="src\src\parsec\token\ops\Ops.cs" />
+        <file src="src\src\parsec\token\strings\Strings.cs" target="src\src\parsec\token\strings\Strings.cs" />
+        <file src="src\src\parsec\token\LanguageDef.cs" target="src\src\parsec\token\LanguageDef.cs" />
+        <file src="src\src\parsec\token\TokenParser.cs" target="src\src\parsec\token\TokenParser.cs" />
+        <file src="src\src\parsec\token\TokenParsers.cs" target="src\src\parsec\token\TokenParsers.cs" />
+        <file src="src\src\parsec\token\TokenTypes.cs" target="src\src\parsec\token\TokenTypes.cs" />
+        <file src="src\src\parsec\Empty.cs" target="src\src\parsec\Empty.cs" />
+        <file src="src\src\parsec\Parser.cs" target="src\src\parsec\Parser.cs" />
+        <file src="src\src\parsec\ParserChar.cs" target="src\src\parsec\ParserChar.cs" />
+        <file src="src\src\parsec\ParserError.cs" target="src\src\parsec\ParserError.cs" />
+        <file src="src\src\parsec\ParserException.cs" target="src\src\parsec\ParserException.cs" />
+        <file src="src\src\parsec\ParserExt.cs" target="src\src\parsec\ParserExt.cs" />
+        <file src="src\src\parsec\ParserResult.cs" target="src\src\parsec\ParserResult.cs" />
+        <file src="src\src\parsec\Parsers.cs" target="src\src\parsec\Parsers.cs" />
+        <file src="src\src\parsec\Prim.cs" target="src\src\parsec\Prim.cs" />
+        <file src="src\src\parsec\SrcLoc.cs" target="src\src\parsec\SrcLoc.cs" />
+        <file src="src\src\parsec\Tok.cs" target="src\src\parsec\Tok.cs" />
+        <file src="src\src\utility\ImmutableList.cs" target="src\src\utility\ImmutableList.cs" />
+        <file src="src\src\utility\Lam.da.cs" target="src\src\utility\Lam.da.cs" />
+        <file src="src\src\utility\Memoize.cs" target="src\src\utility\Memoize.cs" />
+        <file src="src\src\utility\Unit.cs" target="src\src\utility\Unit.cs" />
+        <file src="src\src\EitherLazy.cs" target="src\src\EitherLazy.cs" />
+        <file src="src\src\EitherStrict.cs" target="src\src\EitherStrict.cs" />
+        <file src="src\src\IAppendable.cs" target="src\src\IAppendable.cs" />
+        <file src="src\src\IO.cs" target="src\src\IO.cs" />
+        <file src="src\src\Reader.cs" target="src\src\Reader.cs" />
+        <file src="src\src\RWS.cs" target="src\src\RWS.cs" />
+        <file src="src\src\State.cs" target="src\src\State.cs" />
+        <file src="src\src\Try.cs" target="src\src\Try.cs" />
+        <file src="src\src\Writer.cs" target="src\src\Writer.cs" />
+    </files>
+</package>

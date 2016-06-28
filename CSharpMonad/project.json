@@ -1,7 +1,71 @@
 {
-  "supports": {},
-  "dependencies": {},
+  "id": "csharp-monad",
+  "title": "csharp-monad",
+  "version": "1.0.0-*",
+  "authors": [ "Paul Louth" ],
+  "description": "C# Monad Library",
+  "packOptions": {
+    "id": "csharp-monad",
+    "title": "C# Monad Library",
+    "owners": [ "paullouth" ],
+    "tags": [ "C#", "Functional", "Monad", "Option", "Either", "Reader", "Writer", "State" ],
+    "iconUrl": "https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67",
+    "summary": "A C# library of monads and a full set of parser combinators based on the Haskell Parsec library.\nEither <L,R>\nEitherStrict <L,R>\nIO <T>\nOption <T>\nOptionStrict <T>\nParser <T>\nReader <E,T>\nRWS <R,W,S,T> - Combined Reader/Writer/State\nState <S,T>\nTry<T>\nWriter<W,T>",
+    "releaseNotes": "",
+    "projectUrl": "https://github.com/louthy/csharp-monad",
+    "licenseUrl": "https://github.com/louthy/csharp-monad/blob/master/LICENSE.md"
+  },
+  "copyright": "Copyright (c) Paul Louth",
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG", "TRACE" ],
+        "compile": "*.cs"
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE", "TRACE" ],
+        "optimize": true,
+        "compile": "*.cs"
+      }
+    }
+  },
+  "dependencies": {
+  },
   "frameworks": {
-    ".NETPortable,Version=v4.5,Profile=Profile7": {}
+    "net45": {
+      "frameworkAssemblies": {
+        "System.Core": "4.0.0.0"
+      },
+      "dependencies": {
+      }
+    },
+    "net46": {
+      "frameworkAssemblies": {
+        "System.Core": "4.0.0.0"
+      },
+      "dependencies": {
+      }
+    },
+    "netcoreapp10": {
+      "dependencies": {
+        "System.Runtime.Extensions": "4.1.0",
+        "System.Collections": "4.0.11",
+        "System.Reflection": "4.1.0",
+        "System.Linq": "4.1.0"
+      }
+    },
+    "netstandard13": {
+      "dependencies": {
+        "System.Runtime.Extensions": "4.1.0",
+        "System.Collections": "4.0.11",
+        "System.Reflection": "4.1.0",
+        "System.Linq": "4.1.0"
+      }
+    }
+  },
+  "buildOptions": {
+    "optimize": true
   }
 }

@@ -34,10 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-    <None Include="project.json" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="src\EitherLazy.cs" />
     <Compile Include="src\ext\ImmutableListExt.cs" />
     <Compile Include="src\ext\EnumerableExt.cs" />
