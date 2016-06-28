@@ -157,3 +157,4 @@ $RECYCLE.BIN/
 /.vs/config/applicationhost.config
 /CSharpMonad/.vs/restore.dg
 *.lock.json
+/CSharpMonad/.vs/config/applicationhost.config
