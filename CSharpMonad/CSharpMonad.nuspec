@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>csharp-monad</id>
+        <version>0.0.1</version>
+        <title>C# Monad Library</title>
+        <authors>paul</authors>
+        <licenseUrl>https://github.com/louthy/csharp-monad/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/louthy/csharp-monad</projectUrl>
+        <iconUrl>http://www.4four.org/images/csharp-monad-logo.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A C# library of monads and a full set of parser combinators based on the Haskell Parsec library.
+
+Either &lt;R,L&gt;
+EitherStrict &lt;R,L&gt;
+IO &lt;T&gt;
+Option &lt;T&gt;
+OptionStrict &lt;T&gt;
+Parser &lt;T&gt;
+Reader &lt;E,T&gt;
+RWS &lt;R,W,S,T&gt; - Combined Reader/Writer/State
+State &lt;S,T&gt;
+Try&lt;T&gt;
+Writer&lt;W,T&gt;</description>
+        <releaseNotes>Initial release</releaseNotes>
+        <tags>C# monad library reader writer state parser option maybe either IO combinators</tags>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
+        </frameworkAssemblies>
+    </metadata>
+</package>
