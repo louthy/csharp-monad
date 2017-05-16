@@ -326,6 +326,34 @@ namespace Monad
         }
 
         /// <summary>
+        /// If option isn't empty, returns its value; if the option is empty, returns otherwise parameter.
+        /// </summary>
+        public static T Else<T>(this OptionStrict<T> option, T otherwise)
+        {
+            if (option.HasValue)
+                return option.Value;
+            return otherwise;
+        }
+
+        /// <summary>
+        /// If option isn't empty, returns its value; if the option is empty, returns the return value of the otherwise parameter.
+        /// </summary>
+        public static T Else<T>(this OptionStrict<T> option, Func<T> otherwise)
+        {
+            if (option.HasValue)
+                return option.Value;
+            return otherwise();
+        }
+
+        /// <summary>
+        /// Skips elements that are empty, iterates the values of the elements that are not.
+        /// </summary>
+        public static IEnumerable<T> WhereHasValue<T>(this IEnumerable<OptionStrict<T>> enumerable)
+        {
+            return enumerable.Where(opt => opt.HasValue).Select(opt => opt.Value);
+        }
+
+        /// <summary>
         /// Mconcat
         /// </summary>
         public static OptionStrict<T> Mconcat<T>(this IEnumerable<OptionStrict<T>> ms)
