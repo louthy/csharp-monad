@@ -1,4 +1,7 @@
-![csharp-monad](http://www.4four.org/images/csharp-monad-logo.png)
+# Before going any further!!!
+
+For a more complete (and active) functional framework including most of the monads listed above, please check my other project: [Language-Ext](https://github.com/louthy/language-ext)
+
 
 csharp-monad
 ============
@@ -21,10 +24,6 @@ The library is stable, functional and pretty well tested.
 
 __NuGet__ https://www.nuget.org/packages/csharp-monad/
 
-
-### Before going any further
-
-For a more complete (and more active) functional framework including most of the monads listed above, please check my other project: [Language-Ext](https://github.com/louthy/language-ext)
 
 
 ### A note about laziness
